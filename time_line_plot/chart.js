@@ -21,7 +21,7 @@ let axisMargin = {
 };
 
 // Axis and tick styling
-let tickCount = 10; // Number of ticks
+//let tickCount = 10; // Number of ticks
 let axisLineWidth = 2; // Axis line width in pixels
 let tickLineWidth = 1; // Tick line width in pixels
 let tickFontSize = 12; // Tick font size in pixels
@@ -30,6 +30,8 @@ let xtickPositions = [20,40,60,80,100]; // Default tick positions
 let xtickLabels = ["20", "40", "60", "80", "100"]; // Default tick labels
 let ytickPositions = [0, 2, 4, 6, 8, 10]; // Default Y tick positions
 let ytickLabels = ["0", "2", "4", "6", "8", "10"]; // Default Y tick labels
+let tickFontFamily = "Arial"; // Default font family
+let tickOrientation = "outward"; // Default tick orientation
 
 // Function to create or update the SVG
 function createChart() {
@@ -54,7 +56,8 @@ function createChart() {
     const xAxis = d3.axisBottom(x)
       //.ticks(tickCount) // Set the number of ticks
       .tickValues(xtickPositions) // Set custom tick positions
-      .tickSize(tickLength) // Set the tick size (length of the tick lines)
+      //.tickSize(tickLength) // Set the tick size (length of the tick lines)
+      .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
       //.tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
       .tickFormat((d, i) => xtickLabels[i] || d); // Set custom tick labels
 
@@ -63,7 +66,8 @@ function createChart() {
       .call(xAxis)
       .selectAll("text") // Customize tick labels
       .style("font-size", `${tickFontSize}px`) // Set font size
-      .style("font-family", "Arial"); // Set font family
+      .style("font-family", tickFontFamily); // Set font family
+      
 
     // Customize X axis line and ticks
     svg.selectAll(".domain") // Axis line
@@ -80,7 +84,8 @@ function createChart() {
     const yAxis = d3.axisLeft(y)
       //.ticks(tickCount) // Set the number of ticks
       .tickValues(ytickPositions) // Set custom tick positions
-      .tickSize(tickLength) // Set the tick size (length of the tick lines)
+      //.tickSize(tickLength) // Set the tick size (length of the tick lines)
+      .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
       //.tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
       .tickFormat((d, i) => ytickLabels[i] || d); // Set custom tick labels
 
@@ -89,7 +94,7 @@ function createChart() {
       .call(yAxis)
       .selectAll("text") // Customize tick labels
       .style("font-size", `${tickFontSize}px`) // Set font size
-      .style("font-family", "Arial"); // Set font family
+      .style("font-family", tickFontFamily); // Set font family
 
     // Customize Y axis line and ticks
     svg.selectAll(".domain") // Axis line
@@ -146,6 +151,8 @@ document.getElementById("update").addEventListener("click", function () {
   axisLineWidth = parseFloat(document.getElementById("axis-line-width").value);
   tickLineWidth = parseFloat(document.getElementById("tick-line-width").value);
   tickFontSize = parseFloat(document.getElementById("tick-font-size").value);
+  tickFontFamily = document.getElementById("tick-font-family").value;
+  tickOrientation = document.getElementById("tick-orientation").value;
 
   // Update dimensions
   width = newWidth - margin.left - margin.right;
