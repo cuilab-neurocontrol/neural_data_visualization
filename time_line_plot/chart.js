@@ -21,6 +21,7 @@ let axisMargin = {
 };
 
 // Axis and tick styling
+let tickCount = 10; // Number of ticks
 let axisLineWidth = 2; // Axis line width in pixels
 let tickLineWidth = 1; // Tick line width in pixels
 let tickFontSize = 12; // Tick font size in pixels
@@ -46,7 +47,7 @@ function createChart() {
       .range([0, width]);
 
     const xAxis = d3.axisBottom(x)
-      .ticks(10) // Set the number of ticks
+      .ticks(tickCount) // Set the number of ticks
       .tickSize(6) // Set the tick size (length of the tick lines)
       .tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
 
@@ -70,7 +71,7 @@ function createChart() {
       .range([height, 0]);
 
     const yAxis = d3.axisLeft(y)
-      .ticks(10) // Set the number of ticks
+      .ticks(tickCount) // Set the number of ticks
       .tickSize(6) // Set the tick size (length of the tick lines)
       .tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
 
@@ -132,6 +133,7 @@ document.getElementById("update").addEventListener("click", function () {
   axisMargin.y = parseFloat(document.getElementById("axis-margin-y").value) * CM_TO_PX;
 
   // Get new axis and tick styling from input fields
+  tickCount = parseInt(document.getElementById("tick-count").value);
   axisLineWidth = parseFloat(document.getElementById("axis-line-width").value);
   tickLineWidth = parseFloat(document.getElementById("tick-line-width").value);
   tickFontSize = parseFloat(document.getElementById("tick-font-size").value);
