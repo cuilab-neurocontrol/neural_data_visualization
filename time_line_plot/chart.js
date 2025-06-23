@@ -20,6 +20,11 @@ let axisMargin = {
   y: 0.5 * CM_TO_PX,
 };
 
+// Axis and tick styling
+let axisLineWidth = 2; // Axis line width in pixels
+let tickLineWidth = 1; // Tick line width in pixels
+let tickFontSize = 12; // Tick font size in pixels
+
 // Function to create or update the SVG
 function createChart() {
   // Clear existing SVG
@@ -37,21 +42,51 @@ function createChart() {
   d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_IC.csv").then(function (data) {
     // Add X axis
     const x = d3.scaleLinear()
-      .domain([1, 100])
+      .domain([1, 100]) // Specify the domain of the X axis
       .range([0, width]);
 
+    const xAxis = d3.axisBottom(x)
+      .ticks(10) // Set the number of ticks
+      .tickSize(6) // Set the tick size (length of the tick lines)
+      .tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
+
     svg.append("g")
-      .attr("transform", `translate(${axisMargin.x}, ${height})`) // 平移 X 轴
-      .call(d3.axisBottom(x));
+      .attr("transform", `translate(${axisMargin.x}, ${height})`) // Translate X axis
+      .call(xAxis)
+      .selectAll("text") // Customize tick labels
+      .style("font-size", `${tickFontSize}px`) // Set font size
+      .style("font-family", "Arial"); // Set font family
+
+    // Customize X axis line and ticks
+    svg.selectAll(".domain") // Axis line
+      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
+
+    svg.selectAll(".tick line") // Tick lines
+      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
 
     // Add Y axis
     const y = d3.scaleLinear()
-      .domain([0, 13])
+      .domain([0, 13]) // Specify the domain of the Y axis
       .range([height, 0]);
 
+    const yAxis = d3.axisLeft(y)
+      .ticks(10) // Set the number of ticks
+      .tickSize(6) // Set the tick size (length of the tick lines)
+      .tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
+
     svg.append("g")
-      .attr("transform", `translate(0, ${-axisMargin.y})`) // 平移 Y 轴
-      .call(d3.axisLeft(y));
+      .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
+      .call(yAxis)
+      .selectAll("text") // Customize tick labels
+      .style("font-size", `${tickFontSize}px`) // Set font size
+      .style("font-family", "Arial"); // Set font family
+
+    // Customize Y axis line and ticks
+    svg.selectAll(".domain") // Axis line
+      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
+
+    svg.selectAll(".tick line") // Tick lines
+      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
 
     // Show confidence interval
     svg.append("path")
@@ -96,10 +131,15 @@ document.getElementById("update").addEventListener("click", function () {
   axisMargin.x = parseFloat(document.getElementById("axis-margin-x").value) * CM_TO_PX;
   axisMargin.y = parseFloat(document.getElementById("axis-margin-y").value) * CM_TO_PX;
 
+  // Get new axis and tick styling from input fields
+  axisLineWidth = parseFloat(document.getElementById("axis-line-width").value);
+  tickLineWidth = parseFloat(document.getElementById("tick-line-width").value);
+  tickFontSize = parseFloat(document.getElementById("tick-font-size").value);
+
   // Update dimensions
   width = newWidth - margin.left - margin.right;
   height = newHeight - margin.top - margin.bottom;
 
-  // Recreate the chart with the new dimensions and margins
+  // Recreate the chart with the new settings
   createChart();
 });
