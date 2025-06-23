@@ -26,6 +26,8 @@ let axisLineWidth = 2; // Axis line width in pixels
 let tickLineWidth = 1; // Tick line width in pixels
 let tickFontSize = 12; // Tick font size in pixels
 let tickLength = 6; // Tick length in pixels
+let xtickPositions = [20,40,60,80,100]; // Default tick positions
+let xtickLabels = ["20", "40", "60", "80", "100"]; // Default tick labels
 
 // Function to create or update the SVG
 function createChart() {
@@ -48,9 +50,11 @@ function createChart() {
       .range([0, width]);
 
     const xAxis = d3.axisBottom(x)
-      .ticks(tickCount) // Set the number of ticks
+      //.ticks(tickCount) // Set the number of ticks
+      .tickValues(xtickPositions) // Set custom tick positions
       .tickSize(tickLength) // Set the tick size (length of the tick lines)
-      .tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
+      //.tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
+      .tickFormat((d, i) => xtickLabels[i] || d); // Set custom tick labels
 
     svg.append("g")
       .attr("transform", `translate(${axisMargin.x}, ${height})`) // Translate X axis
@@ -134,7 +138,7 @@ document.getElementById("update").addEventListener("click", function () {
   axisMargin.y = parseFloat(document.getElementById("axis-margin-y").value) * CM_TO_PX;
 
   // Get new axis and tick styling from input fields
-  tickCount = parseInt(document.getElementById("tick-count").value);
+  //tickCount = parseInt(document.getElementById("tick-count").value);
   axisLineWidth = parseFloat(document.getElementById("axis-line-width").value);
   tickLineWidth = parseFloat(document.getElementById("tick-line-width").value);
   tickFontSize = parseFloat(document.getElementById("tick-font-size").value);
@@ -142,6 +146,15 @@ document.getElementById("update").addEventListener("click", function () {
   // Update dimensions
   width = newWidth - margin.left - margin.right;
   height = newHeight - margin.top - margin.bottom;
+
+  // Get custom tick positions and labels
+  xtickPositions = document
+    .getElementById("x-tick-positions")
+    .value.split(",")
+    .map(Number);
+  xtickLabels = document
+    .getElementById("x-tick-labels")
+    .value.split(",");
 
   // Recreate the chart with the new settings
   createChart();
