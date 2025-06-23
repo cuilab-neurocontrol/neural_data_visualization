@@ -28,6 +28,8 @@ let tickFontSize = 12; // Tick font size in pixels
 let tickLength = 6; // Tick length in pixels
 let xtickPositions = [20,40,60,80,100]; // Default tick positions
 let xtickLabels = ["20", "40", "60", "80", "100"]; // Default tick labels
+let ytickPositions = [0, 2, 4, 6, 8, 10]; // Default Y tick positions
+let ytickLabels = ["0", "2", "4", "6", "8", "10"]; // Default Y tick labels
 
 // Function to create or update the SVG
 function createChart() {
@@ -76,9 +78,11 @@ function createChart() {
       .range([height, 0]);
 
     const yAxis = d3.axisLeft(y)
-      .ticks(tickCount) // Set the number of ticks
+      //.ticks(tickCount) // Set the number of ticks
+      .tickValues(ytickPositions) // Set custom tick positions
       .tickSize(tickLength) // Set the tick size (length of the tick lines)
-      .tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
+      //.tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
+      .tickFormat((d, i) => ytickLabels[i] || d); // Set custom tick labels
 
     svg.append("g")
       .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
@@ -154,6 +158,14 @@ document.getElementById("update").addEventListener("click", function () {
     .map(Number);
   xtickLabels = document
     .getElementById("x-tick-labels")
+    .value.split(",");
+
+  ytickPositions = document
+    .getElementById("y-tick-positions")
+    .value.split(",")
+    .map(Number);
+  ytickLabels = document
+    .getElementById("y-tick-labels")
     .value.split(",");
 
   // Recreate the chart with the new settings
