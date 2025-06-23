@@ -25,6 +25,7 @@ let tickCount = 10; // Number of ticks
 let axisLineWidth = 2; // Axis line width in pixels
 let tickLineWidth = 1; // Tick line width in pixels
 let tickFontSize = 12; // Tick font size in pixels
+let tickLength = 6; // Tick length in pixels
 
 // Function to create or update the SVG
 function createChart() {
@@ -48,7 +49,7 @@ function createChart() {
 
     const xAxis = d3.axisBottom(x)
       .ticks(tickCount) // Set the number of ticks
-      .tickSize(6) // Set the tick size (length of the tick lines)
+      .tickSize(tickLength) // Set the tick size (length of the tick lines)
       .tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
 
     svg.append("g")
@@ -72,7 +73,7 @@ function createChart() {
 
     const yAxis = d3.axisLeft(y)
       .ticks(tickCount) // Set the number of ticks
-      .tickSize(6) // Set the tick size (length of the tick lines)
+      .tickSize(tickLength) // Set the tick size (length of the tick lines)
       .tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
 
     svg.append("g")
