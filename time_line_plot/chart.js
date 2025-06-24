@@ -35,6 +35,15 @@ let yScaleBarLength = 2; // Default Y scale bar length in units
 let yScaleBarLabel = "100 units"; // Default Y scale bar label
 let yScaleBarLabelOrientation = "outward"; // Default Y scale bar label orientation
 
+// Scale bar settings
+let xScaleBarFontSize = 12; // Default X scale bar font size
+let xScaleBarLabelDistance = 20; // Default X scale bar label distance
+let xScaleBarFontFamily = "Arial"; // Default X scale bar font family
+
+let yScaleBarFontSize = 12; // Default Y scale bar font size
+let yScaleBarLabelDistance = 20; // Default Y scale bar label distance
+let yScaleBarFontFamily = "Arial"; // Default Y scale bar font family
+
 // Axis and tick styling
 //let tickCount = 10; // Number of ticks
 let axisLineWidth = 2; // Axis line width in pixels
@@ -156,10 +165,11 @@ function createChart() {
         "y",
         height -
           xScaleBarPositiony +
-          (xScaleBarLabelOrientation === "outward" ? 20 : -10)
+          (xScaleBarLabelOrientation === "outward" ? xScaleBarLabelDistance : -xScaleBarLabelDistance)
       ) // Adjust label position based on orientation
     .style("text-anchor", "middle")
-    .style("font-size", "12px")
+    .style("font-size", `${xScaleBarFontSize}px`)
+    .style("font-family", xScaleBarFontFamily)
     .text(xScaleBarLabel);
 
     const yScaleBarPixelLength = y(0) - y(yScaleBarLength); // Convert units to pixels
@@ -172,12 +182,13 @@ function createChart() {
     .style("stroke", "black")
     .style("stroke-width", yScaleBarWidth);
 
-    const x_scaleLabelPosition = yScaleBarPositionx + (yScaleBarLabelOrientation === "outward" ? -10 : 20)
+    const x_scaleLabelPosition = yScaleBarPositionx + (yScaleBarLabelOrientation === "outward" ? -yScaleBarLabelDistance : yScaleBarLabelDistance)
     svg.append("text")
     .attr("x",x_scaleLabelPosition) // Adjust label position based on orientation
     .attr("y", height -yScaleBarPositiony - yScaleBarPixelLength / 2) // Center of the scale bar
     .style("text-anchor", "middle")
-    .style("font-size", "12px")
+    .style("font-size", `${yScaleBarFontSize}px`)
+    .style("font-family", yScaleBarFontFamily)
     .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height-yScaleBarPositiony - yScaleBarPixelLength / 2})`) // Rotate text for Y axis
     .text(yScaleBarLabel);
   });
@@ -224,6 +235,15 @@ document.getElementById("update").addEventListener("click", function () {
   yScaleBarLength = parseFloat(document.getElementById("y-scale-bar-length").value);
   yScaleBarLabel = document.getElementById("y-scale-bar-label").value;
   yScaleBarLabelOrientation = document.getElementById("y-scale-bar-label-orientation").value;
+
+  xScaleBarFontSize = parseFloat(document.getElementById("x-scale-bar-font-size").value);
+  xScaleBarLabelDistance = parseFloat(document.getElementById("x-scale-bar-label-distance").value);
+  xScaleBarFontFamily = document.getElementById("x-scale-bar-font-family").value;
+
+  yScaleBarFontSize = parseFloat(document.getElementById("y-scale-bar-font-size").value);
+  yScaleBarLabelDistance = parseFloat(document.getElementById("y-scale-bar-label-distance").value);
+  yScaleBarFontFamily = document.getElementById("y-scale-bar-font-family").value;
+
 
   // Update dimensions
   width = newWidth - margin.left - margin.right;
