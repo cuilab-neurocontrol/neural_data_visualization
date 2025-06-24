@@ -14,9 +14,9 @@
     <summary>Canvas Size</summary>
     <div class="control-row">
       <label for="width">Width (cm):</label>
-      <input type="number" id="width" value="16.2" min="5" step="0.1" data-param="width">
+      <input type="number" id="width" value="10" min="5" step="0.1" data-param="width">
       <label for="height">Height (cm):</label>
-      <input type="number" id="height" value="14.1" min="5" step="0.1" data-param="height">
+      <input type="number" id="height" value="8" min="5" step="0.1" data-param="height">
     </div>
   </details>
 
@@ -104,6 +104,32 @@
       <input type="number" id="y-domain-min" value="0" step="1">
       <label for="y-domain-max">Y Domain Max:</label>
       <input type="number" id="y-domain-max" value="10" step="1">
+    </div>
+    <div class="control-row">
+      <label for="x-label">X Axis Label:</label>
+      <input type="text" id="x-label" value="X Axis">
+      <label for="x-label-font-size">Font Size (px):</label>
+      <input type="number" id="x-label-font-size" value="14" min="1" step="1">
+      <label for="x-label-font-family">Font Family:</label>
+      <select id="x-label-font-family">
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+    </div>
+    <div class="control-row">
+      <label for="y-label">Y Axis Label:</label>
+      <input type="text" id="y-label" value="Y Axis">
+      <label for="y-label-font-size">Font Size (px):</label>
+      <input type="number" id="y-label-font-size" value="14" min="1" step="1">
+      <label for="y-label-font-family">Font Family:</label>
+      <select id="y-label-font-family">
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Verdana">Verdana</option>
+      </select>
     </div>
   </details>
   <!-- Subheading for Scale Bar Styling -->

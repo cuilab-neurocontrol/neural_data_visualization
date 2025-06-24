@@ -1,5 +1,6 @@
 // Conversion factor: 1 cm = 37.7952755906 pixels
 const CM_TO_PX = 37.7952755906;
+const PT_TO_PX = 1.333;
 
 // Get the container and dimensions in cm
 const container = document.getElementById("my_dataviz");
@@ -88,7 +89,13 @@ function createChart() {
 
     const showAxis = document.getElementById("show-axis").checked;
     const showOuterTicks = document.getElementById("show-outer-ticks").checked;
-    
+    const xLabel = document.getElementById("x-label").value;
+    const xLabelFontSize = parseFloat(document.getElementById("x-label-font-size").value);
+    const xLabelFontFamily = document.getElementById("x-label-font-family").value;
+    const yLabel = document.getElementById("y-label").value;
+    const yLabelFontSize = parseFloat(document.getElementById("y-label-font-size").value);
+    const yLabelFontFamily = document.getElementById("y-label-font-family").value;
+
     if (showAxis) {
         const xAxis = d3.axisBottom(x)
         //.ticks(tickCount) // Set the number of ticks
@@ -203,6 +210,30 @@ function createChart() {
         .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height-yScaleBarPositiony - yScaleBarPixelLength / 2})`) // Rotate text for Y axis
         .text(yScaleBarLabel);
     }
+      // Add X axis label
+    //const xLabelDistance = 26;
+    const xLabelDistance = tickLength+tickFontSize+6 * PT_TO_PX;
+    svg.append("text")
+    .attr("x", (width) / 2 +axisMargin.x) // Center the label horizontally
+    .attr("y", height + xLabelDistance) // Position below the X axis
+    //.attr("y", height - xScaleBarPositiony+xLabelFontSize-3)
+    .attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
+    .style("text-anchor", "middle")
+    .style("font-size", `${xLabelFontSize}px`)
+    .style("font-family", xLabelFontFamily)
+    .text(xLabel);
+
+    // Add Y axis label
+    const yLabelDistance = tickLength + tickFontSize+6 * PT_TO_PX;
+    svg.append("text")
+    .attr("x", -(height) / 2+axisMargin.y) // Center the label vertically
+    .attr("y", -yLabelDistance) // Position to the left of the Y axis
+    .attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
+    .attr("transform", "rotate(-90)") // Rotate the label
+    .style("text-anchor", "middle")
+    .style("font-size", `${yLabelFontSize}px`)
+    .style("font-family", yLabelFontFamily)
+    .text(yLabel);
   });
 }
 
