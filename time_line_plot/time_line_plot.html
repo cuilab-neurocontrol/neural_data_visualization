@@ -82,6 +82,48 @@
     </select>
   </div>
 
+  <!-- Subheading for Scale Bar Styling -->
+  <h3>Scale Bar Styling</h3>
+  <div class="control-row">
+    <label for="x-scale-bar-position">X Bar Pos (px):</label>
+    <input type="number" id="x-scale-bar-position" value="20" min="0" step="1">
+    
+  </div>
+  <div class="control-row">
+    <label for="x-scale-bar-width">X Bar Width (px):</label>
+    <input type="number" id="x-scale-bar-width" value="2" min="1" step="0.1">
+    <label for="x-scale-bar-length">X Bar Len (units):</label>
+    <input type="number" id="x-scale-bar-length" value="100" min="1" step="1">
+  </div>
+  <div class="control-row">
+    <label for="x-scale-bar-label">X Bar Label:</label>
+    <input type="text" id="x-scale-bar-label" value="100 units">
+    <label for="x-scale-bar-label-orientation">X Orientation:</label>
+    <select id="x-scale-bar-label-orientation">
+      <option value="outward">Outward</option>
+      <option value="inward">Inward</option>
+    </select>
+  </div>
+  <div class="control-row">
+    <label for="y-scale-bar-position">Y Bar Pos (px):</label>
+    <input type="number" id="y-scale-bar-position" value="20" min="0" step="1">
+  </div>
+  <div class="control-row">
+    <label for="y-scale-bar-width">Y Bar Width (px):</label>
+    <input type="number" id="y-scale-bar-width" value="2" min="1" step="0.1">
+    <label for="y-scale-bar-length">Y Bar Len (units):</label>
+    <input type="number" id="y-scale-bar-length" value="2" min="1" step="1">
+  </div>
+  <div class="control-row">
+    <label for="y-scale-bar-label">Y Bar Label:</label>
+    <input type="text" id="y-scale-bar-label" value="100 units">
+    <label for="y-scale-bar-label-orientation">Y Orientation:</label>
+    <select id="y-scale-bar-label-orientation">
+      <option value="outward">Outward</option>
+      <option value="inward">Inward</option>
+    </select>
+  </div>
+
   <!-- Update Button -->
   <div class="control-row">
     <button id="update" data-param="update">Update</button>

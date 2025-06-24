@@ -20,6 +20,19 @@ let axisMargin = {
   y: 0.5 * CM_TO_PX,
 };
 
+// Scale bar settings
+let xScaleBarPosition = 20; // Default X scale bar Y position
+let xScaleBarWidth = 2; // Default X scale bar width
+let xScaleBarLength = 100; // Default X scale bar length in units
+let xScaleBarLabel = "100 units"; // Default X scale bar label
+let xScaleBarLabelOrientation = "outward"; // Default X scale bar label orientation
+
+let yScaleBarPosition = 20; // Default Y scale bar X position
+let yScaleBarWidth = 2; // Default Y scale bar width
+let yScaleBarLength = 2; // Default Y scale bar length in units
+let yScaleBarLabel = "100 units"; // Default Y scale bar label
+let yScaleBarLabelOrientation = "outward"; // Default Y scale bar label orientation
+
 // Axis and tick styling
 //let tickCount = 10; // Number of ticks
 let axisLineWidth = 2; // Axis line width in pixels
@@ -124,6 +137,47 @@ function createChart() {
         .x(function (d) { return x(d.x) + axisMargin.x; }) // 同步 X 平移
         .y(function (d) { return y(d.y) - axisMargin.y; }) // 同步 Y 平移
       );
+
+    const xScaleBarPixelLength = x(xScaleBarLength) - x(0);
+    // Add scale bar for X axis
+    svg.append("line")
+    .attr("x1", 0)
+    .attr("x2", xScaleBarPixelLength) // Length of the scale bar in pixels
+    .attr("y1", height + xScaleBarPosition) // Position below the X axis
+    .attr("y2", height + xScaleBarPosition)
+    .style("stroke", "black")
+    .style("stroke-width", xScaleBarWidth);
+    
+    svg.append("text")
+    .attr("x", xScaleBarPixelLength / 2) // Center of the scale bar
+    .attr(
+        "y",
+        height +
+          xScaleBarPosition +
+          (xScaleBarLabelOrientation === "outward" ? 20 : -10)
+      ) // Adjust label position based on orientation
+    .style("text-anchor", "middle")
+    .style("font-size", "12px")
+    .text(xScaleBarLabel);
+
+    const yScaleBarPixelLength = y(0) - y(yScaleBarLength); // Convert units to pixels
+    // Add scale bar for Y axis
+    svg.append("line")
+    .attr("x1", -yScaleBarPosition) // Position to the left of the Y axis
+    .attr("x2", -yScaleBarPosition)
+    .attr("y1", height)
+    .attr("y2", height - yScaleBarPixelLength) // Length of the scale bar in pixels
+    .style("stroke", "black")
+    .style("stroke-width", yScaleBarWidth);
+
+    const x_scaleLabelPosition = -yScaleBarPosition + (yScaleBarLabelOrientation === "outward" ? -10 : 20)
+    svg.append("text")
+    .attr("x",x_scaleLabelPosition) // Adjust label position based on orientation
+    .attr("y", height - yScaleBarPixelLength / 2) // Center of the scale bar
+    .style("text-anchor", "middle")
+    .style("font-size", "12px")
+    .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height - yScaleBarPixelLength / 2})`) // Rotate text for Y axis
+    .text(yScaleBarLabel);
   });
 }
 
@@ -153,6 +207,19 @@ document.getElementById("update").addEventListener("click", function () {
   tickFontSize = parseFloat(document.getElementById("tick-font-size").value);
   tickFontFamily = document.getElementById("tick-font-family").value;
   tickOrientation = document.getElementById("tick-orientation").value;
+
+  // Get new scale bar settings from input fields
+  xScaleBarPosition = parseFloat(document.getElementById("x-scale-bar-position").value);
+  xScaleBarWidth = parseFloat(document.getElementById("x-scale-bar-width").value);
+  xScaleBarLength = parseFloat(document.getElementById("x-scale-bar-length").value);
+  xScaleBarLabel = document.getElementById("x-scale-bar-label").value;
+  xScaleBarLabelOrientation = document.getElementById("x-scale-bar-label-orientation").value;
+
+  yScaleBarPosition = parseFloat(document.getElementById("y-scale-bar-position").value);
+  yScaleBarWidth = parseFloat(document.getElementById("y-scale-bar-width").value);
+  yScaleBarLength = parseFloat(document.getElementById("y-scale-bar-length").value);
+  yScaleBarLabel = document.getElementById("y-scale-bar-label").value;
+  yScaleBarLabelOrientation = document.getElementById("y-scale-bar-label-orientation").value;
 
   // Update dimensions
   width = newWidth - margin.left - margin.right;
