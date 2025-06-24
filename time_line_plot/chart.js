@@ -76,57 +76,59 @@ function createChart() {
     const x = d3.scaleLinear()
       .domain([1, 100]) // Specify the domain of the X axis
       .range([0, width]);
-
-    const xAxis = d3.axisBottom(x)
-      //.ticks(tickCount) // Set the number of ticks
-      .tickValues(xtickPositions) // Set custom tick positions
-      //.tickSize(tickLength) // Set the tick size (length of the tick lines)
-      .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
-      //.tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
-      .tickFormat((d, i) => xtickLabels[i] || d); // Set custom tick labels
-
-    svg.append("g")
-      .attr("transform", `translate(${axisMargin.x}, ${height})`) // Translate X axis
-      .call(xAxis)
-      .selectAll("text") // Customize tick labels
-      .style("font-size", `${tickFontSize}px`) // Set font size
-      .style("font-family", tickFontFamily); // Set font family
-      
-
-    // Customize X axis line and ticks
-    svg.selectAll(".domain") // Axis line
-      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
-
-    svg.selectAll(".tick line") // Tick lines
-      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
-
-    // Add Y axis
+      // Add Y axis
     const y = d3.scaleLinear()
-      .domain([0, 13]) // Specify the domain of the Y axis
-      .range([height, 0]);
+        .domain([0, 13]) // Specify the domain of the Y axis
+        .range([height, 0]);
 
-    const yAxis = d3.axisLeft(y)
-      //.ticks(tickCount) // Set the number of ticks
-      .tickValues(ytickPositions) // Set custom tick positions
-      //.tickSize(tickLength) // Set the tick size (length of the tick lines)
-      .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
-      //.tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
-      .tickFormat((d, i) => ytickLabels[i] || d); // Set custom tick labels
+    const showAxis = document.getElementById("show-axis").checked;
+    
+    if (showAxis) {
+        const xAxis = d3.axisBottom(x)
+        //.ticks(tickCount) // Set the number of ticks
+        .tickValues(xtickPositions) // Set custom tick positions
+        //.tickSize(tickLength) // Set the tick size (length of the tick lines)
+        .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
+        //.tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
+        .tickFormat((d, i) => xtickLabels[i] || d); // Set custom tick labels
 
-    svg.append("g")
-      .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
-      .call(yAxis)
-      .selectAll("text") // Customize tick labels
-      .style("font-size", `${tickFontSize}px`) // Set font size
-      .style("font-family", tickFontFamily); // Set font family
+        svg.append("g")
+        .attr("transform", `translate(${axisMargin.x}, ${height})`) // Translate X axis
+        .call(xAxis)
+        .selectAll("text") // Customize tick labels
+        .style("font-size", `${tickFontSize}px`) // Set font size
+        .style("font-family", tickFontFamily); // Set font family
+        
 
-    // Customize Y axis line and ticks
-    svg.selectAll(".domain") // Axis line
-      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
+        // Customize X axis line and ticks
+        svg.selectAll(".domain") // Axis line
+        .style("stroke-width", axisLineWidth + "px"); // Set axis line width
 
-    svg.selectAll(".tick line") // Tick lines
-      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
+        svg.selectAll(".tick line") // Tick lines
+        .style("stroke-width", tickLineWidth + "px"); // Set tick line width
 
+        const yAxis = d3.axisLeft(y)
+        //.ticks(tickCount) // Set the number of ticks
+        .tickValues(ytickPositions) // Set custom tick positions
+        //.tickSize(tickLength) // Set the tick size (length of the tick lines)
+        .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
+        //.tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
+        .tickFormat((d, i) => ytickLabels[i] || d); // Set custom tick labels
+
+        svg.append("g")
+        .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
+        .call(yAxis)
+        .selectAll("text") // Customize tick labels
+        .style("font-size", `${tickFontSize}px`) // Set font size
+        .style("font-family", tickFontFamily); // Set font family
+
+        // Customize Y axis line and ticks
+        svg.selectAll(".domain") // Axis line
+        .style("stroke-width", axisLineWidth + "px"); // Set axis line width
+
+        svg.selectAll(".tick line") // Tick lines
+        .style("stroke-width", tickLineWidth + "px"); // Set tick line width
+    }
     // Show confidence interval
     svg.append("path")
       .datum(data)
@@ -149,48 +151,51 @@ function createChart() {
         .y(function (d) { return y(d.y) - axisMargin.y; }) // 同步 Y 平移
       );
 
-    const xScaleBarPixelLength = x(xScaleBarLength) - x(0);
-    // Add scale bar for X axis
-    svg.append("line")
-    .attr("x1", xScaleBarPositionx)
-    .attr("x2", xScaleBarPositionx+xScaleBarPixelLength) // Length of the scale bar in pixels
-    .attr("y1", height - xScaleBarPositiony) // Position below the X axis
-    .attr("y2", height - xScaleBarPositiony)
-    .style("stroke", "black")
-    .style("stroke-width", xScaleBarWidth);
-    
-    svg.append("text")
-    .attr("x", xScaleBarPositionx+xScaleBarPixelLength / 2) // Center of the scale bar
-    .attr(
-        "y",
-        height -
-          xScaleBarPositiony +
-          (xScaleBarLabelOrientation === "outward" ? xScaleBarLabelDistance : -xScaleBarLabelDistance)
-      ) // Adjust label position based on orientation
-    .style("text-anchor", "middle")
-    .style("font-size", `${xScaleBarFontSize}px`)
-    .style("font-family", xScaleBarFontFamily)
-    .text(xScaleBarLabel);
+    const showScaleBar = document.getElementById("show-scale-bar").checked;
+    if (showScaleBar) {
+        const xScaleBarPixelLength = x(xScaleBarLength) - x(0);
+        // Add scale bar for X axis
+        svg.append("line")
+        .attr("x1", xScaleBarPositionx)
+        .attr("x2", xScaleBarPositionx+xScaleBarPixelLength) // Length of the scale bar in pixels
+        .attr("y1", height - xScaleBarPositiony) // Position below the X axis
+        .attr("y2", height - xScaleBarPositiony)
+        .style("stroke", "black")
+        .style("stroke-width", xScaleBarWidth);
+        
+        svg.append("text")
+        .attr("x", xScaleBarPositionx+xScaleBarPixelLength / 2) // Center of the scale bar
+        .attr(
+            "y",
+            height -
+            xScaleBarPositiony +
+            (xScaleBarLabelOrientation === "outward" ? xScaleBarLabelDistance : -xScaleBarLabelDistance)
+        ) // Adjust label position based on orientation
+        .style("text-anchor", "middle")
+        .style("font-size", `${xScaleBarFontSize}px`)
+        .style("font-family", xScaleBarFontFamily)
+        .text(xScaleBarLabel);
 
-    const yScaleBarPixelLength = y(0) - y(yScaleBarLength); // Convert units to pixels
-    // Add scale bar for Y axis
-    svg.append("line")
-    .attr("x1", yScaleBarPositionx) // Position to the left of the Y axis
-    .attr("x2", yScaleBarPositionx)
-    .attr("y1", height-yScaleBarPositiony)
-    .attr("y2", height-yScaleBarPositiony - yScaleBarPixelLength) // Length of the scale bar in pixels
-    .style("stroke", "black")
-    .style("stroke-width", yScaleBarWidth);
+        const yScaleBarPixelLength = y(0) - y(yScaleBarLength); // Convert units to pixels
+        // Add scale bar for Y axis
+        svg.append("line")
+        .attr("x1", yScaleBarPositionx) // Position to the left of the Y axis
+        .attr("x2", yScaleBarPositionx)
+        .attr("y1", height-yScaleBarPositiony)
+        .attr("y2", height-yScaleBarPositiony - yScaleBarPixelLength) // Length of the scale bar in pixels
+        .style("stroke", "black")
+        .style("stroke-width", yScaleBarWidth);
 
-    const x_scaleLabelPosition = yScaleBarPositionx + (yScaleBarLabelOrientation === "outward" ? -yScaleBarLabelDistance : yScaleBarLabelDistance)
-    svg.append("text")
-    .attr("x",x_scaleLabelPosition) // Adjust label position based on orientation
-    .attr("y", height -yScaleBarPositiony - yScaleBarPixelLength / 2) // Center of the scale bar
-    .style("text-anchor", "middle")
-    .style("font-size", `${yScaleBarFontSize}px`)
-    .style("font-family", yScaleBarFontFamily)
-    .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height-yScaleBarPositiony - yScaleBarPixelLength / 2})`) // Rotate text for Y axis
-    .text(yScaleBarLabel);
+        const x_scaleLabelPosition = yScaleBarPositionx + (yScaleBarLabelOrientation === "outward" ? -yScaleBarLabelDistance : yScaleBarLabelDistance)
+        svg.append("text")
+        .attr("x",x_scaleLabelPosition) // Adjust label position based on orientation
+        .attr("y", height -yScaleBarPositiony - yScaleBarPixelLength / 2) // Center of the scale bar
+        .style("text-anchor", "middle")
+        .style("font-size", `${yScaleBarFontSize}px`)
+        .style("font-family", yScaleBarFontFamily)
+        .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height-yScaleBarPositiony - yScaleBarPixelLength / 2})`) // Rotate text for Y axis
+        .text(yScaleBarLabel);
+    }
   });
 }
 
