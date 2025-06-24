@@ -61,6 +61,11 @@ let tickOrientation = "outward"; // Default tick orientation
 function createChart() {
   // Clear existing SVG
   d3.select("#my_dataviz").html("");
+  // Get user-defined domains
+  const xDomainMin = parseFloat(document.getElementById("x-domain-min").value);
+  const xDomainMax = parseFloat(document.getElementById("x-domain-max").value);
+  const yDomainMin = parseFloat(document.getElementById("y-domain-min").value);
+  const yDomainMax = parseFloat(document.getElementById("y-domain-max").value);
 
   // Append the SVG object to the body of the page
   const svg = d3.select("#my_dataviz")
@@ -74,14 +79,15 @@ function createChart() {
   d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_IC.csv").then(function (data) {
     // Add X axis
     const x = d3.scaleLinear()
-      .domain([1, 100]) // Specify the domain of the X axis
+      .domain([xDomainMin, xDomainMax]) // Specify the domain of the X axis
       .range([0, width]);
       // Add Y axis
     const y = d3.scaleLinear()
-        .domain([0, 13]) // Specify the domain of the Y axis
+        .domain([yDomainMin, yDomainMax]) // Specify the domain of the Y axis
         .range([height, 0]);
 
     const showAxis = document.getElementById("show-axis").checked;
+    const showOuterTicks = document.getElementById("show-outer-ticks").checked;
     
     if (showAxis) {
         const xAxis = d3.axisBottom(x)
@@ -90,7 +96,8 @@ function createChart() {
         //.tickSize(tickLength) // Set the tick size (length of the tick lines)
         .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
         //.tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
-        .tickFormat((d, i) => xtickLabels[i] || d); // Set custom tick labels
+        .tickFormat((d, i) => xtickLabels[i] || d) // Set custom tick labels
+        .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
 
         svg.append("g")
         .attr("transform", `translate(${axisMargin.x}, ${height})`) // Translate X axis
@@ -112,7 +119,8 @@ function createChart() {
         //.tickSize(tickLength) // Set the tick size (length of the tick lines)
         .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
         //.tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
-        .tickFormat((d, i) => ytickLabels[i] || d); // Set custom tick labels
+        .tickFormat((d, i) => ytickLabels[i] || d) // Set custom tick labels
+        .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
 
         svg.append("g")
         .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis

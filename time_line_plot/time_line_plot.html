@@ -41,6 +41,10 @@
   <details>
     <summary>Axis</summary>
     <div class="control-row">
+      <label for="show-outer-ticks">Show Outer Ticks:</label>
+      <input type="checkbox" id="show-outer-ticks" checked>
+    </div>
+    <div class="control-row">
       <label for="show-axis">Show Axis:</label>
       <input type="checkbox" id="show-axis" checked>
     </div>
@@ -88,6 +92,18 @@
         <option value="outward">Outward</option>
         <option value="inward">Inward</option>
       </select>
+    </div>
+    <div class="control-row">
+      <label for="x-domain-min">X Domain Min:</label>
+      <input type="number" id="x-domain-min" value="0" step="1">
+      <label for="x-domain-max">X Domain Max:</label>
+      <input type="number" id="x-domain-max" value="100" step="1">
+    </div>
+    <div class="control-row">
+      <label for="y-domain-min">Y Domain Min:</label>
+      <input type="number" id="y-domain-min" value="0" step="1">
+      <label for="y-domain-max">Y Domain Max:</label>
+      <input type="number" id="y-domain-max" value="10" step="1">
     </div>
   </details>
   <!-- Subheading for Scale Bar Styling -->
