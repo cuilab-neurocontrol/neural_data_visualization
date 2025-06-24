@@ -98,7 +98,6 @@ function createChart() {
         .selectAll("text") // Customize tick labels
         .style("font-size", `${tickFontSize}px`) // Set font size
         .style("font-family", tickFontFamily); // Set font family
-        
 
         // Customize X axis line and ticks
         svg.selectAll(".domain") // Axis line
@@ -225,6 +224,7 @@ document.getElementById("update").addEventListener("click", function () {
   tickFontSize = parseFloat(document.getElementById("tick-font-size").value);
   tickFontFamily = document.getElementById("tick-font-family").value;
   tickOrientation = document.getElementById("tick-orientation").value;
+  tickLength = parseFloat(document.getElementById("tick-length").value);
 
   // Get new scale bar settings from input fields
   xScaleBarPositionx = parseFloat(document.getElementById("x-scale-bar-position-x").value);

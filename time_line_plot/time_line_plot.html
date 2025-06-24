@@ -10,164 +10,169 @@
 <!-- Create a control panel -->
 <div id="control-panel">
   <!-- Subheading for Canvas Size -->
-  <h3>Canvas Size</h3>
-  <div class="control-row">
-    <label for="width">Width (cm):</label>
-    <input type="number" id="width" value="16.2" min="5" step="0.1" data-param="width">
-    <label for="height">Height (cm):</label>
-    <input type="number" id="height" value="14.1" min="5" step="0.1" data-param="height">
-  </div>
+  <details>
+    <summary>Canvas Size</summary>
+    <div class="control-row">
+      <label for="width">Width (cm):</label>
+      <input type="number" id="width" value="16.2" min="5" step="0.1" data-param="width">
+      <label for="height">Height (cm):</label>
+      <input type="number" id="height" value="14.1" min="5" step="0.1" data-param="height">
+    </div>
+  </details>
 
   <!-- Subheading for Margins -->
-  <h3>Margins</h3>
-  <div class="control-row">
-    <label for="margin-top">Top (cm):</label>
-    <input type="number" id="margin-top" value="1" min="0" step="0.1">
-    <label for="margin-right">Right (cm):</label>
-    <input type="number" id="margin-right" value="1" min="0" step="0.1">
-  </div>
-  <div class="control-row">
-    <label for="margin-bottom">Bottom (cm):</label>
-    <input type="number" id="margin-bottom" value="1" min="0" step="0.1">
-    <label for="margin-left">Left (cm):</label>
-    <input type="number" id="margin-left" value="1.5" min="0" step="0.1">
-  </div>
+  <details>
+    <summary>Margins</summary>
+    <div class="control-row">
+      <label for="margin-top">Top (cm):</label>
+      <input type="number" id="margin-top" value="1" min="0" step="0.1">
+      <label for="margin-right">Right (cm):</label>
+      <input type="number" id="margin-right" value="1" min="0" step="0.1">
+    </div>
+    <div class="control-row">
+      <label for="margin-bottom">Bottom (cm):</label>
+      <input type="number" id="margin-bottom" value="1" min="0" step="0.1">
+      <label for="margin-left">Left (cm):</label>
+      <input type="number" id="margin-left" value="1.5" min="0" step="0.1">
+    </div>
+  </details>
 
   <!-- Subheading for Axis Margins -->
-  <h3>Axis</h3>
-  <div class="control-row">
-    <label for="show-axis">Show Axis:</label>
-    <input type="checkbox" id="show-axis" checked>
-  </div>
-  <div class="control-row">
-    <label for="axis-margin-x">X Margin (cm):</label>
-    <input type="number" id="axis-margin-x" value="0.5" min="0" step="0.1">
-    <label for="axis-margin-y">Y Margin (cm):</label>
-    <input type="number" id="axis-margin-y" value="0.5" min="0" step="0.1">
-  </div>
-
-  <!-- Subheading for Axis and Tick Styling -->
-  <div class="control-row">
-    <label for="axis-line-width">Line Width (px):</label>
-    <input type="number" id="axis-line-width" value="2" min="1" step="0.1">
-    <label for="tick-line-width">Tick Width (px):</label>
-    <input type="number" id="tick-line-width" value="1" min="1" step="0.1">
-  </div>
-  <div class="control-row">
-    <label for="tick-font-size">Font Size (px):</label>
-    <input type="number" id="tick-font-size" value="12" min="1" step="1">
-    <label for="tick-length">Tick Length (px):</label>
-    <input type="number" id="tick-length" value="6" min="1" step="1">
-  </div>
-  <div class="control-row">
-    <label for="tick-positions">xTick Positions:</label>
-    <input type="text" id="x-tick-positions" value="20,40,60,80,100">
-    <label for="tick-labels">xTick Labels:</label>
-    <input type="text" id="x-tick-labels" value="20,40,60,80,100">
-  </div>
-  <div class="control-row">
-    <label for="tick-positions">yTick Positions:</label>
-    <input type="text" id="y-tick-positions" value="2,4,6,8,10">
-    <label for="tick-labels">yTick Labels:</label>
-    <input type="text" id="y-tick-labels" value="2,4,6,8,10">
-  </div>
-  <div class="control-row">
-    <label for="tick-font-family">Tick Font Family:</label>
-    <select id="tick-font-family">
-      <option value="Arial">Arial</option>
-      <option value="Courier New">Courier New</option>
-      <option value="Times New Roman">Times New Roman</option>
-      <option value="Verdana">Verdana</option>
-    </select>
-    <label for="tick-orientation">Tick Orientation:</label>
-    <select id="tick-orientation">
-      <option value="outward">Outward</option>
-      <option value="inward">Inward</option>
-    </select>
-  </div>
-
+  <details>
+    <summary>Axis</summary>
+    <div class="control-row">
+      <label for="show-axis">Show Axis:</label>
+      <input type="checkbox" id="show-axis" checked>
+    </div>
+    <div class="control-row">
+      <label for="axis-margin-x">X Margin (cm):</label>
+      <input type="number" id="axis-margin-x" value="0.5" min="0" step="0.1">
+      <label for="axis-margin-y">Y Margin (cm):</label>
+      <input type="number" id="axis-margin-y" value="0.5" min="0" step="0.1">
+    </div>
+    <!-- Subheading for Axis and Tick Styling -->
+    <div class="control-row">
+      <label for="axis-line-width">Line Width (px):</label>
+      <input type="number" id="axis-line-width" value="2" min="1" step="0.1">
+      <label for="tick-line-width">Tick Width (px):</label>
+      <input type="number" id="tick-line-width" value="1" min="1" step="0.1">
+    </div>
+    <div class="control-row">
+      <label for="tick-font-size">Font Size (px):</label>
+      <input type="number" id="tick-font-size" value="12" min="1" step="1">
+      <label for="tick-length">Tick Length (px):</label>
+      <input type="number" id="tick-length" value="6" min="1" step="1">
+    </div>
+    <div class="control-row">
+      <label for="tick-positions">xTick Positions:</label>
+      <input type="text" id="x-tick-positions" value="20,40,60,80,100">
+      <label for="tick-labels">xTick Labels:</label>
+      <input type="text" id="x-tick-labels" value="20,40,60,80,100">
+    </div>
+    <div class="control-row">
+      <label for="tick-positions">yTick Positions:</label>
+      <input type="text" id="y-tick-positions" value="2,4,6,8,10">
+      <label for="tick-labels">yTick Labels:</label>
+      <input type="text" id="y-tick-labels" value="2,4,6,8,10">
+    </div>
+    <div class="control-row">
+      <label for="tick-font-family">Tick Font Family:</label>
+      <select id="tick-font-family">
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+      <label for="tick-orientation">Tick Orientation:</label>
+      <select id="tick-orientation">
+        <option value="outward">Outward</option>
+        <option value="inward">Inward</option>
+      </select>
+    </div>
+  </details>
   <!-- Subheading for Scale Bar Styling -->
-  <h3>Scale Bar Styling</h3>
-  <div class="control-row">
-    <label for="show-scale-bar">Show Scale Bar:</label>
-    <input type="checkbox" id="show-scale-bar" checked>
-  </div>
-  <div class="control-row">
-    <label for="x-scale-bar-position-x">X Bar PosX (px):</label>
-    <input type="number" id="x-scale-bar-position-x" value="0" min="0" step="1">
-    <label for="x-scale-bar-position-y">X Bar PosY (px):</label>
-    <input type="number" id="x-scale-bar-position-y" value="20" min="0" step="1">
-    
-  </div>
-  <div class="control-row">
-    <label for="x-scale-bar-width">X Bar Width (px):</label>
-    <input type="number" id="x-scale-bar-width" value="2" min="1" step="0.1">
-    <label for="x-scale-bar-length">X Bar Len (units):</label>
-    <input type="number" id="x-scale-bar-length" value="100" min="1" step="1">
-  </div>
-  <div class="control-row">
-    <label for="x-scale-bar-label">X Bar Label:</label>
-    <input type="text" id="x-scale-bar-label" value="100 units">
-    <label for="x-scale-bar-label-orientation">X Orientation:</label>
-    <select id="x-scale-bar-label-orientation">
-      <option value="outward">Outward</option>
-      <option value="inward">Inward</option>
-    </select>
-  </div>
-  <div class="control-row">
-    <label for="x-scale-bar-font-size">X Bar Font Size (px):</label>
-    <input type="number" id="x-scale-bar-font-size" value="12" min="1" step="1">
-    <label for="x-scale-bar-label-distance">X Label Distance (px):</label>
-    <input type="number" id="x-scale-bar-label-distance" value="20" min="0" step="1">
-  </div>
-  <div class="control-row">
-    <label for="x-scale-bar-font-family">X Bar Font Family:</label>
-    <select id="x-scale-bar-font-family">
-      <option value="Arial">Arial</option>
-      <option value="Courier New">Courier New</option>
-      <option value="Times New Roman">Times New Roman</option>
-      <option value="Verdana">Verdana</option>
-    </select>
-  </div>
+  <details>
+    <summary>Scale Bar Styling</summary>
+    <div class="control-row">
+      <label for="show-scale-bar">Show Scale Bar:</label>
+      <input type="checkbox" id="show-scale-bar" checked>
+    </div>
+    <div class="control-row">
+      <label for="x-scale-bar-position-x">X Bar PosX (px):</label>
+      <input type="number" id="x-scale-bar-position-x" value="0" min="0" step="1">
+      <label for="x-scale-bar-position-y">X Bar PosY (px):</label>
+      <input type="number" id="x-scale-bar-position-y" value="20" min="0" step="1">
+      
+    </div>
+    <div class="control-row">
+      <label for="x-scale-bar-width">X Bar Width (px):</label>
+      <input type="number" id="x-scale-bar-width" value="2" min="1" step="0.1">
+      <label for="x-scale-bar-length">X Bar Len (units):</label>
+      <input type="number" id="x-scale-bar-length" value="100" min="1" step="1">
+    </div>
+    <div class="control-row">
+      <label for="x-scale-bar-label">X Bar Label:</label>
+      <input type="text" id="x-scale-bar-label" value="100 units">
+      <label for="x-scale-bar-label-orientation">X Orientation:</label>
+      <select id="x-scale-bar-label-orientation">
+        <option value="outward">Outward</option>
+        <option value="inward">Inward</option>
+      </select>
+    </div>
+    <div class="control-row">
+      <label for="x-scale-bar-font-size">X Bar Font Size (px):</label>
+      <input type="number" id="x-scale-bar-font-size" value="12" min="1" step="1">
+      <label for="x-scale-bar-label-distance">X Label Distance (px):</label>
+      <input type="number" id="x-scale-bar-label-distance" value="20" min="0" step="1">
+    </div>
+    <div class="control-row">
+      <label for="x-scale-bar-font-family">X Bar Font Family:</label>
+      <select id="x-scale-bar-font-family">
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+    </div>
 
-  <div class="control-row">
-    <label for="y-scale-bar-position-x">Y Bar PosX (px):</label>
-    <input type="number" id="y-scale-bar-position-x" value="20" min="0" step="1">
-    <label for="y-scale-bar-position-y">Y Bar PosY (px):</label>
-    <input type="number" id="y-scale-bar-position-y" value="20" min="0" step="1">
-  </div>
-  <div class="control-row">
-    <label for="y-scale-bar-width">Y Bar Width (px):</label>
-    <input type="number" id="y-scale-bar-width" value="2" min="1" step="0.1">
-    <label for="y-scale-bar-length">Y Bar Len (units):</label>
-    <input type="number" id="y-scale-bar-length" value="2" min="1" step="1">
-  </div>
-  <div class="control-row">
-    <label for="y-scale-bar-label">Y Bar Label:</label>
-    <input type="text" id="y-scale-bar-label" value="100 units">
-    <label for="y-scale-bar-label-orientation">Y Orientation:</label>
-    <select id="y-scale-bar-label-orientation">
-      <option value="outward">Outward</option>
-      <option value="inward">Inward</option>
-    </select>
-  </div>
+    <div class="control-row">
+      <label for="y-scale-bar-position-x">Y Bar PosX (px):</label>
+      <input type="number" id="y-scale-bar-position-x" value="20" min="0" step="1">
+      <label for="y-scale-bar-position-y">Y Bar PosY (px):</label>
+      <input type="number" id="y-scale-bar-position-y" value="20" min="0" step="1">
+    </div>
+    <div class="control-row">
+      <label for="y-scale-bar-width">Y Bar Width (px):</label>
+      <input type="number" id="y-scale-bar-width" value="2" min="1" step="0.1">
+      <label for="y-scale-bar-length">Y Bar Len (units):</label>
+      <input type="number" id="y-scale-bar-length" value="2" min="1" step="1">
+    </div>
+    <div class="control-row">
+      <label for="y-scale-bar-label">Y Bar Label:</label>
+      <input type="text" id="y-scale-bar-label" value="100 units">
+      <label for="y-scale-bar-label-orientation">Y Orientation:</label>
+      <select id="y-scale-bar-label-orientation">
+        <option value="outward">Outward</option>
+        <option value="inward">Inward</option>
+      </select>
+    </div>
 
-  <div class="control-row">
-    <label for="y-scale-bar-font-size">Y Bar Font Size (px):</label>
-    <input type="number" id="y-scale-bar-font-size" value="12" min="1" step="1">
-    <label for="y-scale-bar-label-distance">Y Label Distance (px):</label>
-    <input type="number" id="y-scale-bar-label-distance" value="20" min="0" step="1">
-  </div>
-  <div class="control-row">
-    <label for="y-scale-bar-font-family">Y Bar Font Family:</label>
-    <select id="y-scale-bar-font-family">
-      <option value="Arial">Arial</option>
-      <option value="Courier New">Courier New</option>
-      <option value="Times New Roman">Times New Roman</option>
-      <option value="Verdana">Verdana</option>
-    </select>
-  </div>
-
+    <div class="control-row">
+      <label for="y-scale-bar-font-size">Y Bar Font Size (px):</label>
+      <input type="number" id="y-scale-bar-font-size" value="12" min="1" step="1">
+      <label for="y-scale-bar-label-distance">Y Label Distance (px):</label>
+      <input type="number" id="y-scale-bar-label-distance" value="20" min="0" step="1">
+    </div>
+    <div class="control-row">
+      <label for="y-scale-bar-font-family">Y Bar Font Family:</label>
+      <select id="y-scale-bar-font-family">
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+    </div>
+  </details>
   <!-- Update Button -->
   <div class="control-row">
     <button id="update" data-param="update">Update</button>
