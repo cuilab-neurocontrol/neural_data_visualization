@@ -24,6 +24,90 @@ let axisMargin = {
   y: 0 * CM_TO_PX,
 };
 
+// 全局数组，用于存放添加的 area 配置
+let areasList = [];
+
+function createAreaControl(index) {
+  const div = document.createElement("div");
+  div.className = "area-control";
+  div.dataset.index = index;
+  div.innerHTML = `
+    <h4>Area ${index + 1} <button class="delete-area">Delete</button></h4>
+    <div class="control-row">
+      <label>Data URL:</label>
+      <input type="text" class="area-data-url" placeholder="Enter CSV URL">
+      <button class="load-area-data-url">Load Data from URL</button>
+    </div>
+    <div class="control-row">
+      <label>Upload CSV:</label>
+      <input type="file" class="area-data-file" accept=".csv">
+      <button class="load-area-data-file">Load Data from File</button>
+    </div>
+    <div class="control-row">
+      <label>Area Color:</label>
+      <input type="color" class="area-color" value="#cce5df">
+      <label>Opacity:</label>
+      <input type="number" class="area-opacity" value="0.5" min="0" max="1" step="0.1">
+    </div>
+    <div class="control-row">
+      <label>Orientation:</label>
+      <select class="area-orientation">
+        <option value="horizontal">Horizontal</option>
+        <option value="vertical">Vertical</option>
+      </select>
+      <label>Length (units):</label>
+      <input type="number" class="area-length" value="100" min="0" step="1">
+    </div>
+  `;
+  
+  // 构造 area 对象，初始时 data 为空
+  const areaObj = { data: null, control: div };
+
+  // 通过 URL 加载 CSV 数据
+  div.querySelector(".load-area-data-url").addEventListener("click", function() {
+    const url = div.querySelector(".area-data-url").value;
+    if (!url) return;
+    d3.csv(url).then(data => {
+      areaObj.data = data;
+      createChart();  // 重新绘制图表来显示新加载的 area
+    }).catch(error => {
+      console.error("Error loading CSV from URL for Area:", error);
+    });
+  });
+
+  // 通过文件上传加载 CSV 数据
+  div.querySelector(".load-area-data-file").addEventListener("click", function() {
+    const fileInput = div.querySelector(".area-data-file");
+    if (!fileInput.files || fileInput.files.length === 0) return;
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      const data = d3.csvParse(text);
+      areaObj.data = data;
+      createChart();  // 重新绘制图表以显示新加载的 area
+    };
+    reader.onerror = function(error) {
+      console.error("Error reading CSV file for Area:", error);
+    };
+    reader.readAsText(file);
+  });
+
+  // 为删除按钮绑定事件
+  div.querySelector(".delete-area").addEventListener("click", function() {
+    const idx = parseInt(div.dataset.index, 10);
+    areasList.splice(idx, 1);
+    div.remove();
+    // 更新剩余 area-control 的索引
+    document.querySelectorAll(".area-control").forEach((ctrl, i) => {
+      ctrl.dataset.index = i;
+    });
+    createChart();
+  });
+
+  return areaObj;
+}
+
 function createTextControl(index) {
   const div = document.createElement("div");
   div.className = "text-control";
@@ -491,7 +575,7 @@ function createChart() {
     const fontSize = control.querySelector(".text-font-size").value;
     const fontFamily = control.querySelector(".text-font-family").value;
     const fontColor = control.querySelector(".text-font-color").value;
-    const bold = control.querySelector(".text-bold").checked ? "bold" : "normal";
+    const fontWeight = control.querySelector(".text-bold").value;
     const orientation = control.querySelector(".text-orientation").value;
     
     // 根据 orientation 设置 transform（垂直时旋转 -90°）
@@ -505,7 +589,7 @@ function createChart() {
       .style("font-size", `${fontSize}px`)
       .style("font-family", fontFamily)
       .style("fill", fontColor)
-      .style("font-weight", bold)
+      .style("font-weight", fontWeight)
       .style("text-anchor", "middle");
   });
   
@@ -548,6 +632,14 @@ document.getElementById("add-url").addEventListener("click", function() {
   }).catch(error => {
     console.error("Error loading CSV from URL:", error);
   });
+});
+
+// 绑定 Add Area 按钮事件（确保 DOM 加载后运行）
+document.getElementById("add-area").addEventListener("click", function() {
+  const index = areasList.length;
+  const areaObj = createAreaControl(index);
+  areasList.push(areaObj);
+  document.getElementById("area-controls").appendChild(areaObj.control);
 });
 
 // Initial chart creation
