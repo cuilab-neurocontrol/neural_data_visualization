@@ -14,7 +14,7 @@
     <summary>Canvas Size</summary>
     <div class="control-row">
       <label for="width">Width (cm):</label>
-      <input type="number" id="width" value="10" min="5" step="0.1" data-param="width">
+      <input type="number" id="width" value="8" min="5" step="0.1" data-param="width">
       <label for="height">Height (cm):</label>
       <input type="number" id="height" value="8" min="5" step="0.1" data-param="height">
     </div>
@@ -255,6 +255,22 @@
     </div>
   </details>
 
+  <!-- Data Series Upload -->
+  <details>
+    <summary>Data Series Upload</summary>
+    <div class="control-row">
+      <label for="data-files">Upload CSV Files:</label>
+      <input type="file" id="data-files" multiple accept=".csv">
+    </div>
+    <div class="control-row">
+      <label for="data-url">Or Data URL:</label>
+      <input type="text" id="data-url" placeholder="Enter CSV URL">
+      <button id="add-url">Add URL</button>
+    </div>
+    <!-- Container where each series control block will be appended -->
+    <div id="series-controls"></div>
+  </details>
+
   <div class="control-row">
     <button id="update" data-param="update">Update</button>
   </div>
@@ -301,6 +317,17 @@
     margin: 0;
     font-size: 1.2em;
     font-weight: bold;
+  }
+
+  .series-control {
+    border: 1px solid #ccc;
+    padding: 5px;
+    margin: 10px 0;
+  }
+
+  .series-control h3 {
+    margin: 0 0 5px 0;
+    font-size: 1em;
   }
 </style>
 

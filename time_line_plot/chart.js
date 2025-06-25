@@ -1,6 +1,7 @@
 // Conversion factor: 1 cm = 37.7952755906 pixels
 const CM_TO_PX = 37.7952755906;
 const PT_TO_PX = 1.333;
+let seriesList = [];
 
 // Get the container and dimensions in cm
 const container = document.getElementById("my_dataviz");
@@ -20,6 +21,46 @@ let axisMargin = {
   x: 0.3 * CM_TO_PX,
   y: 0 * CM_TO_PX,
 };
+
+// 创建系列控制块，包含线条颜色、粗细、阴影参数
+function createSeriesControl(index) {
+  const div = document.createElement("div");
+  div.className = "series-control";
+  div.innerHTML = `
+    <h3>Series ${index + 1} <button class="delete-series">Delete</button></h3>
+    <div class="control-row">
+      <label>Line Color:</label>
+      <input type="color" class="line-color" value="#ff0000">
+      <label>Line Thickness (px):</label>
+      <input type="number" class="line-thickness" value="2" min="1" step="0.1">
+    </div>
+    <div class="control-row">
+      <label>Show Shadow:</label>
+      <input type="checkbox" class="show-shadow" checked>
+      <label>Shadow Color:</label>
+      <input type="color" class="shadow-color" value="#000000">
+      <label>Shadow Opacity:</label>
+      <input type="number" class="shadow-opacity" value="0.5" min="0" max="1" step="0.1">
+    </div>
+  `;
+
+  // 为删除按钮绑定事件
+  div.querySelector(".delete-series").addEventListener("click", function() {
+    // 获取当前系列的索引（字符串需转换为数字）
+    const idx = parseInt(div.dataset.index, 10);
+    // 从全局数组中移除该系列
+    seriesList.splice(idx, 1);
+    // 从DOM中删除该控制块
+    div.remove();
+    // 重新更新剩余控制块的索引（可选，对于展示编号）
+    const controls = document.querySelectorAll(".series-control");
+    controls.forEach((ctrl, i) => ctrl.dataset.index = i);
+    // 重新绘制图表
+    createChart();
+  });
+  
+  return div;
+}
 
 // Scale bar settings
 let xScaleBarPositionx = 0; // Default X scale bar Y position
@@ -76,40 +117,35 @@ function createChart() {
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // Read the data
-  d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_IC.csv").then(function (data) {
-    // Add X axis
-    const x = d3.scaleLinear()
+  // Add X axis
+  const x = d3.scaleLinear()
       .domain([xDomainMin, xDomainMax]) // Specify the domain of the X axis
       .range([0, width]);
-      // Add Y axis
-    const y = d3.scaleLinear()
-        .domain([yDomainMin, yDomainMax]) // Specify the domain of the Y axis
-        .range([height, 0]);
+  // Add Y axis
+  const y = d3.scaleLinear()
+      .domain([yDomainMin, yDomainMax]) // Specify the domain of the Y axis
+      .range([height, 0]);
 
-    const showXAxis = document.getElementById("show-x-axis").checked;
-    const showYAxis = document.getElementById("show-y-axis").checked;
-    const showOuterTicks = document.getElementById("show-outer-ticks").checked;
-    const showTitle = document.getElementById("show-title").checked;
-    const showXLabel = document.getElementById("show-x-label").checked;
-    const showYLabel = document.getElementById("show-y-label").checked;
+  
+  const showOuterTicks = document.getElementById("show-outer-ticks").checked;
 
-    const xLabel = document.getElementById("x-label").value;
-    const xLabelFontSize = parseFloat(document.getElementById("x-label-font-size").value);
-    const xLabelFontFamily = document.getElementById("x-label-font-family").value;
-    const yLabel = document.getElementById("y-label").value;
-    const yLabelFontSize = parseFloat(document.getElementById("y-label-font-size").value);
-    const yLabelFontFamily = document.getElementById("y-label-font-family").value;
-    const chartTitle = document.getElementById("chart-title").value;
-    const titleFontSize = parseFloat(document.getElementById("title-font-size").value);
-    const titleFontFamily = document.getElementById("title-font-family").value;
-    const titleFontWeight = document.getElementById("title-font-weight").value;
-    // 标题与图表之间的距离，单位为pt，转换为px
-    const titleDistancePt = parseFloat(document.getElementById("title-distance").value);
-    const titleDistancePx = titleDistancePt * PT_TO_PX;
+  const xLabel = document.getElementById("x-label").value;
+  const xLabelFontSize = parseFloat(document.getElementById("x-label-font-size").value);
+  const xLabelFontFamily = document.getElementById("x-label-font-family").value;
+  const yLabel = document.getElementById("y-label").value;
+  const yLabelFontSize = parseFloat(document.getElementById("y-label-font-size").value);
+  const yLabelFontFamily = document.getElementById("y-label-font-family").value;
+  const chartTitle = document.getElementById("chart-title").value;
+  const titleFontSize = parseFloat(document.getElementById("title-font-size").value);
+  const titleFontFamily = document.getElementById("title-font-family").value;
+  const titleFontWeight = document.getElementById("title-font-weight").value;
+  // 标题与图表之间的距离，单位为pt，转换为px
+  const titleDistancePt = parseFloat(document.getElementById("title-distance").value);
+  const titleDistancePx = titleDistancePt * PT_TO_PX;
 
-    // 添加标题文本（放在 SVG 顶部居中）
-    if (showTitle) {
+  // 添加标题文本（放在 SVG 顶部居中
+  const showTitle = document.getElementById("show-title").checked;
+  if (showTitle) {
     svg.append("text")
     .attr("x", (width) / 2)
     .attr("y", -titleDistancePx-axisMargin.y)
@@ -119,56 +155,136 @@ function createChart() {
     .style("font-family", titleFontFamily)
     .style("font-weight", titleFontWeight)
     .text(chartTitle);
-    }
+  }
+  
+  const showXAxis = document.getElementById("show-x-axis").checked;
+  if (showXAxis) {
+      const xAxis = d3.axisBottom(x)
+      //.ticks(tickCount) // Set the number of ticks
+      .tickValues(xtickPositions) // Set custom tick positions
+      //.tickSize(tickLength) // Set the tick size (length of the tick lines)
+      .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
+      //.tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
+      .tickFormat((d, i) => xtickLabels[i] || d) // Set custom tick labels
+      .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
 
-    if (showXAxis) {
-        const xAxis = d3.axisBottom(x)
-        //.ticks(tickCount) // Set the number of ticks
-        .tickValues(xtickPositions) // Set custom tick positions
-        //.tickSize(tickLength) // Set the tick size (length of the tick lines)
-        .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
-        //.tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
-        .tickFormat((d, i) => xtickLabels[i] || d) // Set custom tick labels
-        .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
+      svg.append("g")
+      .attr("transform", `translate(${axisMargin.x}, ${height})`) // Translate X axis
+      .call(xAxis)
+      .selectAll("text") // Customize tick labels
+      .style("font-size", `${tickFontSize}px`) // Set font size
+      .style("font-family", tickFontFamily); // Set font family
 
-        svg.append("g")
-        .attr("transform", `translate(${axisMargin.x}, ${height})`) // Translate X axis
-        .call(xAxis)
-        .selectAll("text") // Customize tick labels
-        .style("font-size", `${tickFontSize}px`) // Set font size
-        .style("font-family", tickFontFamily); // Set font family
+      // Customize X axis line and ticks
+      svg.selectAll(".domain") // Axis line
+      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
 
-        // Customize X axis line and ticks
-        svg.selectAll(".domain") // Axis line
-        .style("stroke-width", axisLineWidth + "px"); // Set axis line width
+      svg.selectAll(".tick line") // Tick lines
+      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
+  }
+  const showYAxis = document.getElementById("show-y-axis").checked;
+  if (showYAxis) {
+      const yAxis = d3.axisLeft(y)
+      //.ticks(tickCount) // Set the number of ticks
+      .tickValues(ytickPositions) // Set custom tick positions
+      //.tickSize(tickLength) // Set the tick size (length of the tick lines)
+      .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
+      //.tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
+      .tickFormat((d, i) => ytickLabels[i] || d) // Set custom tick labels
+      .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
 
-        svg.selectAll(".tick line") // Tick lines
-        .style("stroke-width", tickLineWidth + "px"); // Set tick line width
-    }
-    if (showYAxis) {
-        const yAxis = d3.axisLeft(y)
-        //.ticks(tickCount) // Set the number of ticks
-        .tickValues(ytickPositions) // Set custom tick positions
-        //.tickSize(tickLength) // Set the tick size (length of the tick lines)
-        .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
-        //.tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
-        .tickFormat((d, i) => ytickLabels[i] || d) // Set custom tick labels
-        .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
+      svg.append("g")
+      .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
+      .call(yAxis)
+      .selectAll("text") // Customize tick labels
+      .style("font-size", `${tickFontSize}px`) // Set font size
+      .style("font-family", tickFontFamily); // Set font family
 
-        svg.append("g")
-        .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
-        .call(yAxis)
-        .selectAll("text") // Customize tick labels
-        .style("font-size", `${tickFontSize}px`) // Set font size
-        .style("font-family", tickFontFamily); // Set font family
+      // Customize Y axis line and ticks
+      svg.selectAll(".domain") // Axis line
+      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
 
-        // Customize Y axis line and ticks
-        svg.selectAll(".domain") // Axis line
-        .style("stroke-width", axisLineWidth + "px"); // Set axis line width
+      svg.selectAll(".tick line") // Tick lines
+      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
+  }
 
-        svg.selectAll(".tick line") // Tick lines
-        .style("stroke-width", tickLineWidth + "px"); // Set tick line width
-    }
+  const showScaleBar = document.getElementById("show-scale-bar").checked;
+  if (showScaleBar) {
+    const xScaleBarPixelLength = x(xScaleBarLength) - x(0);
+    // Add scale bar for X axis
+    svg.append("line")
+    .attr("x1", xScaleBarPositionx)
+    .attr("x2", xScaleBarPositionx+xScaleBarPixelLength) // Length of the scale bar in pixels
+    .attr("y1", height - xScaleBarPositiony) // Position below the X axis
+    .attr("y2", height - xScaleBarPositiony)
+    .style("stroke", "black")
+    .style("stroke-width", xScaleBarWidth);
+    
+    svg.append("text")
+    .attr("x", xScaleBarPositionx+xScaleBarPixelLength / 2) // Center of the scale bar
+    .attr(
+        "y",
+        height -
+        xScaleBarPositiony +
+        (xScaleBarLabelOrientation === "outward" ? xScaleBarLabelDistance : -xScaleBarLabelDistance)
+    ) // Adjust label position based on orientation
+    .style("text-anchor", "middle")
+    .style("font-size", `${xScaleBarFontSize}px`)
+    .style("font-family", xScaleBarFontFamily)
+    .text(xScaleBarLabel);
+
+    const yScaleBarPixelLength = y(0) - y(yScaleBarLength); // Convert units to pixels
+    // Add scale bar for Y axis
+    svg.append("line")
+    .attr("x1", yScaleBarPositionx) // Position to the left of the Y axis
+    .attr("x2", yScaleBarPositionx)
+    .attr("y1", height-yScaleBarPositiony)
+    .attr("y2", height-yScaleBarPositiony - yScaleBarPixelLength) // Length of the scale bar in pixels
+    .style("stroke", "black")
+    .style("stroke-width", yScaleBarWidth);
+
+    const x_scaleLabelPosition = yScaleBarPositionx + (yScaleBarLabelOrientation === "outward" ? -yScaleBarLabelDistance : yScaleBarLabelDistance)
+    svg.append("text")
+    .attr("x",x_scaleLabelPosition) // Adjust label position based on orientation
+    .attr("y", height -yScaleBarPositiony - yScaleBarPixelLength / 2) // Center of the scale bar
+    .style("text-anchor", "middle")
+    .style("font-size", `${yScaleBarFontSize}px`)
+    .style("font-family", yScaleBarFontFamily)
+    .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height-yScaleBarPositiony - yScaleBarPixelLength / 2})`) // Rotate text for Y axis
+    .text(yScaleBarLabel);
+  }
+  // Add X axis label
+  //const xLabelDistance = 26;
+  const showXLabel = document.getElementById("show-x-label").checked;
+  if (showXLabel) {
+    const xLabelDistance = tickLength+tickFontSize+6 * PT_TO_PX;
+    svg.append("text")
+    .attr("x", (width) / 2 +axisMargin.x) // Center the label horizontally
+    .attr("y", height + xLabelDistance) // Position below the X axis
+    //.attr("y", height - xScaleBarPositiony+xLabelFontSize-3)
+    .attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
+    .style("text-anchor", "middle")
+    .style("font-size", `${xLabelFontSize}px`)
+    .style("font-family", xLabelFontFamily)
+    .text(xLabel);
+  }
+  // Add Y axis label
+  const showYLabel = document.getElementById("show-y-label").checked;
+  if (showYLabel) {
+    const yLabelDistance = tickLength + tickFontSize+6 * PT_TO_PX;
+    svg.append("text")
+    .attr("x", -(height) / 2+axisMargin.y) // Center the label vertically
+    .attr("y", -yLabelDistance) // Position to the left of the Y axis
+    .attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
+    .attr("transform", "rotate(-90)") // Rotate the label
+    .style("text-anchor", "middle")
+    .style("font-size", `${yLabelFontSize}px`)
+    .style("font-family", yLabelFontFamily)
+    .text(yLabel);
+  }
+
+  // Read the data
+  d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_IC.csv").then(function (data) {
     // Show confidence interval
     svg.append("path")
       .datum(data)
@@ -190,81 +306,40 @@ function createChart() {
         .x(function (d) { return x(d.x) + axisMargin.x; }) // 同步 X 平移
         .y(function (d) { return y(d.y) - axisMargin.y; }) // 同步 Y 平移
       );
-
-    const showScaleBar = document.getElementById("show-scale-bar").checked;
-    if (showScaleBar) {
-        const xScaleBarPixelLength = x(xScaleBarLength) - x(0);
-        // Add scale bar for X axis
-        svg.append("line")
-        .attr("x1", xScaleBarPositionx)
-        .attr("x2", xScaleBarPositionx+xScaleBarPixelLength) // Length of the scale bar in pixels
-        .attr("y1", height - xScaleBarPositiony) // Position below the X axis
-        .attr("y2", height - xScaleBarPositiony)
-        .style("stroke", "black")
-        .style("stroke-width", xScaleBarWidth);
-        
-        svg.append("text")
-        .attr("x", xScaleBarPositionx+xScaleBarPixelLength / 2) // Center of the scale bar
-        .attr(
-            "y",
-            height -
-            xScaleBarPositiony +
-            (xScaleBarLabelOrientation === "outward" ? xScaleBarLabelDistance : -xScaleBarLabelDistance)
-        ) // Adjust label position based on orientation
-        .style("text-anchor", "middle")
-        .style("font-size", `${xScaleBarFontSize}px`)
-        .style("font-family", xScaleBarFontFamily)
-        .text(xScaleBarLabel);
-
-        const yScaleBarPixelLength = y(0) - y(yScaleBarLength); // Convert units to pixels
-        // Add scale bar for Y axis
-        svg.append("line")
-        .attr("x1", yScaleBarPositionx) // Position to the left of the Y axis
-        .attr("x2", yScaleBarPositionx)
-        .attr("y1", height-yScaleBarPositiony)
-        .attr("y2", height-yScaleBarPositiony - yScaleBarPixelLength) // Length of the scale bar in pixels
-        .style("stroke", "black")
-        .style("stroke-width", yScaleBarWidth);
-
-        const x_scaleLabelPosition = yScaleBarPositionx + (yScaleBarLabelOrientation === "outward" ? -yScaleBarLabelDistance : yScaleBarLabelDistance)
-        svg.append("text")
-        .attr("x",x_scaleLabelPosition) // Adjust label position based on orientation
-        .attr("y", height -yScaleBarPositiony - yScaleBarPixelLength / 2) // Center of the scale bar
-        .style("text-anchor", "middle")
-        .style("font-size", `${yScaleBarFontSize}px`)
-        .style("font-family", yScaleBarFontFamily)
-        .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height-yScaleBarPositiony - yScaleBarPixelLength / 2})`) // Rotate text for Y axis
-        .text(yScaleBarLabel);
-    }
-      // Add X axis label
-    //const xLabelDistance = 26;
-    if (showXLabel) {
-      const xLabelDistance = tickLength+tickFontSize+6 * PT_TO_PX;
-      svg.append("text")
-      .attr("x", (width) / 2 +axisMargin.x) // Center the label horizontally
-      .attr("y", height + xLabelDistance) // Position below the X axis
-      //.attr("y", height - xScaleBarPositiony+xLabelFontSize-3)
-      .attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
-      .style("text-anchor", "middle")
-      .style("font-size", `${xLabelFontSize}px`)
-      .style("font-family", xLabelFontFamily)
-      .text(xLabel);
-    }
-    // Add Y axis label
-    if (showYLabel) {
-      const yLabelDistance = tickLength + tickFontSize+6 * PT_TO_PX;
-      svg.append("text")
-      .attr("x", -(height) / 2+axisMargin.y) // Center the label vertically
-      .attr("y", -yLabelDistance) // Position to the left of the Y axis
-      .attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
-      .attr("transform", "rotate(-90)") // Rotate the label
-      .style("text-anchor", "middle")
-      .style("font-size", `${yLabelFontSize}px`)
-      .style("font-family", yLabelFontFamily)
-      .text(yLabel);
-    }
   });
 }
+
+// 处理通过文件上传的CSV
+document.getElementById("data-files").addEventListener("change", function(e) {
+  const files = e.target.files;
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const text = evt.target.result;
+      const data = d3.csvParse(text); // 解析CSV数据
+      // 创建一个系列控制块，该控制块只控制此数据系列
+      const seriesControl = createSeriesControl(seriesList.length);
+      // 保存数据与其控制块
+      seriesList.push({ data, control: seriesControl });
+      // 将该控制块添加到控制面板中
+      document.getElementById("series-controls").appendChild(seriesControl);
+    };
+    reader.readAsText(file);
+  });
+});
+
+// 处理通过URL添加CSV数据
+document.getElementById("add-url").addEventListener("click", function() {
+  const url = document.getElementById("data-url").value;
+  if (!url) return;
+  d3.csv(url).then(data => {
+    const seriesControl = createSeriesControl(seriesList.length);
+    seriesList.push({ data, control: seriesControl });
+    document.getElementById("series-controls").appendChild(seriesControl);
+  }).catch(error => {
+    console.error("Error loading CSV from URL:", error);
+  });
+});
 
 // Initial chart creation
 createChart();
