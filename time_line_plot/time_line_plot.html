@@ -216,6 +216,37 @@
     </div>
   </details>
   <!-- Update Button -->
+  <!-- Title Settings -->
+  <details>
+    <summary>Title Settings</summary>
+    <div class="control-row">
+      <label for="chart-title">Chart Title:</label>
+      <input type="text" id="chart-title" value="simple spikes">
+    </div>
+    <div class="control-row">
+      <label for="title-font-size">Font Size (px):</label>
+      <input type="number" id="title-font-size" value="18" min="1" step="1">
+      <label for="title-font-family">Font Family:</label>
+      <select id="title-font-family">
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+    </div>
+    <div class="control-row">
+      <label for="title-font-weight">Font Weight:</label>
+      <select id="title-font-weight">
+        <option value="normal">Normal</option>
+        <option value="bold">Bold</option>
+        <option value="bolder">Bolder</option>
+        <option value="lighter">Lighter</option>
+      </select>
+      <label for="title-distance">Distance (pt):</label>
+      <input type="number" id="title-distance" value="6" min="0" step="1">
+    </div>
+  </details>
+
   <div class="control-row">
     <button id="update" data-param="update">Update</button>
   </div>

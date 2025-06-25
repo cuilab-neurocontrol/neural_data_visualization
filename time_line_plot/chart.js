@@ -95,6 +95,24 @@ function createChart() {
     const yLabel = document.getElementById("y-label").value;
     const yLabelFontSize = parseFloat(document.getElementById("y-label-font-size").value);
     const yLabelFontFamily = document.getElementById("y-label-font-family").value;
+    const chartTitle = document.getElementById("chart-title").value;
+    const titleFontSize = parseFloat(document.getElementById("title-font-size").value);
+    const titleFontFamily = document.getElementById("title-font-family").value;
+    const titleFontWeight = document.getElementById("title-font-weight").value;
+    // 标题与图表之间的距离，单位为pt，转换为px
+    const titleDistancePt = parseFloat(document.getElementById("title-distance").value);
+    const titleDistancePx = titleDistancePt * PT_TO_PX;
+
+    // 添加标题文本（放在 SVG 顶部居中）
+    svg.append("text")
+    .attr("x", (width) / 2)
+    .attr("y", -titleDistancePx-axisMargin.y)
+    .attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
+    .style("text-anchor", "middle")
+    .style("font-size", `${titleFontSize}px`)
+    .style("font-family", titleFontFamily)
+    .style("font-weight", titleFontWeight)
+    .text(chartTitle);
 
     if (showAxis) {
         const xAxis = d3.axisBottom(x)
