@@ -2,6 +2,7 @@
 const CM_TO_PX = 37.7952755906;
 const PT_TO_PX = 1.333;
 let seriesList = [];
+let linesList = [];
 
 // Get the container and dimensions in cm
 const container = document.getElementById("my_dataviz");
@@ -21,6 +22,54 @@ let axisMargin = {
   x: 0.3 * CM_TO_PX,
   y: 0 * CM_TO_PX,
 };
+
+function createLineControl(index) {
+  const div = document.createElement("div");
+  div.className = "line-control";
+  div.dataset.index = index;
+  div.innerHTML = `
+    <h4>Line ${index + 1} <button class="delete-line">Delete</button></h4>
+    <div class="control-row">
+      <label>Type:</label>
+      <select class="line-type">
+        <option value="vertical">Vertical</option>
+        <option value="horizontal">Horizontal</option>
+      </select>
+      <label>X Coordinate:</label>
+      <input type="number" class="line-coordinate-x" value="0">
+      <label>Y Coordinate:</label>
+      <input type="number" class="line-coordinate-y" value="0">
+    </div>
+    <div class="control-row">
+      <label>Color:</label>
+      <input type="color" class="line-color" value="#000000">
+      <label>Thickness (px):</label>
+      <input type="number" class="line-thickness" value="1" min="1" step="0.1">
+    </div>
+    <div class="control-row">
+      <label>Style:</label>
+      <select class="line-style">
+        <option value="solid">Solid</option>
+        <option value="dashed">Dashed</option>
+      </select>
+      <label>Length (unit):</label>
+      <input type="number" class="line-length" value="100" min="0" step="1">
+    </div>
+  `;
+  
+  // 为删除按钮绑定事件
+  div.querySelector(".delete-line").addEventListener("click", function() {
+    const idx = parseInt(div.dataset.index, 10);
+    linesList.splice(idx, 1);
+    div.remove();
+    document.querySelectorAll(".line-control").forEach((ctrl, i) => {
+      ctrl.dataset.index = i;
+    });
+    createChart();
+  });
+  
+  return div;
+}
 
 // 创建系列控制块，包含线条颜色、粗细、阴影参数
 function createSeriesControl(index) {
@@ -321,9 +370,58 @@ function createChart() {
         .x(function (d) { return x(d.x) + axisMargin.x; }) // 同步 X 平移
         .y(function (d) { return y(d.y) - axisMargin.y; }) // 同步 Y 平移
       );
-
   });
+
+  // 在 createChart() 中，绘制新增的线条
+  linesList.forEach(lineItem => {
+    const control = lineItem.control;
+    const type = control.querySelector(".line-type").value;
+    const coordinateX = parseFloat(control.querySelector(".line-coordinate-x").value);
+    const coordinateY = parseFloat(control.querySelector(".line-coordinate-y").value);
+    const color = control.querySelector(".line-color").value;
+    const thickness = parseFloat(control.querySelector(".line-thickness").value);
+    const style = control.querySelector(".line-style").value; // "solid" 或 "dashed"
+    const length = parseFloat(control.querySelector(".line-length").value);
+    const dasharray = style === "dashed" ? "5,5" : null;
+    const ylength = y(0) - y(length);
+    if(type === "vertical"){
+      // 垂直线：X 坐标固定；Y 坐标从设定值开始，向上延伸 length 像素
+      const xPos = x(coordinateX) + axisMargin.x;
+      const yPos = y(coordinateY);
+      svg.append("line")
+        .attr("x1", xPos)
+        .attr("y1", yPos)
+        .attr("x2", xPos)
+        .attr("y2", yPos - ylength)
+        .attr("stroke", color)
+        .attr("stroke-width", thickness)
+        .attr("stroke-dasharray", dasharray);
+    }
+    else if(type === "horizontal"){
+      // 水平线：Y 坐标固定；X 坐标从设定值开始，向右延伸 length 像素
+      const xLength = x(length) - x(0);
+      const xPos = x(coordinateX) + axisMargin.x;
+      const yPos = y(coordinateY);
+      svg.append("line")
+        .attr("x1", xPos)
+        .attr("y1", yPos)
+        .attr("x2", xPos + xLength)
+        .attr("y2", yPos)
+        .attr("stroke", color)
+        .attr("stroke-width", thickness)
+        .attr("stroke-dasharray", dasharray);
+    }
+  });
+  
 }
+
+
+document.getElementById("add-line").addEventListener("click", function() {
+    const index = linesList.length;
+    const lineControl = createLineControl(index);
+    linesList.push({ control: lineControl });
+    document.getElementById("line-controls").appendChild(lineControl);
+});
 
 // 处理通过文件上传的CSV
 document.getElementById("data-files").addEventListener("change", function(e) {
