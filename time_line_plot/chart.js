@@ -26,6 +26,7 @@ let axisMargin = {
 function createSeriesControl(index) {
   const div = document.createElement("div");
   div.className = "series-control";
+  div.dataset.index = index;
   div.innerHTML = `
     <h3>Series ${index + 1} <button class="delete-series">Delete</button></h3>
     <div class="control-row">
@@ -38,9 +39,13 @@ function createSeriesControl(index) {
       <label>Show Shadow:</label>
       <input type="checkbox" class="show-shadow" checked>
       <label>Shadow Color:</label>
-      <input type="color" class="shadow-color" value="#000000">
+      <input type="color" class="shadow-color" value="#FF5C5C">
       <label>Shadow Opacity:</label>
-      <input type="number" class="shadow-opacity" value="0.5" min="0" max="1" step="0.1">
+      <input type="number" class="shadow-opacity" value="0.3" min="0" max="1" step="0.1">
+    </div>
+    <div class="control-row">
+      <label>Description:</label>
+      <input type="text" class="series-description" placeholder="Enter description">
     </div>
   `;
 
@@ -58,7 +63,7 @@ function createSeriesControl(index) {
     // 重新绘制图表
     createChart();
   });
-  
+
   return div;
 }
 
@@ -283,29 +288,40 @@ function createChart() {
     .text(yLabel);
   }
 
-  // Read the data
-  d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_IC.csv").then(function (data) {
+  
+
+  seriesList.forEach(series => {
+    const control = series.control;
+    const lineColor = control.querySelector(".line-color").value;
+    const lineThickness = parseFloat(control.querySelector(".line-thickness").value);
+    const showShadow = control.querySelector(".show-shadow").checked;
+    const shadowColor = control.querySelector(".shadow-color").value;
+    const shadowOpacity = parseFloat(control.querySelector(".shadow-opacity").value);
+
     // Show confidence interval
+    if (showShadow){
     svg.append("path")
-      .datum(data)
-      .attr("fill", "#cce5df")
+      .datum(series.data)
+      .attr("fill", shadowColor)
+      .attr("fill-opacity", shadowOpacity)
       .attr("stroke", "none")
       .attr("d", d3.area()
         .x(function (d) { return x(d.x) + axisMargin.x; }) // 同步 X 平移
         .y0(function (d) { return y(d.CI_right) - axisMargin.y; }) // 同步 Y 平移
         .y1(function (d) { return y(d.CI_left) - axisMargin.y; }) // 同步 Y 平移
       );
-
+    }
     // Add the line
     svg.append("path")
-      .datum(data)
+      .datum(series.data)
       .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
+      .attr("stroke", lineColor)
+      .attr("stroke-width", lineThickness)
       .attr("d", d3.line()
         .x(function (d) { return x(d.x) + axisMargin.x; }) // 同步 X 平移
         .y(function (d) { return y(d.y) - axisMargin.y; }) // 同步 Y 平移
       );
+
   });
 }
 
