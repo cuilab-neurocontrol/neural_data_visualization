@@ -3,6 +3,7 @@ const CM_TO_PX = 37.7952755906;
 const PT_TO_PX = 1.333;
 let seriesList = [];
 let linesList = [];
+let textList = [];
 
 // Get the container and dimensions in cm
 const container = document.getElementById("my_dataviz");
@@ -22,6 +23,76 @@ let axisMargin = {
   x: 0.3 * CM_TO_PX,
   y: 0 * CM_TO_PX,
 };
+
+function createTextControl(index) {
+  const div = document.createElement("div");
+  div.className = "text-control";
+  div.dataset.index = index;
+  div.innerHTML = `
+    <h4>Text ${index + 1} <button class="delete-text">Delete</button></h4>
+    <div class="control-row">
+      <label>String:</label>
+      <input type="text" class="text-string" placeholder="Enter string" value="Sample Text">
+    </div>
+    <div class="control-row">
+      <label>X Coordinate:</label>
+      <input type="number" class="text-coordinate-x" value="0">
+      <label>Y Coordinate:</label>
+      <input type="number" class="text-coordinate-y" value="0">
+    </div>
+    <div class="control-row">
+      <label>Font Size (px):</label>
+      <input type="number" class="text-font-size" value="16" min="1" step="1">
+      <label>Font Family:</label>
+      <select class="text-font-family">
+        <option value="Arial">Arial</option>
+        <option value="Courier New">Courier New</option>
+        <option value="Times New Roman">Times New Roman</option>
+        <option value="Verdana">Verdana</option>
+      </select>
+    </div>
+    <div class="control-row">
+      <label>Font Color:</label>
+      <input type="color" class="text-font-color" value="#000000">
+      <label>Font Weight:</label>
+      <select class="text-bold">
+         <option value="normal">Normal</option>
+         <option value="bold">Bold</option>
+         <option value="bolder">Bolder</option>
+         <option value="lighter">Lighter</option>
+      </select>
+      <label>Orientation:</label>
+      <select class="text-orientation">
+        <option value="horizontal">Horizontal</option>
+        <option value="vertical">Vertical</option>
+      </select>
+    </div>
+  `;
+  
+  // 绑定删除按钮事件
+  div.querySelector(".delete-text").addEventListener("click", function() {
+    const idx = parseInt(div.dataset.index, 10);
+    textList.splice(idx, 1);
+    div.remove();
+    // 更新剩余的文本控制块索引
+    document.querySelectorAll(".text-control").forEach((ctrl, i) => {
+      ctrl.dataset.index = i;
+    });
+    createChart();
+  });
+  
+  return div;
+}
+
+// 绑定 Add Text 按钮事件（确保 DOM 加载后运行）
+document.addEventListener("DOMContentLoaded", function(){
+  document.getElementById("add-text").addEventListener("click", function(){
+    const index = textList.length;
+    const textControl = createTextControl(index);
+    textList.push({ control: textControl });
+    document.getElementById("text-controls").appendChild(textControl);
+  });
+});
 
 function createLineControl(index) {
   const div = document.createElement("div");
@@ -337,8 +408,6 @@ function createChart() {
     .text(yLabel);
   }
 
-  
-
   seriesList.forEach(series => {
     const control = series.control;
     const lineColor = control.querySelector(".line-color").value;
@@ -412,9 +481,35 @@ function createChart() {
         .attr("stroke-dasharray", dasharray);
     }
   });
+
+  // 绘制文本（字符串）
+  textList.forEach(item => {
+    const control = item.control;
+    const textStr = control.querySelector(".text-string").value;
+    const xPos = parseFloat(control.querySelector(".text-coordinate-x").value);
+    const yPos = parseFloat(control.querySelector(".text-coordinate-y").value);
+    const fontSize = control.querySelector(".text-font-size").value;
+    const fontFamily = control.querySelector(".text-font-family").value;
+    const fontColor = control.querySelector(".text-font-color").value;
+    const bold = control.querySelector(".text-bold").checked ? "bold" : "normal";
+    const orientation = control.querySelector(".text-orientation").value;
+    
+    // 根据 orientation 设置 transform（垂直时旋转 -90°）
+    const transform = orientation === "vertical" ? `rotate(-90, ${xPos}, ${yPos})` : null;
+    
+    svg.append("text")
+      .attr("x", x(xPos) + margin.left)  // 可根据实际需求调整位置转换
+      .attr("y", y(yPos) + margin.top)
+      .attr("transform", transform)
+      .text(textStr)
+      .style("font-size", `${fontSize}px`)
+      .style("font-family", fontFamily)
+      .style("fill", fontColor)
+      .style("font-weight", bold)
+      .style("text-anchor", "middle");
+  });
   
 }
-
 
 document.getElementById("add-line").addEventListener("click", function() {
     const index = linesList.length;
