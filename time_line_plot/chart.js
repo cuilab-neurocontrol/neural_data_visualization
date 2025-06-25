@@ -9,16 +9,16 @@ let height = parseFloat(container.dataset.height) * CM_TO_PX; // Convert cm to p
 
 // Get initial margins in cm and convert to pixels
 let margin = {
-  top: 1 * CM_TO_PX,
-  right: 1 * CM_TO_PX,
-  bottom: 1 * CM_TO_PX,
-  left: 1.5 * CM_TO_PX,
+  top: 2 * CM_TO_PX,
+  right: 2 * CM_TO_PX,
+  bottom: 2 * CM_TO_PX,
+  left: 2 * CM_TO_PX,
 };
 
 // Axis margins in cm (converted to pixels)
 let axisMargin = {
-  x: 0.5 * CM_TO_PX,
-  y: 0.5 * CM_TO_PX,
+  x: 0.3 * CM_TO_PX,
+  y: 0 * CM_TO_PX,
 };
 
 // Scale bar settings
@@ -48,13 +48,13 @@ let yScaleBarFontFamily = "Arial"; // Default Y scale bar font family
 // Axis and tick styling
 //let tickCount = 10; // Number of ticks
 let axisLineWidth = 2; // Axis line width in pixels
-let tickLineWidth = 1; // Tick line width in pixels
-let tickFontSize = 12; // Tick font size in pixels
+let tickLineWidth = 2; // Tick line width in pixels
+let tickFontSize = 18; // Tick font size in pixels
 let tickLength = 6; // Tick length in pixels
-let xtickPositions = [20,40,60,80,100]; // Default tick positions
-let xtickLabels = ["20", "40", "60", "80", "100"]; // Default tick labels
-let ytickPositions = [0, 2, 4, 6, 8, 10]; // Default Y tick positions
-let ytickLabels = ["0", "2", "4", "6", "8", "10"]; // Default Y tick labels
+let xtickPositions = [0,10,20,30,40,50,60,70,80,90,100]; // Default tick positions
+let xtickLabels = ['0',' ','20',' ','40',' ','60',' ','80',' ','100']; // Default tick labels
+let ytickPositions = [-2,0,2,4,6,8,10,12,14]; // Default Y tick positions
+let ytickLabels = ['-2',' ','2',' ','6',' ','10',' ','14']; // Default Y tick labels
 let tickFontFamily = "Arial"; // Default font family
 let tickOrientation = "outward"; // Default tick orientation
 

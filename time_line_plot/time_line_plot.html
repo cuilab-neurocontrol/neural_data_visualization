@@ -25,15 +25,15 @@
     <summary>Margins</summary>
     <div class="control-row">
       <label for="margin-top">Top (cm):</label>
-      <input type="number" id="margin-top" value="1" min="0" step="0.1">
+      <input type="number" id="margin-top" value="2" min="0" step="0.1">
       <label for="margin-right">Right (cm):</label>
-      <input type="number" id="margin-right" value="1" min="0" step="0.1">
+      <input type="number" id="margin-right" value="2" min="0" step="0.1">
     </div>
     <div class="control-row">
       <label for="margin-bottom">Bottom (cm):</label>
-      <input type="number" id="margin-bottom" value="1" min="0" step="0.1">
+      <input type="number" id="margin-bottom" value="2" min="0" step="0.1">
       <label for="margin-left">Left (cm):</label>
-      <input type="number" id="margin-left" value="1.5" min="0" step="0.1">
+      <input type="number" id="margin-left" value="2" min="0" step="0.1">
     </div>
   </details>
 
@@ -50,34 +50,34 @@
     </div>
     <div class="control-row">
       <label for="axis-margin-x">X Margin (cm):</label>
-      <input type="number" id="axis-margin-x" value="0.5" min="0" step="0.1">
+      <input type="number" id="axis-margin-x" value="0.3" min="0" step="0.1">
       <label for="axis-margin-y">Y Margin (cm):</label>
-      <input type="number" id="axis-margin-y" value="0.5" min="0" step="0.1">
+      <input type="number" id="axis-margin-y" value="0" min="0" step="0.1">
     </div>
     <!-- Subheading for Axis and Tick Styling -->
     <div class="control-row">
       <label for="axis-line-width">Line Width (px):</label>
       <input type="number" id="axis-line-width" value="2" min="1" step="0.1">
       <label for="tick-line-width">Tick Width (px):</label>
-      <input type="number" id="tick-line-width" value="1" min="1" step="0.1">
+      <input type="number" id="tick-line-width" value="2" min="1" step="0.1">
     </div>
     <div class="control-row">
       <label for="tick-font-size">Font Size (px):</label>
-      <input type="number" id="tick-font-size" value="12" min="1" step="1">
+      <input type="number" id="tick-font-size" value="18" min="1" step="1">
       <label for="tick-length">Tick Length (px):</label>
       <input type="number" id="tick-length" value="6" min="1" step="1">
     </div>
     <div class="control-row">
       <label for="tick-positions">xTick Positions:</label>
-      <input type="text" id="x-tick-positions" value="20,40,60,80,100">
+      <input type="text" id="x-tick-positions" value="0,10,20,30,40,50,60,70,80,90,100">
       <label for="tick-labels">xTick Labels:</label>
-      <input type="text" id="x-tick-labels" value="20,40,60,80,100">
+      <input type="text" id="x-tick-labels" value="0, ,20, , 40, ,60, ,80, ,100 ">
     </div>
     <div class="control-row">
       <label for="tick-positions">yTick Positions:</label>
-      <input type="text" id="y-tick-positions" value="2,4,6,8,10">
+      <input type="text" id="y-tick-positions" value="-2,0,2,4,6,8,10,12,14">
       <label for="tick-labels">yTick Labels:</label>
-      <input type="text" id="y-tick-labels" value="2,4,6,8,10">
+      <input type="text" id="y-tick-labels" value="-2, ,2, ,6, ,10, ,14">
     </div>
     <div class="control-row">
       <label for="tick-font-family">Tick Font Family:</label>
@@ -101,15 +101,15 @@
     </div>
     <div class="control-row">
       <label for="y-domain-min">Y Domain Min:</label>
-      <input type="number" id="y-domain-min" value="0" step="1">
+      <input type="number" id="y-domain-min" value="-2" step="1">
       <label for="y-domain-max">Y Domain Max:</label>
-      <input type="number" id="y-domain-max" value="10" step="1">
+      <input type="number" id="y-domain-max" value="16" step="1">
     </div>
     <div class="control-row">
       <label for="x-label">X Axis Label:</label>
-      <input type="text" id="x-label" value="X Axis">
+      <input type="text" id="x-label" value="Time from saccade onset (ms)">
       <label for="x-label-font-size">Font Size (px):</label>
-      <input type="number" id="x-label-font-size" value="14" min="1" step="1">
+      <input type="number" id="x-label-font-size" value="18" min="1" step="1">
       <label for="x-label-font-family">Font Family:</label>
       <select id="x-label-font-family">
         <option value="Arial">Arial</option>
@@ -120,9 +120,9 @@
     </div>
     <div class="control-row">
       <label for="y-label">Y Axis Label:</label>
-      <input type="text" id="y-label" value="Y Axis">
+      <input type="text" id="y-label" value="Firing Rate (Hz)">
       <label for="y-label-font-size">Font Size (px):</label>
-      <input type="number" id="y-label-font-size" value="14" min="1" step="1">
+      <input type="number" id="y-label-font-size" value="18" min="1" step="1">
       <label for="y-label-font-family">Font Family:</label>
       <select id="y-label-font-family">
         <option value="Arial">Arial</option>
@@ -137,7 +137,7 @@
     <summary>Scale Bar Styling</summary>
     <div class="control-row">
       <label for="show-scale-bar">Show Scale Bar:</label>
-      <input type="checkbox" id="show-scale-bar" checked>
+      <input type="checkbox" id="show-scale-bar">
     </div>
     <div class="control-row">
       <label for="x-scale-bar-position-x">X Bar PosX (px):</label>
@@ -222,7 +222,7 @@
 </div>
 
 <!-- Create a div where the graph will take place -->
-<div id="my_dataviz" data-width="16.2" data-height="14.1"></div>
+<div id="my_dataviz" data-width="10" data-height="8"></div>
 
 <!-- Add CSS for styling -->
 <style>
