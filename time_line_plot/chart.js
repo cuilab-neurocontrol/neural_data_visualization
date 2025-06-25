@@ -87,8 +87,13 @@ function createChart() {
         .domain([yDomainMin, yDomainMax]) // Specify the domain of the Y axis
         .range([height, 0]);
 
-    const showAxis = document.getElementById("show-axis").checked;
+    const showXAxis = document.getElementById("show-x-axis").checked;
+    const showYAxis = document.getElementById("show-y-axis").checked;
     const showOuterTicks = document.getElementById("show-outer-ticks").checked;
+    const showTitle = document.getElementById("show-title").checked;
+    const showXLabel = document.getElementById("show-x-label").checked;
+    const showYLabel = document.getElementById("show-y-label").checked;
+
     const xLabel = document.getElementById("x-label").value;
     const xLabelFontSize = parseFloat(document.getElementById("x-label-font-size").value);
     const xLabelFontFamily = document.getElementById("x-label-font-family").value;
@@ -104,6 +109,7 @@ function createChart() {
     const titleDistancePx = titleDistancePt * PT_TO_PX;
 
     // 添加标题文本（放在 SVG 顶部居中）
+    if (showTitle) {
     svg.append("text")
     .attr("x", (width) / 2)
     .attr("y", -titleDistancePx-axisMargin.y)
@@ -113,8 +119,9 @@ function createChart() {
     .style("font-family", titleFontFamily)
     .style("font-weight", titleFontWeight)
     .text(chartTitle);
+    }
 
-    if (showAxis) {
+    if (showXAxis) {
         const xAxis = d3.axisBottom(x)
         //.ticks(tickCount) // Set the number of ticks
         .tickValues(xtickPositions) // Set custom tick positions
@@ -137,7 +144,8 @@ function createChart() {
 
         svg.selectAll(".tick line") // Tick lines
         .style("stroke-width", tickLineWidth + "px"); // Set tick line width
-
+    }
+    if (showYAxis) {
         const yAxis = d3.axisLeft(y)
         //.ticks(tickCount) // Set the number of ticks
         .tickValues(ytickPositions) // Set custom tick positions
@@ -230,28 +238,31 @@ function createChart() {
     }
       // Add X axis label
     //const xLabelDistance = 26;
-    const xLabelDistance = tickLength+tickFontSize+6 * PT_TO_PX;
-    svg.append("text")
-    .attr("x", (width) / 2 +axisMargin.x) // Center the label horizontally
-    .attr("y", height + xLabelDistance) // Position below the X axis
-    //.attr("y", height - xScaleBarPositiony+xLabelFontSize-3)
-    .attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
-    .style("text-anchor", "middle")
-    .style("font-size", `${xLabelFontSize}px`)
-    .style("font-family", xLabelFontFamily)
-    .text(xLabel);
-
+    if (showXLabel) {
+      const xLabelDistance = tickLength+tickFontSize+6 * PT_TO_PX;
+      svg.append("text")
+      .attr("x", (width) / 2 +axisMargin.x) // Center the label horizontally
+      .attr("y", height + xLabelDistance) // Position below the X axis
+      //.attr("y", height - xScaleBarPositiony+xLabelFontSize-3)
+      .attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
+      .style("text-anchor", "middle")
+      .style("font-size", `${xLabelFontSize}px`)
+      .style("font-family", xLabelFontFamily)
+      .text(xLabel);
+    }
     // Add Y axis label
-    const yLabelDistance = tickLength + tickFontSize+6 * PT_TO_PX;
-    svg.append("text")
-    .attr("x", -(height) / 2+axisMargin.y) // Center the label vertically
-    .attr("y", -yLabelDistance) // Position to the left of the Y axis
-    .attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
-    .attr("transform", "rotate(-90)") // Rotate the label
-    .style("text-anchor", "middle")
-    .style("font-size", `${yLabelFontSize}px`)
-    .style("font-family", yLabelFontFamily)
-    .text(yLabel);
+    if (showYLabel) {
+      const yLabelDistance = tickLength + tickFontSize+6 * PT_TO_PX;
+      svg.append("text")
+      .attr("x", -(height) / 2+axisMargin.y) // Center the label vertically
+      .attr("y", -yLabelDistance) // Position to the left of the Y axis
+      .attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
+      .attr("transform", "rotate(-90)") // Rotate the label
+      .style("text-anchor", "middle")
+      .style("font-size", `${yLabelFontSize}px`)
+      .style("font-family", yLabelFontFamily)
+      .text(yLabel);
+    }
   });
 }
 
