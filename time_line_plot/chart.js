@@ -1,5 +1,4 @@
-// 全局数组，用于存放添加的 area 配置
-function createAreaControl(index) {
+function createAreaControl(index, controlsDiv, chartDiv, config) {
   const div = document.createElement("div");
   div.className = "area-control";
   div.dataset.index = index;
@@ -31,7 +30,7 @@ function createAreaControl(index) {
       <input type="number" class="area-length" value="100" min="0" step="1">
     </div>
   `;
-  
+
   // 构造 area 对象，初始时 data 为空
   const areaObj = { data: null, control: div };
 
@@ -41,7 +40,7 @@ function createAreaControl(index) {
     if (!url) return;
     d3.csv(url).then(data => {
       areaObj.data = data;
-      createChart();  // 重新绘制图表来显示新加载的 area
+      createChartForSubplot(controlsDiv, chartDiv, config);
     }).catch(error => {
       console.error("Error loading CSV from URL for Area:", error);
     });
@@ -57,7 +56,7 @@ function createAreaControl(index) {
       const text = e.target.result;
       const data = d3.csvParse(text);
       areaObj.data = data;
-      createChart();  // 重新绘制图表以显示新加载的 area
+      createChartForSubplot(controlsDiv, chartDiv, config);
     };
     reader.onerror = function(error) {
       console.error("Error reading CSV file for Area:", error);
@@ -68,19 +67,18 @@ function createAreaControl(index) {
   // 为删除按钮绑定事件
   div.querySelector(".delete-area").addEventListener("click", function() {
     const idx = parseInt(div.dataset.index, 10);
-    areasList.splice(idx, 1);
+    config.areasList.splice(idx, 1);
     div.remove();
-    // 更新剩余 area-control 的索引
-    document.querySelectorAll(".area-control").forEach((ctrl, i) => {
-      ctrl.dataset.index = i;
-    });
-    createChart();
+    // 更新索引
+    const controls = controlsDiv.querySelectorAll(".area-control");
+    controls.forEach((ctrl, i) => ctrl.dataset.index = i);
+    createChartForSubplot(controlsDiv, chartDiv, config);
   });
 
   return areaObj;
 }
 
-function createTextControl(index) {
+function createTextControl(index, controlsDiv, chartDiv, config) {
   const div = document.createElement("div");
   div.className = "text-control";
   div.dataset.index = index;
@@ -124,23 +122,23 @@ function createTextControl(index) {
       </select>
     </div>
   `;
-  
+
   // 绑定删除按钮事件
   div.querySelector(".delete-text").addEventListener("click", function() {
     const idx = parseInt(div.dataset.index, 10);
-    textList.splice(idx, 1);
+    config.textList.splice(idx, 1);
     div.remove();
-    // 更新剩余的文本控制块索引
-    document.querySelectorAll(".text-control").forEach((ctrl, i) => {
-      ctrl.dataset.index = i;
-    });
-    createChart();
+    // 更新索引
+    const controls = controlsDiv.querySelectorAll(".text-control");
+    controls.forEach((ctrl, i) => ctrl.dataset.index = i);
+    // 刷新当前子图
+    createChartForSubplot(controlsDiv, chartDiv, config);
   });
-  
+
   return div;
 }
 
-function createLineControl(index) {
+function createLineControl(index, controlsDiv, chartDiv, config) {
   const div = document.createElement("div");
   div.className = "line-control";
   div.dataset.index = index;
@@ -173,23 +171,24 @@ function createLineControl(index) {
       <input type="number" class="line-length" value="100" min="0" step="1">
     </div>
   `;
-  
+
   // 为删除按钮绑定事件
   div.querySelector(".delete-line").addEventListener("click", function() {
     const idx = parseInt(div.dataset.index, 10);
-    linesList.splice(idx, 1);
+    config.linesList.splice(idx, 1);
     div.remove();
-    document.querySelectorAll(".line-control").forEach((ctrl, i) => {
-      ctrl.dataset.index = i;
-    });
-    createChart();
+    // 更新索引
+    const controls = controlsDiv.querySelectorAll(".line-control");
+    controls.forEach((ctrl, i) => ctrl.dataset.index = i);
+    // 关键：刷新当前子图
+    createChartForSubplot(controlsDiv, chartDiv, config);
   });
-  
+
   return div;
 }
 
 // 创建系列控制块，包含线条颜色、粗细、阴影参数
-function createSeriesControl(index) {
+function createSeriesControl(index, controlsDiv, chartDiv, config) {
   const div = document.createElement("div");
   div.className = "series-control";
   div.dataset.index = index;
@@ -217,17 +216,14 @@ function createSeriesControl(index) {
 
   // 为删除按钮绑定事件
   div.querySelector(".delete-series").addEventListener("click", function() {
-    // 获取当前系列的索引（字符串需转换为数字）
     const idx = parseInt(div.dataset.index, 10);
-    // 从全局数组中移除该系列
-    seriesList.splice(idx, 1);
-    // 从DOM中删除该控制块
+    config.seriesList.splice(idx, 1);
     div.remove();
-    // 重新更新剩余控制块的索引（可选，对于展示编号）
-    const controls = document.querySelectorAll(".series-control");
+    // 更新索引
+    const controls = controlsDiv.querySelectorAll(".series-control");
     controls.forEach((ctrl, i) => ctrl.dataset.index = i);
-    // 重新绘制图表
-    createChart();
+    // 关键：刷新当前子图
+    createChartForSubplot(controlsDiv, chartDiv, config);
   });
 
   return div;
@@ -236,305 +232,353 @@ function createSeriesControl(index) {
 // Conversion factor: 1 cm = 37.7952755906 pixels
 const CM_TO_PX = 37.7952755906;
 const PT_TO_PX = 1.333;
-let seriesList = [];
-let linesList = [];
-let textList = [];
-let areasList = [];
+let subplots = [];
 
-// Get the container and dimensions in cm
-const container = document.getElementById("my_dataviz");
-let width = parseFloat(container.dataset.width) * CM_TO_PX; // Convert cm to pixels
-let height = parseFloat(container.dataset.height) * CM_TO_PX; // Convert cm to pixels
+function createSubplotInstance(baseConfig) {
+  // 创建子图容器
+  const subplotDiv = document.createElement("div");
+  subplotDiv.className = "subplot-instance";
+  subplotDiv.style.border = "1px solid #ccc";
+  subplotDiv.style.margin = "20px 0";
+  subplotDiv.style.padding = "10px";
+  subplotDiv.style.position = "relative";
+  subplotDiv.style.background = "#fafbfc";
 
-// Get initial margins in cm and convert to pixels
-let margin = {
-  top: 2 * CM_TO_PX,
-  right: 2 * CM_TO_PX,
-  bottom: 2 * CM_TO_PX,
-  left: 2 * CM_TO_PX,
-};
+  // 删除和位置调整按钮
+  const btnBar = document.createElement("div");
+  btnBar.style.position = "absolute";
+  btnBar.style.top = "10px";
+  btnBar.style.right = "10px";
+  btnBar.style.display = "flex";
+  btnBar.style.gap = "5px";
+  btnBar.innerHTML = `
+    <button class="subplot-delete">Delete</button>
+    <button class="subplot-up">↑</button>
+    <button class="subplot-down">↓</button>
+  `;
+  subplotDiv.appendChild(btnBar);
 
-// Axis margins in cm (converted to pixels)
-let axisMargin = {
-  x: 0.3 * CM_TO_PX,
-  y: 0 * CM_TO_PX,
-};
+  // 克隆参数和控件
+  const config = baseConfig ? JSON.parse(JSON.stringify(baseConfig)) : {
+    seriesList: [],
+    linesList: [],
+    textList: [],
+    areasList: []
+  };
 
-// Scale bar settings
-let xScaleBarPositionx = 0; // Default X scale bar Y position
-let xScaleBarPositiony = 20; // Default X scale bar Y position
-let xScaleBarWidth = 2; // Default X scale bar width
-let xScaleBarLength = 100; // Default X scale bar length in units
-let xScaleBarLabel = "100 units"; // Default X scale bar label
-let xScaleBarLabelOrientation = "outward"; // Default X scale bar label orientation
+  // 创建控件区和图表区
+  const controlsDiv = document.createElement("div");
+  controlsDiv.className = "subplot-controls";
+  controlsDiv.innerHTML = document.getElementById("control-panel").innerHTML;
+  subplotDiv.appendChild(controlsDiv);
 
-let yScaleBarPositionx = 20; // Default Y scale bar X position
-let yScaleBarPositiony = 0; // Default Y scale bar X position
-let yScaleBarWidth = 2; // Default Y scale bar width
-let yScaleBarLength = 2; // Default Y scale bar length in units
-let yScaleBarLabel = "100 units"; // Default Y scale bar label
-let yScaleBarLabelOrientation = "outward"; // Default Y scale bar label orientation
+  const chartDiv = document.createElement("div");
+  chartDiv.className = "subplot-chart";
+  chartDiv.style.marginTop = "20px";
+  subplotDiv.appendChild(chartDiv);
 
-// Scale bar settings
-let xScaleBarFontSize = 12; // Default X scale bar font size
-let xScaleBarLabelDistance = 20; // Default X scale bar label distance
-let xScaleBarFontFamily = "Arial"; // Default X scale bar font family
+  // 绑定控件事件（以add-line为例，其他类似）
+  controlsDiv.querySelector("#add-line").addEventListener("click", function() {
+    const index = config.linesList.length;
+    const lineControl = createLineControl(index, controlsDiv, chartDiv, config);
+    config.linesList.push({ control: lineControl });
+    controlsDiv.querySelector("#line-controls").appendChild(lineControl);
+  });
+  controlsDiv.querySelector("#add-text").addEventListener("click", function() {
+    const index = config.textList.length;
+    const textControl = createTextControl(index, controlsDiv, chartDiv, config);
+    config.textList.push({ control: textControl });
+    controlsDiv.querySelector("#text-controls").appendChild(textControl);
+  });
+  controlsDiv.querySelector("#add-area").addEventListener("click", function() {
+    const index = config.areasList.length;
+    const areaObj = createAreaControl(index, controlsDiv, chartDiv, config);
+    config.areasList.push(areaObj);
+    controlsDiv.querySelector("#area-controls").appendChild(areaObj.control);
+  });
+  controlsDiv.querySelector("#add-url").addEventListener("click", function() {
+    const url = controlsDiv.querySelector("#data-url").value;
+    if (!url) return;
+    d3.csv(url).then(data => {
+      const seriesControl = createSeriesControl(
+        config.seriesList.length,
+        controlsDiv,
+        chartDiv,
+        config
+      );
+      config.seriesList.push({ data, control: seriesControl });
+      controlsDiv.querySelector("#series-controls").appendChild(seriesControl);
+    });
+  });
+  controlsDiv.querySelector("#data-files").addEventListener("change", function(e) {
+    const files = e.target.files;
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const text = evt.target.result;
+        const data = d3.csvParse(text);
+        const seriesControl = createSeriesControl(
+          config.seriesList.length,
+          controlsDiv,
+          chartDiv,
+          config
+        );
+        config.seriesList.push({ data, control: seriesControl });
+        controlsDiv.querySelector("#series-controls").appendChild(seriesControl);
+      };
+      reader.readAsText(file);
+    });
+  });
+  controlsDiv.querySelector("#update").addEventListener("click", function() {
+    createChartForSubplot(controlsDiv, chartDiv, config);
+  });
 
-let yScaleBarFontSize = 12; // Default Y scale bar font size
-let yScaleBarLabelDistance = 20; // Default Y scale bar label distance
-let yScaleBarFontFamily = "Arial"; // Default Y scale bar font family
+  // 删除按钮
+  btnBar.querySelector(".subplot-delete").onclick = function() {
+    subplotDiv.remove();
+    subplots = subplots.filter(s => s.div !== subplotDiv);
+  };
+  // 上移
+  btnBar.querySelector(".subplot-up").onclick = function() {
+    const container = document.getElementById("subplots-container");
+    const prev = subplotDiv.previousElementSibling;
+    if (prev) container.insertBefore(subplotDiv, prev);
+  };
+  // 下移
+  btnBar.querySelector(".subplot-down").onclick = function() {
+    const container = document.getElementById("subplots-container");
+    const next = subplotDiv.nextElementSibling;
+    if (next) container.insertBefore(next, subplotDiv);
+  };
 
-// Axis and tick styling
-//let tickCount = 10; // Number of ticks
-let axisLineWidth = 2; // Axis line width in pixels
-let tickLineWidth = 2; // Tick line width in pixels
-let tickFontSize = 18; // Tick font size in pixels
-let tickLength = 6; // Tick length in pixels
-let xtickPositions = [0,10,20,30,40,50,60,70,80,90,100]; // Default tick positions
-let xtickLabels = ['0',' ','20',' ','40',' ','60',' ','80',' ','100']; // Default tick labels
-let ytickPositions = [-2,0,2,4,6,8,10,12,14]; // Default Y tick positions
-let ytickLabels = ['-2',' ','2',' ','6',' ','10',' ','14']; // Default Y tick labels
-let tickFontFamily = "Arial"; // Default font family
-let tickOrientation = "outward"; // Default tick orientation
+  // 保存并渲染
+  subplots.push({div: subplotDiv, config, controlsDiv, chartDiv});
+  document.getElementById("subplots-container").appendChild(subplotDiv);
+  createChartForSubplot(controlsDiv, chartDiv, config);
+}
 
-// Get user-defined domains
-const xDomainMin = parseFloat(document.getElementById("x-domain-min").value);
-const xDomainMax = parseFloat(document.getElementById("x-domain-max").value);
-const yDomainMin = parseFloat(document.getElementById("y-domain-min").value);
-const yDomainMax = parseFloat(document.getElementById("y-domain-max").value);
-const showOuterTicks = document.getElementById("show-outer-ticks").checked;
-const xLabel = document.getElementById("x-label").value;
-const xLabelFontSize = parseFloat(document.getElementById("x-label-font-size").value);
-const xLabelFontFamily = document.getElementById("x-label-font-family").value;
-const yLabel = document.getElementById("y-label").value;
-const yLabelFontSize = parseFloat(document.getElementById("y-label-font-size").value);
-const yLabelFontFamily = document.getElementById("y-label-font-family").value;
-const chartTitle = document.getElementById("chart-title").value;
-const titleFontSize = parseFloat(document.getElementById("title-font-size").value);
-const titleFontFamily = document.getElementById("title-font-family").value;
-const titleFontWeight = document.getElementById("title-font-weight").value;
-const titleDistancePt = parseFloat(document.getElementById("title-distance").value);
-const titleDistancePx = titleDistancePt * PT_TO_PX;
-const showTitle = document.getElementById("show-title").checked;
-const showXAxis = document.getElementById("show-x-axis").checked;
-const showYAxis = document.getElementById("show-y-axis").checked;
-const showScaleBar = document.getElementById("show-scale-bar").checked;
-const showXLabel = document.getElementById("show-x-label").checked;
-const showYLabel = document.getElementById("show-y-label").checked;
+// 子图专用绘图函数（参数与主图一致，但用自己的config）
+function createChartForSubplot(controlsDiv, chartDiv, config) {
+  // 获取参数
+  const CM_TO_PX = 37.7952755906;
+  const PT_TO_PX = 1.333;
 
-// Get new width and height from input fields (in cm)
-const newWidth = parseFloat(document.getElementById("width").value) * CM_TO_PX; // Convert cm to pixels
-const newHeight = parseFloat(document.getElementById("height").value) * CM_TO_PX; // Convert cm to pixels
+  // 获取输入参数
+  const xDomainMin = parseFloat(controlsDiv.querySelector("#x-domain-min").value);
+  const xDomainMax = parseFloat(controlsDiv.querySelector("#x-domain-max").value);
+  const yDomainMin = parseFloat(controlsDiv.querySelector("#y-domain-min").value);
+  const yDomainMax = parseFloat(controlsDiv.querySelector("#y-domain-max").value);
+  const showOuterTicks = controlsDiv.querySelector("#show-outer-ticks").checked;
+  const xLabel = controlsDiv.querySelector("#x-label").value;
+  const xLabelFontSize = parseFloat(controlsDiv.querySelector("#x-label-font-size").value);
+  const xLabelFontFamily = controlsDiv.querySelector("#x-label-font-family").value;
+  const yLabel = controlsDiv.querySelector("#y-label").value;
+  const yLabelFontSize = parseFloat(controlsDiv.querySelector("#y-label-font-size").value);
+  const yLabelFontFamily = controlsDiv.querySelector("#y-label-font-family").value;
+  const chartTitle = controlsDiv.querySelector("#chart-title").value;
+  const titleFontSize = parseFloat(controlsDiv.querySelector("#title-font-size").value);
+  const titleFontFamily = controlsDiv.querySelector("#title-font-family").value;
+  const titleFontWeight = controlsDiv.querySelector("#title-font-weight").value;
+  const titleDistancePt = parseFloat(controlsDiv.querySelector("#title-distance").value);
+  const titleDistancePx = titleDistancePt * PT_TO_PX;
+  const showTitle = controlsDiv.querySelector("#show-title").checked;
+  const showXAxis = controlsDiv.querySelector("#show-x-axis").checked;
+  const showYAxis = controlsDiv.querySelector("#show-y-axis").checked;
+  const showScaleBar = controlsDiv.querySelector("#show-scale-bar").checked;
+  const showXLabel = controlsDiv.querySelector("#show-x-label").checked;
+  const showYLabel = controlsDiv.querySelector("#show-y-label").checked;
 
-// Get new margins from input fields (in cm)
-margin.top = parseFloat(document.getElementById("margin-top").value) * CM_TO_PX;
-margin.right = parseFloat(document.getElementById("margin-right").value) * CM_TO_PX;
-margin.bottom = parseFloat(document.getElementById("margin-bottom").value) * CM_TO_PX;
-margin.left = parseFloat(document.getElementById("margin-left").value) * CM_TO_PX;
+  const newWidth = parseFloat(controlsDiv.querySelector("#width").value) * CM_TO_PX;
+  const newHeight = parseFloat(controlsDiv.querySelector("#height").value) * CM_TO_PX;
 
-// Get new axis margins from input fields (in cm)
-axisMargin.x = parseFloat(document.getElementById("axis-margin-x").value) * CM_TO_PX;
-axisMargin.y = parseFloat(document.getElementById("axis-margin-y").value) * CM_TO_PX;
+  let margin = {
+    top: parseFloat(controlsDiv.querySelector("#margin-top").value) * CM_TO_PX,
+    right: parseFloat(controlsDiv.querySelector("#margin-right").value) * CM_TO_PX,
+    bottom: parseFloat(controlsDiv.querySelector("#margin-bottom").value) * CM_TO_PX,
+    left: parseFloat(controlsDiv.querySelector("#margin-left").value) * CM_TO_PX
+  };
 
-// Get new axis and tick styling from input fields
-//tickCount = parseInt(document.getElementById("tick-count").value);
-axisLineWidth = parseFloat(document.getElementById("axis-line-width").value);
-tickLineWidth = parseFloat(document.getElementById("tick-line-width").value);
-tickFontSize = parseFloat(document.getElementById("tick-font-size").value);
-tickFontFamily = document.getElementById("tick-font-family").value;
-tickOrientation = document.getElementById("tick-orientation").value;
-tickLength = parseFloat(document.getElementById("tick-length").value);
+  let axisMargin = {
+    x: parseFloat(controlsDiv.querySelector("#axis-margin-x").value) * CM_TO_PX,
+    y: parseFloat(controlsDiv.querySelector("#axis-margin-y").value) * CM_TO_PX
+  };
 
-// Get new scale bar settings from input fields
-xScaleBarPositionx = parseFloat(document.getElementById("x-scale-bar-position-x").value);
-xScaleBarPositiony = parseFloat(document.getElementById("x-scale-bar-position-y").value);
-xScaleBarWidth = parseFloat(document.getElementById("x-scale-bar-width").value);
-xScaleBarLength = parseFloat(document.getElementById("x-scale-bar-length").value);
-xScaleBarLabel = document.getElementById("x-scale-bar-label").value;
-xScaleBarLabelOrientation = document.getElementById("x-scale-bar-label-orientation").value;
+  let axisLineWidth = parseFloat(controlsDiv.querySelector("#axis-line-width").value);
+  let tickLineWidth = parseFloat(controlsDiv.querySelector("#tick-line-width").value);
+  let tickFontSize = parseFloat(controlsDiv.querySelector("#tick-font-size").value);
+  let tickFontFamily = controlsDiv.querySelector("#tick-font-family").value;
+  let tickOrientation = controlsDiv.querySelector("#tick-orientation").value;
+  let tickLength = parseFloat(controlsDiv.querySelector("#tick-length").value);
 
-yScaleBarPositionx = parseFloat(document.getElementById("y-scale-bar-position-x").value);
-yScaleBarPositiony = parseFloat(document.getElementById("y-scale-bar-position-y").value);
-yScaleBarWidth = parseFloat(document.getElementById("y-scale-bar-width").value);
-yScaleBarLength = parseFloat(document.getElementById("y-scale-bar-length").value);
-yScaleBarLabel = document.getElementById("y-scale-bar-label").value;
-yScaleBarLabelOrientation = document.getElementById("y-scale-bar-label-orientation").value;
+  let xScaleBarPositionx = parseFloat(controlsDiv.querySelector("#x-scale-bar-position-x").value);
+  let xScaleBarPositiony = parseFloat(controlsDiv.querySelector("#x-scale-bar-position-y").value);
+  let xScaleBarWidth = parseFloat(controlsDiv.querySelector("#x-scale-bar-width").value);
+  let xScaleBarLength = parseFloat(controlsDiv.querySelector("#x-scale-bar-length").value);
+  let xScaleBarLabel = controlsDiv.querySelector("#x-scale-bar-label").value;
+  let xScaleBarLabelOrientation = controlsDiv.querySelector("#x-scale-bar-label-orientation").value;
 
-xScaleBarFontSize = parseFloat(document.getElementById("x-scale-bar-font-size").value);
-xScaleBarLabelDistance = parseFloat(document.getElementById("x-scale-bar-label-distance").value);
-xScaleBarFontFamily = document.getElementById("x-scale-bar-font-family").value;
+  let yScaleBarPositionx = parseFloat(controlsDiv.querySelector("#y-scale-bar-position-x").value);
+  let yScaleBarPositiony = parseFloat(controlsDiv.querySelector("#y-scale-bar-position-y").value);
+  let yScaleBarWidth = parseFloat(controlsDiv.querySelector("#y-scale-bar-width").value);
+  let yScaleBarLength = parseFloat(controlsDiv.querySelector("#y-scale-bar-length").value);
+  let yScaleBarLabel = controlsDiv.querySelector("#y-scale-bar-label").value;
+  let yScaleBarLabelOrientation = controlsDiv.querySelector("#y-scale-bar-label-orientation").value;
 
-yScaleBarFontSize = parseFloat(document.getElementById("y-scale-bar-font-size").value);
-yScaleBarLabelDistance = parseFloat(document.getElementById("y-scale-bar-label-distance").value);
-yScaleBarFontFamily = document.getElementById("y-scale-bar-font-family").value;
+  let xScaleBarFontSize = parseFloat(controlsDiv.querySelector("#x-scale-bar-font-size").value);
+  let xScaleBarLabelDistance = parseFloat(controlsDiv.querySelector("#x-scale-bar-label-distance").value);
+  let xScaleBarFontFamily = controlsDiv.querySelector("#x-scale-bar-font-family").value;
 
-// Update dimensions
-width = newWidth - margin.left - margin.right;
-height = newHeight - margin.top - margin.bottom;
+  let yScaleBarFontSize = parseFloat(controlsDiv.querySelector("#y-scale-bar-font-size").value);
+  let yScaleBarLabelDistance = parseFloat(controlsDiv.querySelector("#y-scale-bar-label-distance").value);
+  let yScaleBarFontFamily = controlsDiv.querySelector("#y-scale-bar-font-family").value;
 
-// Get custom tick positions and labels
-xtickPositions = document.getElementById("x-tick-positions").value.split(",").map(Number);
-xtickLabels = document.getElementById("x-tick-labels").value.split(",");
-ytickPositions = document.getElementById("y-tick-positions").value.split(",").map(Number);
-ytickLabels = document.getElementById("y-tick-labels").value.split(",");
+  // Update dimensions
+  let width = newWidth - margin.left - margin.right;
+  let height = newHeight - margin.top - margin.bottom;
 
-// Function to create or update the SVG
-function createChart() {
-  // Clear existing SVG
-  d3.select("#my_dataviz").html("");
+  // Get custom tick positions and labels
+  let xtickPositions = controlsDiv.querySelector("#x-tick-positions").value.split(",").map(Number);
+  let xtickLabels = controlsDiv.querySelector("#x-tick-labels").value.split(",");
+  let ytickPositions = controlsDiv.querySelector("#y-tick-positions").value.split(",").map(Number);
+  let ytickLabels = controlsDiv.querySelector("#y-tick-labels").value.split(",");
 
-  // Append the SVG object to the body of the page
-  const svg = d3.select("#my_dataviz")
+  // 清空SVG
+  d3.select(chartDiv).html("");
+
+  // 创建SVG
+  const svg = d3.select(chartDiv)
     .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // Add X axis
+  // X/Y轴
   const x = d3.scaleLinear()
-      .domain([xDomainMin, xDomainMax]) // Specify the domain of the X axis
-      .range([0, width]);
-  // Add Y axis
+    .domain([xDomainMin, xDomainMax])
+    .range([0, width]);
   const y = d3.scaleLinear()
-      .domain([yDomainMin, yDomainMax]) // Specify the domain of the Y axis
-      .range([height, 0]);
+    .domain([yDomainMin, yDomainMax])
+    .range([height, 0]);
 
+  // 标题
   if (showTitle) {
     svg.append("text")
-    .attr("x", (width) / 2)
-    .attr("y", -titleDistancePx-axisMargin.y)
-    .attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
-    .style("text-anchor", "middle")
-    .style("font-size", `${titleFontSize}px`)
-    .style("font-family", titleFontFamily)
-    .style("font-weight", titleFontWeight)
-    .text(chartTitle);
+      .attr("x", width / 2)
+      .attr("y", -titleDistancePx - axisMargin.y)
+      .attr("dominant-baseline", "ideographic")
+      .style("text-anchor", "middle")
+      .style("font-size", `${titleFontSize}px`)
+      .style("font-family", titleFontFamily)
+      .style("font-weight", titleFontWeight)
+      .text(chartTitle);
   }
 
+  // X轴
   if (showXAxis) {
-      const xAxis = d3.axisBottom(x)
-      //.ticks(tickCount) // Set the number of ticks
-      .tickValues(xtickPositions) // Set custom tick positions
-      //.tickSize(tickLength) // Set the tick size (length of the tick lines)
+    const xAxis = d3.axisBottom(x)
+      .tickValues(xtickPositions)
       .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
-      //.tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
-      .tickFormat((d, i) => xtickLabels[i] || d) // Set custom tick labels
-      .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
+      .tickFormat((d, i) => xtickLabels[i] || d)
+      .tickSizeOuter(showOuterTicks ? tickLength : 0);
 
-      svg.append("g")
-      .attr("transform", `translate(${axisMargin.x}, ${height})`) // Translate X axis
+    svg.append("g")
+      .attr("transform", `translate(${axisMargin.x}, ${height})`)
       .call(xAxis)
-      .selectAll("text") // Customize tick labels
-      .style("font-size", `${tickFontSize}px`) // Set font size
-      .style("font-family", tickFontFamily); // Set font family
+      .selectAll("text")
+      .style("font-size", `${tickFontSize}px`)
+      .style("font-family", tickFontFamily);
 
-      // Customize X axis line and ticks
-      svg.selectAll(".domain") // Axis line
-      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
-
-      svg.selectAll(".tick line") // Tick lines
-      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
+    svg.selectAll(".domain").style("stroke-width", axisLineWidth + "px");
+    svg.selectAll(".tick line").style("stroke-width", tickLineWidth + "px");
   }
-  
+
+  // Y轴
   if (showYAxis) {
-      const yAxis = d3.axisLeft(y)
-      //.ticks(tickCount) // Set the number of ticks
-      .tickValues(ytickPositions) // Set custom tick positions
-      //.tickSize(tickLength) // Set the tick size (length of the tick lines)
+    const yAxis = d3.axisLeft(y)
+      .tickValues(ytickPositions)
       .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
-      //.tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
-      .tickFormat((d, i) => ytickLabels[i] || d) // Set custom tick labels
-      .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
+      .tickFormat((d, i) => ytickLabels[i] || d)
+      .tickSizeOuter(showOuterTicks ? tickLength : 0);
 
-      svg.append("g")
-      .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
+    svg.append("g")
+      .attr("transform", `translate(0, ${-axisMargin.y})`)
       .call(yAxis)
-      .selectAll("text") // Customize tick labels
-      .style("font-size", `${tickFontSize}px`) // Set font size
-      .style("font-family", tickFontFamily); // Set font family
+      .selectAll("text")
+      .style("font-size", `${tickFontSize}px`)
+      .style("font-family", tickFontFamily);
 
-      // Customize Y axis line and ticks
-      svg.selectAll(".domain") // Axis line
-      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
-
-      svg.selectAll(".tick line") // Tick lines
-      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
+    svg.selectAll(".domain").style("stroke-width", axisLineWidth + "px");
+    svg.selectAll(".tick line").style("stroke-width", tickLineWidth + "px");
   }
 
+  // Scale Bar
   if (showScaleBar) {
     const xScaleBarPixelLength = x(xScaleBarLength) - x(0);
-    // Add scale bar for X axis
     svg.append("line")
-    .attr("x1", xScaleBarPositionx)
-    .attr("x2", xScaleBarPositionx+xScaleBarPixelLength) // Length of the scale bar in pixels
-    .attr("y1", height - xScaleBarPositiony) // Position below the X axis
-    .attr("y2", height - xScaleBarPositiony)
-    .style("stroke", "black")
-    .style("stroke-width", xScaleBarWidth);
-    
-    svg.append("text")
-    .attr("x", xScaleBarPositionx+xScaleBarPixelLength / 2) // Center of the scale bar
-    .attr(
-        "y",
-        height -
-        xScaleBarPositiony +
-        (xScaleBarLabelOrientation === "outward" ? xScaleBarLabelDistance : -xScaleBarLabelDistance)
-    ) // Adjust label position based on orientation
-    .style("text-anchor", "middle")
-    .style("font-size", `${xScaleBarFontSize}px`)
-    .style("font-family", xScaleBarFontFamily)
-    .text(xScaleBarLabel);
+      .attr("x1", xScaleBarPositionx)
+      .attr("x2", xScaleBarPositionx + xScaleBarPixelLength)
+      .attr("y1", height - xScaleBarPositiony)
+      .attr("y2", height - xScaleBarPositiony)
+      .style("stroke", "black")
+      .style("stroke-width", xScaleBarWidth);
 
-    const yScaleBarPixelLength = y(0) - y(yScaleBarLength); // Convert units to pixels
-    // Add scale bar for Y axis
+    svg.append("text")
+      .attr("x", xScaleBarPositionx + xScaleBarPixelLength / 2)
+      .attr("y", height - xScaleBarPositiony + (xScaleBarLabelOrientation === "outward" ? xScaleBarLabelDistance : -xScaleBarLabelDistance))
+      .style("text-anchor", "middle")
+      .style("font-size", `${xScaleBarFontSize}px`)
+      .style("font-family", xScaleBarFontFamily)
+      .text(xScaleBarLabel);
+
+    const yScaleBarPixelLength = y(0) - y(yScaleBarLength);
     svg.append("line")
-    .attr("x1", yScaleBarPositionx) // Position to the left of the Y axis
-    .attr("x2", yScaleBarPositionx)
-    .attr("y1", height-yScaleBarPositiony)
-    .attr("y2", height-yScaleBarPositiony - yScaleBarPixelLength) // Length of the scale bar in pixels
-    .style("stroke", "black")
-    .style("stroke-width", yScaleBarWidth);
+      .attr("x1", yScaleBarPositionx)
+      .attr("x2", yScaleBarPositionx)
+      .attr("y1", height - yScaleBarPositiony)
+      .attr("y2", height - yScaleBarPositiony - yScaleBarPixelLength)
+      .style("stroke", "black")
+      .style("stroke-width", yScaleBarWidth);
 
-    const x_scaleLabelPosition = yScaleBarPositionx + (yScaleBarLabelOrientation === "outward" ? -yScaleBarLabelDistance : yScaleBarLabelDistance)
+    const x_scaleLabelPosition = yScaleBarPositionx + (yScaleBarLabelOrientation === "outward" ? -yScaleBarLabelDistance : yScaleBarLabelDistance);
     svg.append("text")
-    .attr("x",x_scaleLabelPosition) // Adjust label position based on orientation
-    .attr("y", height -yScaleBarPositiony - yScaleBarPixelLength / 2) // Center of the scale bar
-    .style("text-anchor", "middle")
-    .style("font-size", `${yScaleBarFontSize}px`)
-    .style("font-family", yScaleBarFontFamily)
-    .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height-yScaleBarPositiony - yScaleBarPixelLength / 2})`) // Rotate text for Y axis
-    .text(yScaleBarLabel);
+      .attr("x", x_scaleLabelPosition)
+      .attr("y", height - yScaleBarPositiony - yScaleBarPixelLength / 2)
+      .style("text-anchor", "middle")
+      .style("font-size", `${yScaleBarFontSize}px`)
+      .style("font-family", yScaleBarFontFamily)
+      .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height - yScaleBarPositiony - yScaleBarPixelLength / 2})`)
+      .text(yScaleBarLabel);
   }
-  // Add X axis label
-  //const xLabelDistance = 26;
+
+  // X轴标签
   if (showXLabel) {
-    const xLabelDistance = tickLength+tickFontSize+6 * PT_TO_PX;
+    const xLabelDistance = tickLength + tickFontSize + 6 * PT_TO_PX;
     svg.append("text")
-    .attr("x", (width) / 2 +axisMargin.x) // Center the label horizontally
-    .attr("y", height + xLabelDistance) // Position below the X axis
-    //.attr("y", height - xScaleBarPositiony+xLabelFontSize-3)
-    .attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
-    .style("text-anchor", "middle")
-    .style("font-size", `${xLabelFontSize}px`)
-    .style("font-family", xLabelFontFamily)
-    .text(xLabel);
+      .attr("x", width / 2 + axisMargin.x)
+      .attr("y", height + xLabelDistance)
+      .attr("dominant-baseline", "text-before-edge")
+      .style("text-anchor", "middle")
+      .style("font-size", `${xLabelFontSize}px`)
+      .style("font-family", xLabelFontFamily)
+      .text(xLabel);
   }
-  // Add Y axis label
+  // Y轴标签
   if (showYLabel) {
-    const yLabelDistance = tickLength + tickFontSize+6 * PT_TO_PX;
+    const yLabelDistance = tickLength + tickFontSize + 6 * PT_TO_PX;
     svg.append("text")
-    .attr("x", -(height) / 2+axisMargin.y) // Center the label vertically
-    .attr("y", -yLabelDistance) // Position to the left of the Y axis
-    .attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
-    .attr("transform", "rotate(-90)") // Rotate the label
-    .style("text-anchor", "middle")
-    .style("font-size", `${yLabelFontSize}px`)
-    .style("font-family", yLabelFontFamily)
-    .text(yLabel);
+      .attr("x", -(height) / 2 + axisMargin.y)
+      .attr("y", -yLabelDistance)
+      .attr("dominant-baseline", "ideographic")
+      .attr("transform", "rotate(-90)")
+      .style("text-anchor", "middle")
+      .style("font-size", `${yLabelFontSize}px`)
+      .style("font-family", yLabelFontFamily)
+      .text(yLabel);
   }
 
-  seriesList.forEach(series => {
+  // 绘制数据系列
+  config.seriesList.forEach(series => {
     const control = series.control;
     const lineColor = control.querySelector(".line-color").value;
     const lineThickness = parseFloat(control.querySelector(".line-thickness").value);
@@ -542,45 +586,42 @@ function createChart() {
     const shadowColor = control.querySelector(".shadow-color").value;
     const shadowOpacity = parseFloat(control.querySelector(".shadow-opacity").value);
 
-    // Show confidence interval
-    if (showShadow){
-    svg.append("path")
-      .datum(series.data)
-      .attr("fill", shadowColor)
-      .attr("fill-opacity", shadowOpacity)
-      .attr("stroke", "none")
-      .attr("d", d3.area()
-        .x(function (d) { return x(d.x) + axisMargin.x; }) // 同步 X 平移
-        .y0(function (d) { return y(d.CI_right) - axisMargin.y; }) // 同步 Y 平移
-        .y1(function (d) { return y(d.CI_left) - axisMargin.y; }) // 同步 Y 平移
-      );
+    if (showShadow) {
+      svg.append("path")
+        .datum(series.data)
+        .attr("fill", shadowColor)
+        .attr("fill-opacity", shadowOpacity)
+        .attr("stroke", "none")
+        .attr("d", d3.area()
+          .x(d => x(d.x) + axisMargin.x)
+          .y0(d => y(d.CI_right) - axisMargin.y)
+          .y1(d => y(d.CI_left) - axisMargin.y)
+        );
     }
-    // Add the line
     svg.append("path")
       .datum(series.data)
       .attr("fill", "none")
       .attr("stroke", lineColor)
       .attr("stroke-width", lineThickness)
       .attr("d", d3.line()
-        .x(function (d) { return x(d.x) + axisMargin.x; }) // 同步 X 平移
-        .y(function (d) { return y(d.y) - axisMargin.y; }) // 同步 Y 平移
+        .x(d => x(d.x) + axisMargin.x)
+        .y(d => y(d.y) - axisMargin.y)
       );
   });
 
-  // 在 createChart() 中，绘制新增的线条
-  linesList.forEach(lineItem => {
+  // 绘制线
+  config.linesList.forEach(lineItem => {
     const control = lineItem.control;
     const type = control.querySelector(".line-type").value;
     const coordinateX = parseFloat(control.querySelector(".line-coordinate-x").value);
     const coordinateY = parseFloat(control.querySelector(".line-coordinate-y").value);
     const color = control.querySelector(".line-color").value;
     const thickness = parseFloat(control.querySelector(".line-thickness").value);
-    const style = control.querySelector(".line-style").value; // "solid" 或 "dashed"
+    const style = control.querySelector(".line-style").value;
     const length = parseFloat(control.querySelector(".line-length").value);
     const dasharray = style === "dashed" ? "5,5" : null;
     const ylength = y(0) - y(length);
-    if(type === "vertical"){
-      // 垂直线：X 坐标固定；Y 坐标从设定值开始，向上延伸 length 像素
+    if (type === "vertical") {
       const xPos = x(coordinateX) + axisMargin.x;
       const yPos = y(coordinateY);
       svg.append("line")
@@ -591,9 +632,7 @@ function createChart() {
         .attr("stroke", color)
         .attr("stroke-width", thickness)
         .attr("stroke-dasharray", dasharray);
-    }
-    else if(type === "horizontal"){
-      // 水平线：Y 坐标固定；X 坐标从设定值开始，向右延伸 length 像素
+    } else if (type === "horizontal") {
       const xLength = x(length) - x(0);
       const xPos = x(coordinateX) + axisMargin.x;
       const yPos = y(coordinateY);
@@ -608,8 +647,8 @@ function createChart() {
     }
   });
 
-  // 绘制文本（字符串）
-  textList.forEach(item => {
+  // 绘制文本
+  config.textList.forEach(item => {
     const control = item.control;
     const textStr = control.querySelector(".text-string").value;
     const xPos = parseFloat(control.querySelector(".text-coordinate-x").value);
@@ -619,12 +658,10 @@ function createChart() {
     const fontColor = control.querySelector(".text-font-color").value;
     const fontWeight = control.querySelector(".text-bold").value;
     const orientation = control.querySelector(".text-orientation").value;
-    
-    // 根据 orientation 设置 transform（垂直时旋转 -90°）
     const transform = orientation === "vertical" ? `rotate(-90, ${xPos}, ${yPos})` : null;
-    
+
     svg.append("text")
-      .attr("x", x(xPos) + margin.left)  // 可根据实际需求调整位置转换
+      .attr("x", x(xPos) + margin.left)
       .attr("y", y(yPos) + margin.top)
       .attr("transform", transform)
       .text(textStr)
@@ -634,69 +671,48 @@ function createChart() {
       .style("font-weight", fontWeight)
       .style("text-anchor", "middle");
   });
-  
+
+  // 绘制 area
+  config.areasList.forEach(areaObj => {
+    const control = areaObj.control;
+    if (!areaObj.data) return;
+    const areaColor = control.querySelector(".area-color").value;
+    const areaOpacity = parseFloat(control.querySelector(".area-opacity").value);
+    const orientation = control.querySelector(".area-orientation").value;
+    // const length = parseFloat(control.querySelector(".area-length").value);
+
+    if (orientation === "horizontal") {
+      svg.append("path")
+        .datum(areaObj.data)
+        .attr("fill", areaColor)
+        .attr("fill-opacity", areaOpacity)
+        .attr("stroke", "none")
+        .attr("d", d3.area()
+          .x(d => x(+d.x) + axisMargin.x)
+          .y0(d => y(+d.y0) - axisMargin.y)
+          .y1(d => y(+d.y1) - axisMargin.y)
+        );
+    } else {
+      svg.append("path")
+        .datum(areaObj.data)
+        .attr("fill", areaColor)
+        .attr("fill-opacity", areaOpacity)
+        .attr("stroke", "none")
+        .attr("d", d3.area()
+          .y(d => y(+d.y) - axisMargin.y)
+          .x0(d => x(+d.x0) + axisMargin.x)
+          .x1(d => x(+d.x1) + axisMargin.x)
+        );
+    }
+  });
 }
 
-document.getElementById("add-text").addEventListener("click", function(){
-  const index = textList.length;
-  const textControl = createTextControl(index);
-  textList.push({ control: textControl });
-  document.getElementById("text-controls").appendChild(textControl);
-});
+// 绑定 add subplot 按钮
+document.getElementById("add-subplot").onclick = function() {
+  // 默认复制最后一个子图的参数
+  const last = subplots.length ? subplots[subplots.length - 1].config : null;
+  createSubplotInstance(last);
+};
 
-document.getElementById("add-line").addEventListener("click", function() {
-    const index = linesList.length;
-    const lineControl = createLineControl(index);
-    linesList.push({ control: lineControl });
-    document.getElementById("line-controls").appendChild(lineControl);
-});
-
-// 处理通过文件上传的CSV
-document.getElementById("data-files").addEventListener("change", function(e) {
-  const files = e.target.files;
-  Array.from(files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-      const text = evt.target.result;
-      const data = d3.csvParse(text); // 解析CSV数据
-      // 创建一个系列控制块，该控制块只控制此数据系列
-      const seriesControl = createSeriesControl(seriesList.length);
-      // 保存数据与其控制块
-      seriesList.push({ data, control: seriesControl });
-      // 将该控制块添加到控制面板中
-      document.getElementById("series-controls").appendChild(seriesControl);
-    };
-    reader.readAsText(file);
-  });
-});
-
-// 处理通过URL添加CSV数据
-document.getElementById("add-url").addEventListener("click", function() {
-  const url = document.getElementById("data-url").value;
-  if (!url) return;
-  d3.csv(url).then(data => {
-    const seriesControl = createSeriesControl(seriesList.length);
-    seriesList.push({ data, control: seriesControl });
-    document.getElementById("series-controls").appendChild(seriesControl);
-  }).catch(error => {
-    console.error("Error loading CSV from URL:", error);
-  });
-});
-
-// 绑定 Add Area 按钮事件（确保 DOM 加载后运行）
-document.getElementById("add-area").addEventListener("click", function() {
-  const index = areasList.length;
-  const areaObj = createAreaControl(index);
-  areasList.push(areaObj);
-  document.getElementById("area-controls").appendChild(areaObj.control);
-});
-
-// Initial chart creation
-createChart();
-
-// Add event listener to the update button
-document.getElementById("update").addEventListener("click", function () {
-
-  // Recreate the chart with the new settings
-  createChart();
-});
+// 页面初始化时可自动加一个子图
+document.getElementById("add-subplot").click();

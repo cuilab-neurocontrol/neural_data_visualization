@@ -8,7 +8,7 @@
 <h2>Time Series Line Plot 1</h2>
 
 <!-- Create a control panel -->
-<div id="control-panel">
+<div id="control-panel" style="display:none;">
   <!-- Subheading for Canvas Size -->
   <details>
     <summary>Canvas Size</summary>
@@ -306,6 +306,11 @@
   </div>
 </div>
 
+<div style="margin:20px 0;">
+  <button id="add-subplot">Add Subplot</button>
+</div>
+<div id="subplots-container"></div>
+
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz" data-width="10" data-height="8"></div>
 
@@ -359,6 +364,23 @@
     margin: 0 0 5px 0;
     font-size: 1em;
   }
+
+  .subplot-instance {
+    border: 1px solid #ccc;
+    margin: 20px 0;
+    padding: 10px;
+    background: #fafbfc;
+    position: relative;
+  }
+
+  .subplot-controls {
+    margin-bottom: 20px;
+  }
+
+  .subplot-chart {
+    min-height: 200px;
+  }
 </style>
 
+<script src="https://d3js.org/d3.v6.js"></script>
 <script src="./chart.js"></script>
