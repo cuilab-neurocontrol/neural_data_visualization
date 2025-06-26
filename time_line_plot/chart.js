@@ -1,32 +1,4 @@
-// Conversion factor: 1 cm = 37.7952755906 pixels
-const CM_TO_PX = 37.7952755906;
-const PT_TO_PX = 1.333;
-let seriesList = [];
-let linesList = [];
-let textList = [];
-
-// Get the container and dimensions in cm
-const container = document.getElementById("my_dataviz");
-let width = parseFloat(container.dataset.width) * CM_TO_PX; // Convert cm to pixels
-let height = parseFloat(container.dataset.height) * CM_TO_PX; // Convert cm to pixels
-
-// Get initial margins in cm and convert to pixels
-let margin = {
-  top: 2 * CM_TO_PX,
-  right: 2 * CM_TO_PX,
-  bottom: 2 * CM_TO_PX,
-  left: 2 * CM_TO_PX,
-};
-
-// Axis margins in cm (converted to pixels)
-let axisMargin = {
-  x: 0.3 * CM_TO_PX,
-  y: 0 * CM_TO_PX,
-};
-
 // 全局数组，用于存放添加的 area 配置
-let areasList = [];
-
 function createAreaControl(index) {
   const div = document.createElement("div");
   div.className = "area-control";
@@ -168,16 +140,6 @@ function createTextControl(index) {
   return div;
 }
 
-// 绑定 Add Text 按钮事件（确保 DOM 加载后运行）
-document.addEventListener("DOMContentLoaded", function(){
-  document.getElementById("add-text").addEventListener("click", function(){
-    const index = textList.length;
-    const textControl = createTextControl(index);
-    textList.push({ control: textControl });
-    document.getElementById("text-controls").appendChild(textControl);
-  });
-});
-
 function createLineControl(index) {
   const div = document.createElement("div");
   div.className = "line-control";
@@ -271,6 +233,33 @@ function createSeriesControl(index) {
   return div;
 }
 
+// Conversion factor: 1 cm = 37.7952755906 pixels
+const CM_TO_PX = 37.7952755906;
+const PT_TO_PX = 1.333;
+let seriesList = [];
+let linesList = [];
+let textList = [];
+let areasList = [];
+
+// Get the container and dimensions in cm
+const container = document.getElementById("my_dataviz");
+let width = parseFloat(container.dataset.width) * CM_TO_PX; // Convert cm to pixels
+let height = parseFloat(container.dataset.height) * CM_TO_PX; // Convert cm to pixels
+
+// Get initial margins in cm and convert to pixels
+let margin = {
+  top: 2 * CM_TO_PX,
+  right: 2 * CM_TO_PX,
+  bottom: 2 * CM_TO_PX,
+  left: 2 * CM_TO_PX,
+};
+
+// Axis margins in cm (converted to pixels)
+let axisMargin = {
+  x: 0.3 * CM_TO_PX,
+  y: 0 * CM_TO_PX,
+};
+
 // Scale bar settings
 let xScaleBarPositionx = 0; // Default X scale bar Y position
 let xScaleBarPositiony = 20; // Default X scale bar Y position
@@ -308,15 +297,91 @@ let ytickLabels = ['-2',' ','2',' ','6',' ','10',' ','14']; // Default Y tick la
 let tickFontFamily = "Arial"; // Default font family
 let tickOrientation = "outward"; // Default tick orientation
 
+// Get user-defined domains
+const xDomainMin = parseFloat(document.getElementById("x-domain-min").value);
+const xDomainMax = parseFloat(document.getElementById("x-domain-max").value);
+const yDomainMin = parseFloat(document.getElementById("y-domain-min").value);
+const yDomainMax = parseFloat(document.getElementById("y-domain-max").value);
+const showOuterTicks = document.getElementById("show-outer-ticks").checked;
+const xLabel = document.getElementById("x-label").value;
+const xLabelFontSize = parseFloat(document.getElementById("x-label-font-size").value);
+const xLabelFontFamily = document.getElementById("x-label-font-family").value;
+const yLabel = document.getElementById("y-label").value;
+const yLabelFontSize = parseFloat(document.getElementById("y-label-font-size").value);
+const yLabelFontFamily = document.getElementById("y-label-font-family").value;
+const chartTitle = document.getElementById("chart-title").value;
+const titleFontSize = parseFloat(document.getElementById("title-font-size").value);
+const titleFontFamily = document.getElementById("title-font-family").value;
+const titleFontWeight = document.getElementById("title-font-weight").value;
+const titleDistancePt = parseFloat(document.getElementById("title-distance").value);
+const titleDistancePx = titleDistancePt * PT_TO_PX;
+const showTitle = document.getElementById("show-title").checked;
+const showXAxis = document.getElementById("show-x-axis").checked;
+const showYAxis = document.getElementById("show-y-axis").checked;
+const showScaleBar = document.getElementById("show-scale-bar").checked;
+const showXLabel = document.getElementById("show-x-label").checked;
+const showYLabel = document.getElementById("show-y-label").checked;
+
+// Get new width and height from input fields (in cm)
+const newWidth = parseFloat(document.getElementById("width").value) * CM_TO_PX; // Convert cm to pixels
+const newHeight = parseFloat(document.getElementById("height").value) * CM_TO_PX; // Convert cm to pixels
+
+// Get new margins from input fields (in cm)
+margin.top = parseFloat(document.getElementById("margin-top").value) * CM_TO_PX;
+margin.right = parseFloat(document.getElementById("margin-right").value) * CM_TO_PX;
+margin.bottom = parseFloat(document.getElementById("margin-bottom").value) * CM_TO_PX;
+margin.left = parseFloat(document.getElementById("margin-left").value) * CM_TO_PX;
+
+// Get new axis margins from input fields (in cm)
+axisMargin.x = parseFloat(document.getElementById("axis-margin-x").value) * CM_TO_PX;
+axisMargin.y = parseFloat(document.getElementById("axis-margin-y").value) * CM_TO_PX;
+
+// Get new axis and tick styling from input fields
+//tickCount = parseInt(document.getElementById("tick-count").value);
+axisLineWidth = parseFloat(document.getElementById("axis-line-width").value);
+tickLineWidth = parseFloat(document.getElementById("tick-line-width").value);
+tickFontSize = parseFloat(document.getElementById("tick-font-size").value);
+tickFontFamily = document.getElementById("tick-font-family").value;
+tickOrientation = document.getElementById("tick-orientation").value;
+tickLength = parseFloat(document.getElementById("tick-length").value);
+
+// Get new scale bar settings from input fields
+xScaleBarPositionx = parseFloat(document.getElementById("x-scale-bar-position-x").value);
+xScaleBarPositiony = parseFloat(document.getElementById("x-scale-bar-position-y").value);
+xScaleBarWidth = parseFloat(document.getElementById("x-scale-bar-width").value);
+xScaleBarLength = parseFloat(document.getElementById("x-scale-bar-length").value);
+xScaleBarLabel = document.getElementById("x-scale-bar-label").value;
+xScaleBarLabelOrientation = document.getElementById("x-scale-bar-label-orientation").value;
+
+yScaleBarPositionx = parseFloat(document.getElementById("y-scale-bar-position-x").value);
+yScaleBarPositiony = parseFloat(document.getElementById("y-scale-bar-position-y").value);
+yScaleBarWidth = parseFloat(document.getElementById("y-scale-bar-width").value);
+yScaleBarLength = parseFloat(document.getElementById("y-scale-bar-length").value);
+yScaleBarLabel = document.getElementById("y-scale-bar-label").value;
+yScaleBarLabelOrientation = document.getElementById("y-scale-bar-label-orientation").value;
+
+xScaleBarFontSize = parseFloat(document.getElementById("x-scale-bar-font-size").value);
+xScaleBarLabelDistance = parseFloat(document.getElementById("x-scale-bar-label-distance").value);
+xScaleBarFontFamily = document.getElementById("x-scale-bar-font-family").value;
+
+yScaleBarFontSize = parseFloat(document.getElementById("y-scale-bar-font-size").value);
+yScaleBarLabelDistance = parseFloat(document.getElementById("y-scale-bar-label-distance").value);
+yScaleBarFontFamily = document.getElementById("y-scale-bar-font-family").value;
+
+// Update dimensions
+width = newWidth - margin.left - margin.right;
+height = newHeight - margin.top - margin.bottom;
+
+// Get custom tick positions and labels
+xtickPositions = document.getElementById("x-tick-positions").value.split(",").map(Number);
+xtickLabels = document.getElementById("x-tick-labels").value.split(",");
+ytickPositions = document.getElementById("y-tick-positions").value.split(",").map(Number);
+ytickLabels = document.getElementById("y-tick-labels").value.split(",");
+
 // Function to create or update the SVG
 function createChart() {
   // Clear existing SVG
   d3.select("#my_dataviz").html("");
-  // Get user-defined domains
-  const xDomainMin = parseFloat(document.getElementById("x-domain-min").value);
-  const xDomainMax = parseFloat(document.getElementById("x-domain-max").value);
-  const yDomainMin = parseFloat(document.getElementById("y-domain-min").value);
-  const yDomainMax = parseFloat(document.getElementById("y-domain-max").value);
 
   // Append the SVG object to the body of the page
   const svg = d3.select("#my_dataviz")
@@ -335,25 +400,6 @@ function createChart() {
       .domain([yDomainMin, yDomainMax]) // Specify the domain of the Y axis
       .range([height, 0]);
 
-  
-  const showOuterTicks = document.getElementById("show-outer-ticks").checked;
-
-  const xLabel = document.getElementById("x-label").value;
-  const xLabelFontSize = parseFloat(document.getElementById("x-label-font-size").value);
-  const xLabelFontFamily = document.getElementById("x-label-font-family").value;
-  const yLabel = document.getElementById("y-label").value;
-  const yLabelFontSize = parseFloat(document.getElementById("y-label-font-size").value);
-  const yLabelFontFamily = document.getElementById("y-label-font-family").value;
-  const chartTitle = document.getElementById("chart-title").value;
-  const titleFontSize = parseFloat(document.getElementById("title-font-size").value);
-  const titleFontFamily = document.getElementById("title-font-family").value;
-  const titleFontWeight = document.getElementById("title-font-weight").value;
-  // 标题与图表之间的距离，单位为pt，转换为px
-  const titleDistancePt = parseFloat(document.getElementById("title-distance").value);
-  const titleDistancePx = titleDistancePt * PT_TO_PX;
-
-  // 添加标题文本（放在 SVG 顶部居中
-  const showTitle = document.getElementById("show-title").checked;
   if (showTitle) {
     svg.append("text")
     .attr("x", (width) / 2)
@@ -365,8 +411,7 @@ function createChart() {
     .style("font-weight", titleFontWeight)
     .text(chartTitle);
   }
-  
-  const showXAxis = document.getElementById("show-x-axis").checked;
+
   if (showXAxis) {
       const xAxis = d3.axisBottom(x)
       //.ticks(tickCount) // Set the number of ticks
@@ -391,7 +436,7 @@ function createChart() {
       svg.selectAll(".tick line") // Tick lines
       .style("stroke-width", tickLineWidth + "px"); // Set tick line width
   }
-  const showYAxis = document.getElementById("show-y-axis").checked;
+  
   if (showYAxis) {
       const yAxis = d3.axisLeft(y)
       //.ticks(tickCount) // Set the number of ticks
@@ -417,7 +462,6 @@ function createChart() {
       .style("stroke-width", tickLineWidth + "px"); // Set tick line width
   }
 
-  const showScaleBar = document.getElementById("show-scale-bar").checked;
   if (showScaleBar) {
     const xScaleBarPixelLength = x(xScaleBarLength) - x(0);
     // Add scale bar for X axis
@@ -464,7 +508,6 @@ function createChart() {
   }
   // Add X axis label
   //const xLabelDistance = 26;
-  const showXLabel = document.getElementById("show-x-label").checked;
   if (showXLabel) {
     const xLabelDistance = tickLength+tickFontSize+6 * PT_TO_PX;
     svg.append("text")
@@ -478,7 +521,6 @@ function createChart() {
     .text(xLabel);
   }
   // Add Y axis label
-  const showYLabel = document.getElementById("show-y-label").checked;
   if (showYLabel) {
     const yLabelDistance = tickLength + tickFontSize+6 * PT_TO_PX;
     svg.append("text")
@@ -595,6 +637,13 @@ function createChart() {
   
 }
 
+document.getElementById("add-text").addEventListener("click", function(){
+  const index = textList.length;
+  const textControl = createTextControl(index);
+  textList.push({ control: textControl });
+  document.getElementById("text-controls").appendChild(textControl);
+});
+
 document.getElementById("add-line").addEventListener("click", function() {
     const index = linesList.length;
     const lineControl = createLineControl(index);
@@ -647,73 +696,6 @@ createChart();
 
 // Add event listener to the update button
 document.getElementById("update").addEventListener("click", function () {
-  // Get new width and height from input fields (in cm)
-  const newWidth = parseFloat(document.getElementById("width").value) * CM_TO_PX; // Convert cm to pixels
-  const newHeight = parseFloat(document.getElementById("height").value) * CM_TO_PX; // Convert cm to pixels
-
-  // Get new margins from input fields (in cm)
-  margin.top = parseFloat(document.getElementById("margin-top").value) * CM_TO_PX;
-  margin.right = parseFloat(document.getElementById("margin-right").value) * CM_TO_PX;
-  margin.bottom = parseFloat(document.getElementById("margin-bottom").value) * CM_TO_PX;
-  margin.left = parseFloat(document.getElementById("margin-left").value) * CM_TO_PX;
-
-  // Get new axis margins from input fields (in cm)
-  axisMargin.x = parseFloat(document.getElementById("axis-margin-x").value) * CM_TO_PX;
-  axisMargin.y = parseFloat(document.getElementById("axis-margin-y").value) * CM_TO_PX;
-
-  // Get new axis and tick styling from input fields
-  //tickCount = parseInt(document.getElementById("tick-count").value);
-  axisLineWidth = parseFloat(document.getElementById("axis-line-width").value);
-  tickLineWidth = parseFloat(document.getElementById("tick-line-width").value);
-  tickFontSize = parseFloat(document.getElementById("tick-font-size").value);
-  tickFontFamily = document.getElementById("tick-font-family").value;
-  tickOrientation = document.getElementById("tick-orientation").value;
-  tickLength = parseFloat(document.getElementById("tick-length").value);
-
-  // Get new scale bar settings from input fields
-  xScaleBarPositionx = parseFloat(document.getElementById("x-scale-bar-position-x").value);
-  xScaleBarPositiony = parseFloat(document.getElementById("x-scale-bar-position-y").value);
-  xScaleBarWidth = parseFloat(document.getElementById("x-scale-bar-width").value);
-  xScaleBarLength = parseFloat(document.getElementById("x-scale-bar-length").value);
-  xScaleBarLabel = document.getElementById("x-scale-bar-label").value;
-  xScaleBarLabelOrientation = document.getElementById("x-scale-bar-label-orientation").value;
-
-  yScaleBarPositionx = parseFloat(document.getElementById("y-scale-bar-position-x").value);
-  yScaleBarPositiony = parseFloat(document.getElementById("y-scale-bar-position-y").value);
-  yScaleBarWidth = parseFloat(document.getElementById("y-scale-bar-width").value);
-  yScaleBarLength = parseFloat(document.getElementById("y-scale-bar-length").value);
-  yScaleBarLabel = document.getElementById("y-scale-bar-label").value;
-  yScaleBarLabelOrientation = document.getElementById("y-scale-bar-label-orientation").value;
-
-  xScaleBarFontSize = parseFloat(document.getElementById("x-scale-bar-font-size").value);
-  xScaleBarLabelDistance = parseFloat(document.getElementById("x-scale-bar-label-distance").value);
-  xScaleBarFontFamily = document.getElementById("x-scale-bar-font-family").value;
-
-  yScaleBarFontSize = parseFloat(document.getElementById("y-scale-bar-font-size").value);
-  yScaleBarLabelDistance = parseFloat(document.getElementById("y-scale-bar-label-distance").value);
-  yScaleBarFontFamily = document.getElementById("y-scale-bar-font-family").value;
-
-
-  // Update dimensions
-  width = newWidth - margin.left - margin.right;
-  height = newHeight - margin.top - margin.bottom;
-
-  // Get custom tick positions and labels
-  xtickPositions = document
-    .getElementById("x-tick-positions")
-    .value.split(",")
-    .map(Number);
-  xtickLabels = document
-    .getElementById("x-tick-labels")
-    .value.split(",");
-
-  ytickPositions = document
-    .getElementById("y-tick-positions")
-    .value.split(",")
-    .map(Number);
-  ytickLabels = document
-    .getElementById("y-tick-labels")
-    .value.split(",");
 
   // Recreate the chart with the new settings
   createChart();
