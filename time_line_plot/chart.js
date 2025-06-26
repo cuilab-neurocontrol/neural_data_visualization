@@ -249,10 +249,10 @@ function createSubplotInstance(baseConfig) {
   posBar.style.gap = "8px";
   posBar.style.marginBottom = "4px";
   posBar.innerHTML = `
-    <label style="font-size:0.95em;">X:</label>
-    <input type="number" class="subplot-x" value="20" style="width:50px;">
-    <label style="font-size:0.95em;">Y:</label>
-    <input type="number" class="subplot-y" value="${40 * subplotIndex}" style="width:50px;">
+    <label style="font-size:0.95em;">X (cm):</label>
+    <input type="number" class="subplot-x" value="2" min="0" step="0.00001" style="width:60px;">
+    <label style="font-size:0.95em;">Y (cm):</label>
+    <input type="number" class="subplot-y" value="${1 + subplotIndex}" min="0" step="0.00001" style="width:60px;">
     <span style="color:#aaa;font-size:0.9em;">(拖动或输入坐标)</span>
   `;
   subplotDiv.appendChild(posBar);
@@ -290,8 +290,8 @@ function createSubplotInstance(baseConfig) {
   const chartDiv = document.createElement("div");
   chartDiv.className = "subplot-chart";
   chartDiv.style.position = "absolute";
-  chartDiv.style.left = posBar.querySelector(".subplot-x").value + "px";
-  chartDiv.style.top = posBar.querySelector(".subplot-y").value + "px";
+  chartDiv.style.left = posBar.querySelector(".subplot-x").value * CM_TO_PX + "px";
+  chartDiv.style.top = posBar.querySelector(".subplot-y").value * CM_TO_PX + "px";
   subplotDiv.appendChild(chartDiv);
 
   // 删除和位置调整按钮
@@ -392,10 +392,10 @@ function createSubplotInstance(baseConfig) {
   const xInput = posBar.querySelector(".subplot-x");
   const yInput = posBar.querySelector(".subplot-y");
   xInput.addEventListener("input", () => {
-    chartDiv.style.left = xInput.value + "px";
+    chartDiv.style.left = xInput.value * CM_TO_PX + "px";
   });
   yInput.addEventListener("input", () => {
-    chartDiv.style.top = yInput.value + "px";
+    chartDiv.style.top = yInput.value * CM_TO_PX + "px";
   });
 
   // 支持鼠标拖拽只作用于 chartDiv
@@ -406,8 +406,8 @@ function createSubplotInstance(baseConfig) {
       let dx = ev.clientX - startX, dy = ev.clientY - startY;
       chartDiv.style.left = (origLeft + dx) + "px";
       chartDiv.style.top = (origTop + dy) + "px";
-      xInput.value = origLeft + dx;
-      yInput.value = origTop + dy;
+      xInput.value = ((origLeft + dx)/CM_TO_PX).toFixed(5);
+      yInput.value = ((origTop + dy)/CM_TO_PX).toFixed(5);
     }
     function onUp() {
       document.removeEventListener("mousemove", onMove);
@@ -800,3 +800,30 @@ document.getElementById("add-subplot").onclick = function() {
 
 // 页面初始化时可自动加一个子图
 document.getElementById("add-subplot").click();
+
+document.addEventListener('DOMContentLoaded', function() {
+  const canvasArea = document.getElementById('canvas-area');
+  const widthInput = document.getElementById('canvas-width-cm');
+  const heightInput = document.getElementById('canvas-height-cm');
+
+  // 输入框 -> 画布
+  function updateCanvasSize() {
+    canvasArea.style.width = (parseFloat(widthInput.value) * CM_TO_PX) + 'px';
+    canvasArea.style.height = (parseFloat(heightInput.value) * CM_TO_PX) + 'px';
+  }
+  widthInput.addEventListener('input', updateCanvasSize);
+  heightInput.addEventListener('input', updateCanvasSize);
+
+  // 画布 -> 输入框（拖拽时同步）
+  const ro = new ResizeObserver(entries => {
+    for (let entry of entries) {
+      const rect = entry.contentRect;
+      widthInput.value = (rect.width / CM_TO_PX).toFixed(2);
+      heightInput.value = (rect.height / CM_TO_PX).toFixed(2);
+    }
+  });
+  ro.observe(canvasArea);
+
+  // 初始化一次
+  updateCanvasSize();
+});
