@@ -112,7 +112,9 @@
       <input type="text" id="x-label" value="Time from saccade onset (ms)">
       <label for="x-label-font-size">Font Size (px):</label>
       <input type="number" id="x-label-font-size" value="18" min="1" step="1">
-      <label for="x-label-font-family">Font Family:</label>
+    </div>
+    <div class="control-row">
+      <label for="x-label-font-family">X Font Family:</label>
       <select id="x-label-font-family">
         <option value="Arial">Arial</option>
         <option value="Courier New">Courier New</option>
@@ -127,7 +129,9 @@
       <input type="text" id="y-label" value="Firing Rate (Hz)">
       <label for="y-label-font-size">Font Size (px):</label>
       <input type="number" id="y-label-font-size" value="18" min="1" step="1">
-      <label for="y-label-font-family">Font Family:</label>
+    </div>
+    <div class="control-row">
+      <label for="y-label-font-family">Y Font Family:</label>
       <select id="y-label-font-family">
         <option value="Arial">Arial</option>
         <option value="Courier New">Courier New</option>
@@ -320,7 +324,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px; /* 增加子标题和内容之间的间距 */
-    max-width: 600px; /* 增加宽度，避免换行 */
+    max-width: 400px; /* 原来是600px，改为400px更窄 */
     margin-bottom: 20px;
   }
 
@@ -333,19 +337,23 @@
   }
 
   .control-row label {
-    flex: 0 0 150px; /* 调整标签宽度，避免换行 */
+    flex: 0 0 90px; /* 原来是150px，改为90px更窄 */
     text-align: right;
+    font-size: 0.95em;
   }
 
-  .control-row input {
-    flex: 1; /* 输入框占据剩余空间 */
-    max-width: 100px; /* 限制输入框宽度 */
+  .control-row input,
+  .control-row select {
+    flex: 1;
+    max-width: 70px; /* 原来是100px，改为70px更窄 */
+    font-size: 0.95em;
   }
 
   .control-row button {
     flex: 1;
     padding: 5px;
-    max-width: 150px; /* 限制按钮宽度 */
+    max-width: 100px; /* 原来是150px，改为100px更窄 */
+    font-size: 0.95em;
   }
 
   h3 {
@@ -371,6 +379,44 @@
     padding: 10px;
     background: #fafbfc;
     position: relative;
+  }
+
+  .subplot-controls {
+    max-width: 650px;
+    min-width: 0;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .subplot-controls .control-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .subplot-controls .control-row label {
+    flex: 0 0 130px;
+    max-width: 130px;
+    font-size: 1em;
+    text-align: right;
+    margin-right: 6px;
+  }
+
+  .subplot-controls .control-row input,
+  .subplot-controls .control-row select {
+    flex: 1 1 120px;
+    max-width: 180px;
+    font-size: 1em;
+    min-width: 0;
+  }
+
+  .subplot-controls .control-row button {
+    flex: 1 1 120px;
+    max-width: 180px;
+    font-size: 1em;
+    padding: 6px 12px;
   }
 
   .subplot-controls {

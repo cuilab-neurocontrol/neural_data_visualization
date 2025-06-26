@@ -235,14 +235,43 @@ const PT_TO_PX = 1.333;
 let subplots = [];
 
 function createSubplotInstance(baseConfig) {
-  // 创建子图容器
+  const subplotIndex = subplots.length + 1;
+
+  // 子图容器
   const subplotDiv = document.createElement("div");
   subplotDiv.className = "subplot-instance";
-  subplotDiv.style.border = "1px solid #ccc";
-  subplotDiv.style.margin = "20px 0";
-  subplotDiv.style.padding = "10px";
-  subplotDiv.style.position = "relative";
-  subplotDiv.style.background = "#fafbfc";
+
+  // 标题（不可编辑）
+  const titleBar = document.createElement("div");
+  titleBar.style.display = "flex";
+  titleBar.style.alignItems = "center";
+  titleBar.style.gap = "10px";
+  titleBar.style.marginBottom = "8px";
+  titleBar.innerHTML = `
+    <h3 style="margin:0;">Time Series Line Plot ${subplotIndex}</h3>
+    <input type="text" class="subplot-desc" value="" style="width:30%;" placeholder="Description (可注释)">
+  `;
+  subplotDiv.appendChild(titleBar);
+
+  // 可折叠菜单包裹所有控件
+  const details = document.createElement("details");
+  details.open = true;
+  const summary = document.createElement("summary");
+  summary.textContent = "Settings";
+  details.appendChild(summary);
+
+  // 控件区
+  const controlsDiv = document.createElement("div");
+  controlsDiv.className = "subplot-controls";
+  controlsDiv.innerHTML = document.getElementById("control-panel").innerHTML;
+  details.appendChild(controlsDiv);
+
+  subplotDiv.appendChild(details);
+
+  // 图表区
+  const chartDiv = document.createElement("div");
+  chartDiv.className = "subplot-chart";
+  subplotDiv.appendChild(chartDiv);
 
   // 删除和位置调整按钮
   const btnBar = document.createElement("div");
@@ -258,26 +287,24 @@ function createSubplotInstance(baseConfig) {
   `;
   subplotDiv.appendChild(btnBar);
 
-  // 克隆参数和控件
+  // config 增加 description 字段
   const config = baseConfig ? JSON.parse(JSON.stringify(baseConfig)) : {
     seriesList: [],
     linesList: [],
     textList: [],
-    areasList: []
+    areasList: [],
+    description: ""
   };
 
-  // 创建控件区和图表区
-  const controlsDiv = document.createElement("div");
-  controlsDiv.className = "subplot-controls";
+  // 绑定 description 输入框事件
+  const descInput = titleBar.querySelector(".subplot-desc");
+  descInput.value = config.description || "";
+  descInput.addEventListener("input", () => { config.description = descInput.value; });
+
+  // 克隆参数和控件
   controlsDiv.innerHTML = document.getElementById("control-panel").innerHTML;
-  subplotDiv.appendChild(controlsDiv);
 
-  const chartDiv = document.createElement("div");
-  chartDiv.className = "subplot-chart";
-  chartDiv.style.marginTop = "20px";
-  subplotDiv.appendChild(chartDiv);
-
-  // 绑定控件事件（以add-line为例，其他类似）
+  // 创建控件区和图表区
   controlsDiv.querySelector("#add-line").addEventListener("click", function() {
     const index = config.linesList.length;
     const lineControl = createLineControl(index, controlsDiv, chartDiv, config);
