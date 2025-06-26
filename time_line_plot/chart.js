@@ -810,3 +810,140 @@ document.addEventListener('DOMContentLoaded', function() {
   // 初始化一次
   updateCanvasSize();
 });
+
+const canvasTexts = [];
+const CANVAS_CM_TO_PX = 37.7952755906;
+
+function renderCanvasTexts() {
+  const canvasArea = document.getElementById('canvas-area');
+  // 清除旧的
+  canvasArea.querySelectorAll('.canvas-text-label').forEach(e => e.remove());
+  // 渲染文字
+  canvasTexts.forEach((item, idx) => {
+    const span = document.createElement('span');
+    span.className = 'canvas-text-label';
+    span.style.left = (item.x * CANVAS_CM_TO_PX) + 'px';
+    span.style.top = (item.y * CANVAS_CM_TO_PX) + 'px';
+    span.style.fontSize = item.fontSize + 'px';
+    span.style.fontFamily = item.fontFamily;
+    span.style.color = item.color;
+    span.style.fontWeight = item.bold;
+    span.style.transform = item.orientation === 'vertical' ? 'rotate(-90deg)' : '';
+    span.textContent = item.text;
+    // 拖拽
+    span.onmousedown = function(e) {
+      let startX = e.clientX, startY = e.clientY;
+      let origX = item.x, origY = item.y;
+      function onMove(ev) {
+        let dx = (ev.clientX - startX) / CANVAS_CM_TO_PX;
+        let dy = (ev.clientY - startY) / CANVAS_CM_TO_PX;
+        item.x = origX + dx;
+        item.y = origY + dy;
+        span.style.left = (item.x * CANVAS_CM_TO_PX) + 'px';
+        span.style.top = (item.y * CANVAS_CM_TO_PX) + 'px';
+      }
+      function onUp() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    };
+    canvasArea.appendChild(span);
+  });
+
+  // 渲染管理区
+  const mgr = document.getElementById('canvas-text-manager');
+  mgr.innerHTML = '<b>canvas text manager</b><br>';
+  canvasTexts.forEach((item, idx) => {
+    const row = document.createElement('div');
+    row.style.marginBottom = '4px';
+    row.innerHTML = `<span style="font-size:14px;color:${item.color};font-family:${item.fontFamily};font-weight:${item.bold};">${item.text}</span>
+      <button data-edit="${idx}">edit</button>
+      <button data-del="${idx}">delete</button>`;
+    row.querySelector('[data-edit]').onclick = () => showCanvasTextEditPanel(item, idx);
+    row.querySelector('[data-del]').onclick = () => {
+      canvasTexts.splice(idx, 1);
+      renderCanvasTexts();
+    };
+    mgr.appendChild(row);
+  });
+}
+
+document.getElementById('add-canvas-text').onclick = function() {
+  canvasTexts.push({
+    text: 'word',
+    x: 2,
+    y: 2,
+    fontSize: 18,
+    fontFamily: 'Arial',
+    color: '#000000',
+    bold: 'normal',
+    orientation: 'horizontal'
+  });
+  renderCanvasTexts();
+};
+
+function showCanvasTextEditPanel(item, idx) {
+  const panel = document.getElementById('canvas-text-edit-panel');
+  panel.innerHTML = `
+    <div style="font-size:14px; border:1px solid #ccc; padding:12px; background:#fafbfc; max-width:420px;">
+      <b>编辑画布文字</b><br>
+      <label>内容: <input id="ctext" value="${item.text}"></label><br>
+      <label>X (cm): <input id="cx" type="number" step="0.1" value="${item.x}"></label>
+      <label>Y (cm): <input id="cy" type="number" step="0.1" value="${item.y}"></label><br>
+      <label>字号: <input id="csize" type="number" value="${item.fontSize}"></label>
+      <label>字体: <select id="cfamily">
+        <option ${item.fontFamily==='Arial'?'selected':''}>Arial</option>
+        <option ${item.fontFamily==='Courier New'?'selected':''}>Courier New</option>
+        <option ${item.fontFamily==='Times New Roman'?'selected':''}>Times New Roman</option>
+        <option ${item.fontFamily==='Verdana'?'selected':''}>Verdana</option>
+      </select></label><br>
+      <label>颜色: <input id="ccolor" type="color" value="${item.color}"></label>
+      <label>加粗: <select id="cbold">
+        <option value="normal" ${item.bold==='normal'?'selected':''}>Normal</option>
+        <option value="bold" ${item.bold==='bold'?'selected':''}>Bold</option>
+      </select></label>
+      <label>方向: <select id="corient">
+        <option value="horizontal" ${item.orientation==='horizontal'?'selected':''}>水平</option>
+        <option value="vertical" ${item.orientation==='vertical'?'selected':''}>垂直</option>
+      </select></label>
+    </div>
+  `;
+  // 绑定事件，实时更新
+  panel.querySelector('#ctext').oninput = function() {
+    item.text = this.value;
+    renderCanvasTexts();
+  };
+  panel.querySelector('#cx').oninput = function() {
+    item.x = parseFloat(this.value);
+    renderCanvasTexts();
+  };
+  panel.querySelector('#cy').oninput = function() {
+    item.y = parseFloat(this.value);
+    renderCanvasTexts();
+  };
+  panel.querySelector('#csize').oninput = function() {
+    item.fontSize = parseInt(this.value);
+    renderCanvasTexts();
+  };
+  panel.querySelector('#cfamily').onchange = function() {
+    item.fontFamily = this.value;
+    renderCanvasTexts();
+  };
+  panel.querySelector('#ccolor').oninput = function() {
+    item.color = this.value;
+    renderCanvasTexts();
+  };
+  panel.querySelector('#cbold').onchange = function() {
+    item.bold = this.value;
+    renderCanvasTexts();
+  };
+  panel.querySelector('#corient').onchange = function() {
+    item.orientation = this.value;
+    renderCanvasTexts();
+  };
+}
+
+renderCanvasTexts();
+
