@@ -313,7 +313,14 @@
 <div style="margin:20px 0;">
   <button id="add-subplot">Add Subplot</button>
 </div>
-<div id="subplots-container"></div>
+<div id="subplots-container">
+  <!-- 控制面板区域 -->
+  <div id="subplots-panel"></div>
+  <!-- 画布区域 -->
+  <div id="canvas-area">
+    <div class="canvas-title">Canvas Area</div>
+  </div>
+</div>
 
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz" data-width="10" data-height="8"></div>
@@ -374,30 +381,51 @@
   }
 
   #subplots-container {
+    display: flex;
+    flex-direction: column;
     position: relative;
     min-height: 800px;
   }
 
-  .subplot-instance {
+  #subplots-panel {
+    margin-bottom: 20px;
+  }
+
+  #canvas-area {
+    position: relative;
+    width: 100%;
+    min-height: 600px;
+    background: #fff;
     border: 1px solid #ccc;
     margin: 20px 0;
     padding: 10px;
+  }
+
+  .canvas-title {
+    position: absolute;
+    top: -24px;
+    left: 0;
+    font-size: 0.9em;
+    color: #666;
+  }
+
+  .subplot-instance {
+    border: 1px solid #ccc;
+    margin: 0 0 10px 0;
+    padding: 10px;
     background: #fafbfc;
-    position: static; /* 让整个子图容器不绝对定位 */
-    width: auto;
+    position: static;
   }
 
   .subplot-chart {
     position: absolute;
-    left: var(--chart-x, 20px);
-    top: var(--chart-y, 40px);
+    background: transparent;
     min-width: 320px;
     min-height: 240px;
-    background: #fff;
-    /* 去掉阴影和边框 */
     box-shadow: none;
     border: none;
     z-index: 1;
+    cursor: move;
   }
 
   /* 控制面板部分正常流式布局 */

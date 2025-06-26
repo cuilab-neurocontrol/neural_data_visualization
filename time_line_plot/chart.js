@@ -257,6 +257,8 @@ function createSubplotInstance(baseConfig) {
   `;
   subplotDiv.appendChild(posBar);
 
+  document.getElementById("subplots-panel").appendChild(subplotDiv);
+
   // 标题（不可编辑）
   const titleBar = document.createElement("div");
   titleBar.style.display = "flex";
@@ -305,6 +307,13 @@ function createSubplotInstance(baseConfig) {
     <button class="subplot-down">↓</button>
   `;
   subplotDiv.appendChild(btnBar);
+
+  // 默认位置设置（使用厘米）
+  const defaultX = 2;  // 2cm from left
+  const defaultY = subplotIndex * 3;  // 每个图表间隔3cm
+  chartDiv.style.left = (defaultX * CM_TO_PX) + "px";
+  chartDiv.style.top = (defaultY * CM_TO_PX) + "px";
+  document.getElementById("canvas-area").appendChild(chartDiv);
 
   // config 增加 description 字段
   const config = baseConfig ? JSON.parse(JSON.stringify(baseConfig)) : {
