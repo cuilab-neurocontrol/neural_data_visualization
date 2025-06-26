@@ -242,6 +242,12 @@ function createSubplotInstance(baseConfig) {
   subplotDiv.className = "subplot-instance";
   subplotDiv.style.position = "static";
 
+  // 删除按钮
+  const btnBar = document.createElement("div");
+  btnBar.style.textAlign = "right";
+  btnBar.innerHTML = `<button class="subplot-delete" style="color:#fff;background:#e74c3c;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;">Delete</button>`;
+  subplotDiv.appendChild(btnBar);
+
   // 位置控制区
   const posBar = document.createElement("div");
   posBar.style.display = "flex";
@@ -294,26 +300,21 @@ function createSubplotInstance(baseConfig) {
   chartDiv.style.top = posBar.querySelector(".subplot-y").value * CM_TO_PX + "px";
   subplotDiv.appendChild(chartDiv);
 
-  // 删除和位置调整按钮
-  const btnBar = document.createElement("div");
-  btnBar.style.position = "absolute";
-  btnBar.style.top = "10px";
-  btnBar.style.right = "10px";
-  btnBar.style.display = "flex";
-  btnBar.style.gap = "5px";
-  btnBar.innerHTML = `
-    <button class="subplot-delete">Delete</button>
-    <button class="subplot-up">↑</button>
-    <button class="subplot-down">↓</button>
-  `;
-  subplotDiv.appendChild(btnBar);
-
   // 默认位置设置（使用厘米）
   const defaultX = 2;  // 2cm from left
   const defaultY = subplotIndex * 3;  // 每个图表间隔3cm
   chartDiv.style.left = (defaultX * CM_TO_PX) + "px";
   chartDiv.style.top = (defaultY * CM_TO_PX) + "px";
   document.getElementById("canvas-area").appendChild(chartDiv);
+
+  // 删除按钮事件
+  btnBar.querySelector(".subplot-delete").onclick = function() {
+    subplotDiv.remove();
+    chartDiv.remove();
+    // 如果你有 subplots 数组，也同步移除
+    subplots = subplots.filter(s => s.div !== subplotDiv);
+  };
+
 
   // config 增加 description 字段
   const config = baseConfig ? JSON.parse(JSON.stringify(baseConfig)) : {
@@ -415,24 +416,6 @@ function createSubplotInstance(baseConfig) {
     }
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
-  };
-
-  // 删除按钮
-  btnBar.querySelector(".subplot-delete").onclick = function() {
-    subplotDiv.remove();
-    subplots = subplots.filter(s => s.div !== subplotDiv);
-  };
-  // 上移
-  btnBar.querySelector(".subplot-up").onclick = function() {
-    const container = document.getElementById("subplots-container");
-    const prev = subplotDiv.previousElementSibling;
-    if (prev) container.insertBefore(subplotDiv, prev);
-  };
-  // 下移
-  btnBar.querySelector(".subplot-down").onclick = function() {
-    const container = document.getElementById("subplots-container");
-    const next = subplotDiv.nextElementSibling;
-    if (next) container.insertBefore(next, subplotDiv);
   };
 
   // 保存并渲染
