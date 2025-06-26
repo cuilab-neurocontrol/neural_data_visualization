@@ -240,6 +240,22 @@ function createSubplotInstance(baseConfig) {
   // 子图容器
   const subplotDiv = document.createElement("div");
   subplotDiv.className = "subplot-instance";
+  subplotDiv.style.position = "static";
+
+  // 位置控制区
+  const posBar = document.createElement("div");
+  posBar.style.display = "flex";
+  posBar.style.alignItems = "center";
+  posBar.style.gap = "8px";
+  posBar.style.marginBottom = "4px";
+  posBar.innerHTML = `
+    <label style="font-size:0.95em;">X:</label>
+    <input type="number" class="subplot-x" value="20" style="width:50px;">
+    <label style="font-size:0.95em;">Y:</label>
+    <input type="number" class="subplot-y" value="${40 * subplotIndex}" style="width:50px;">
+    <span style="color:#aaa;font-size:0.9em;">(拖动或输入坐标)</span>
+  `;
+  subplotDiv.appendChild(posBar);
 
   // 标题（不可编辑）
   const titleBar = document.createElement("div");
@@ -271,6 +287,9 @@ function createSubplotInstance(baseConfig) {
   // 图表区
   const chartDiv = document.createElement("div");
   chartDiv.className = "subplot-chart";
+  chartDiv.style.position = "absolute";
+  chartDiv.style.left = posBar.querySelector(".subplot-x").value + "px";
+  chartDiv.style.top = posBar.querySelector(".subplot-y").value + "px";
   subplotDiv.appendChild(chartDiv);
 
   // 删除和位置调整按钮
@@ -359,6 +378,35 @@ function createSubplotInstance(baseConfig) {
   controlsDiv.querySelector("#update").addEventListener("click", function() {
     createChartForSubplot(controlsDiv, chartDiv, config);
   });
+
+  // 位置输入框事件只影响 chartDiv
+  const xInput = posBar.querySelector(".subplot-x");
+  const yInput = posBar.querySelector(".subplot-y");
+  xInput.addEventListener("input", () => {
+    chartDiv.style.left = xInput.value + "px";
+  });
+  yInput.addEventListener("input", () => {
+    chartDiv.style.top = yInput.value + "px";
+  });
+
+  // 支持鼠标拖拽只作用于 chartDiv
+  chartDiv.onmousedown = function(e) {
+    let startX = e.clientX, startY = e.clientY;
+    let origLeft = parseInt(chartDiv.style.left), origTop = parseInt(chartDiv.style.top);
+    function onMove(ev) {
+      let dx = ev.clientX - startX, dy = ev.clientY - startY;
+      chartDiv.style.left = (origLeft + dx) + "px";
+      chartDiv.style.top = (origTop + dy) + "px";
+      xInput.value = origLeft + dx;
+      yInput.value = origTop + dy;
+    }
+    function onUp() {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    }
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  };
 
   // 删除按钮
   btnBar.querySelector(".subplot-delete").onclick = function() {

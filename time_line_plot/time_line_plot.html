@@ -373,12 +373,38 @@
     font-size: 1em;
   }
 
+  #subplots-container {
+    position: relative;
+    min-height: 800px;
+  }
+
   .subplot-instance {
     border: 1px solid #ccc;
     margin: 20px 0;
     padding: 10px;
     background: #fafbfc;
-    position: relative;
+    position: static; /* 让整个子图容器不绝对定位 */
+    width: auto;
+  }
+
+  .subplot-chart {
+    position: absolute;
+    left: var(--chart-x, 20px);
+    top: var(--chart-y, 40px);
+    min-width: 320px;
+    min-height: 240px;
+    background: #fff;
+    /* 去掉阴影和边框 */
+    box-shadow: none;
+    border: none;
+    z-index: 1;
+  }
+
+  /* 控制面板部分正常流式布局 */
+  .subplot-controls {
+    position: static;
+    max-width: 650px;
+    margin-bottom: 20px;
   }
 
   .subplot-controls {
