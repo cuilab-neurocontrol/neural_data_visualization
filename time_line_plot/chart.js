@@ -945,5 +945,115 @@ function showCanvasTextEditPanel(item, idx) {
   };
 }
 
+document.getElementById('export-svg').onclick = function() {
+  const canvasArea = document.getElementById('canvas-area');
+  const widthPx = canvasArea.offsetWidth;
+  const heightPx = canvasArea.offsetHeight;
+
+  // 创建SVG根节点
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("xmlns", svgNS);
+  svg.setAttribute("width", widthPx);
+  svg.setAttribute("height", heightPx);
+
+  // 1. 合并所有子图SVG
+  canvasArea.querySelectorAll('.subplot-chart svg').forEach(subsvg => {
+    // 复制节点
+    const g = document.createElementNS(svgNS, "g");
+    // 获取父div的left/top
+    const parentDiv = subsvg.closest('.subplot-chart');
+    const left = parseFloat(parentDiv.style.left) || 0;
+    const top = parseFloat(parentDiv.style.top) || 0;
+    g.setAttribute("transform", `translate(${left},${top})`);
+    g.appendChild(subsvg.cloneNode(true));
+    svg.appendChild(g);
+  });
+
+  // 2. 合并所有画布文字
+  canvasArea.querySelectorAll('.canvas-text-label').forEach(span => {
+    const text = document.createElementNS(svgNS, "text");
+    text.textContent = span.textContent;
+    text.setAttribute("x", parseFloat(span.style.left) || 0);
+    text.setAttribute("y", (parseFloat(span.style.top) || 0) + (parseFloat(span.style.fontSize) || 18));
+    text.setAttribute("font-size", span.style.fontSize || "18px");
+    text.setAttribute("font-family", span.style.fontFamily || "Arial");
+    text.setAttribute("fill", span.style.color || "#000");
+    text.setAttribute("font-weight", span.style.fontWeight || "normal");
+    if (span.style.transform && span.style.transform.includes('rotate')) {
+      text.setAttribute("transform", `rotate(-90,${span.style.left.replace('px','')},${span.style.top.replace('px','')})`);
+    }
+    svg.appendChild(text);
+  });
+
+  // 3. 导出SVG
+  const serializer = new XMLSerializer();
+  let source = serializer.serializeToString(svg);
+  // 补全命名空间
+  if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+    source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+  const blob = new Blob([source], {type: 'image/svg+xml;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'canvas_area.svg';
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+document.getElementById('export-pdf').onclick = function() {
+  const canvasArea = document.getElementById('canvas-area');
+  const widthPx = canvasArea.offsetWidth;
+  const heightPx = canvasArea.offsetHeight;
+
+  // 生成SVG（同上）
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("xmlns", svgNS);
+  svg.setAttribute("width", widthPx);
+  svg.setAttribute("height", heightPx);
+
+  canvasArea.querySelectorAll('.subplot-chart svg').forEach(subsvg => {
+    const g = document.createElementNS(svgNS, "g");
+    const parentDiv = subsvg.closest('.subplot-chart');
+    const left = parseFloat(parentDiv.style.left) || 0;
+    const top = parseFloat(parentDiv.style.top) || 0;
+    g.setAttribute("transform", `translate(${left},${top})`);
+    g.appendChild(subsvg.cloneNode(true));
+    svg.appendChild(g);
+  });
+
+  canvasArea.querySelectorAll('.canvas-text-label').forEach(span => {
+    const text = document.createElementNS(svgNS, "text");
+    text.textContent = span.textContent;
+    text.setAttribute("x", parseFloat(span.style.left) || 0);
+    text.setAttribute("y", (parseFloat(span.style.top) || 0) + (parseFloat(span.style.fontSize) || 18));
+    text.setAttribute("font-size", span.style.fontSize || "18px");
+    text.setAttribute("font-family", span.style.fontFamily || "Arial");
+    text.setAttribute("fill", span.style.color || "#000");
+    text.setAttribute("font-weight", span.style.fontWeight || "normal");
+    if (span.style.transform && span.style.transform.includes('rotate')) {
+      text.setAttribute("transform", `rotate(-90,${span.style.left.replace('px','')},${span.style.top.replace('px','')})`);
+    }
+    svg.appendChild(text);
+  });
+
+  // 用 svg2pdf.js + jsPDF 导出 PDF
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({
+    orientation: widthPx > heightPx ? 'l' : 'p',
+    unit: 'pt',
+    format: [widthPx, heightPx]
+  });
+  svg2pdf(svg, pdf, {
+    xOffset: 0,
+    yOffset: 0,
+    scale: 1
+  }).then(() => {
+    pdf.save('canvas_area.pdf');
+  });
+};
+
 renderCanvasTexts();
 
