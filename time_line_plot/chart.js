@@ -534,10 +534,10 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("x", width / 2)
       .attr("y", -titleDistancePx - axisMargin.y)
       .attr("dominant-baseline", "ideographic")
-      .style("text-anchor", "middle")
-      .style("font-size", `${titleFontSize}px`)
-      .style("font-family", titleFontFamily)
-      .style("font-weight", titleFontWeight)
+      .attr("text-anchor", "middle")
+      .attr("font-size", titleFontSize + "pt")
+      .attr("font-family", titleFontFamily)
+      .attr("font-weight", titleFontWeight)
       .text(chartTitle);
   }
 
@@ -553,11 +553,12 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("transform", `translate(${axisMargin.x}, ${height})`)
       .call(xAxis)
       .selectAll("text")
-      .style("font-size", `${tickFontSize}px`)
-      .style("font-family", tickFontFamily);
+      .attr("fill", "#000")
+      .attr("font-size", tickFontSize + "pt")
+      .attr("font-family", tickFontFamily);
 
-    svg.selectAll(".domain").style("stroke-width", axisLineWidth + "px");
-    svg.selectAll(".tick line").style("stroke-width", tickLineWidth + "px");
+    svg.selectAll(".domain").attr("stroke-width", axisLineWidth).attr("stroke", "#000");
+    svg.selectAll(".tick line").attr("stroke-width", tickLineWidth).attr("stroke", "#000");
   }
 
   // Y轴
@@ -572,11 +573,12 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("transform", `translate(0, ${-axisMargin.y})`)
       .call(yAxis)
       .selectAll("text")
-      .style("font-size", `${tickFontSize}px`)
-      .style("font-family", tickFontFamily);
+      .attr("fill", "#000")
+      .attr("font-size", tickFontSize + "pt")
+      .attr("font-family", tickFontFamily);
 
-    svg.selectAll(".domain").style("stroke-width", axisLineWidth + "px");
-    svg.selectAll(".tick line").style("stroke-width", tickLineWidth + "px");
+    svg.selectAll(".domain").attr("stroke-width", axisLineWidth).attr("stroke", "#000");
+    svg.selectAll(".tick line").attr("stroke-width", tickLineWidth).attr("stroke", "#000");
   }
 
   // Scale Bar
@@ -587,15 +589,15 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("x2", xScaleBarPositionx + xScaleBarPixelLength)
       .attr("y1", height - xScaleBarPositiony)
       .attr("y2", height - xScaleBarPositiony)
-      .style("stroke", "black")
-      .style("stroke-width", xScaleBarWidth);
+      .attr("stroke", "black")
+      .attr("stroke-width", xScaleBarWidth);
 
     svg.append("text")
       .attr("x", xScaleBarPositionx + xScaleBarPixelLength / 2)
       .attr("y", height - xScaleBarPositiony + (xScaleBarLabelOrientation === "outward" ? xScaleBarLabelDistance : -xScaleBarLabelDistance))
-      .style("text-anchor", "middle")
-      .style("font-size", `${xScaleBarFontSize}px`)
-      .style("font-family", xScaleBarFontFamily)
+      .attr("text-anchor", "middle")
+      .attr("font-size", xScaleBarFontSize + "pt")
+      .attr("font-family", xScaleBarFontFamily)
       .text(xScaleBarLabel);
 
     const yScaleBarPixelLength = y(0) - y(yScaleBarLength);
@@ -604,16 +606,16 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("x2", yScaleBarPositionx)
       .attr("y1", height - yScaleBarPositiony)
       .attr("y2", height - yScaleBarPositiony - yScaleBarPixelLength)
-      .style("stroke", "black")
-      .style("stroke-width", yScaleBarWidth);
+      .attr("stroke", "black")
+      .attr("stroke-width", yScaleBarWidth);
 
     const x_scaleLabelPosition = yScaleBarPositionx + (yScaleBarLabelOrientation === "outward" ? -yScaleBarLabelDistance : yScaleBarLabelDistance);
     svg.append("text")
       .attr("x", x_scaleLabelPosition)
       .attr("y", height - yScaleBarPositiony - yScaleBarPixelLength / 2)
-      .style("text-anchor", "middle")
-      .style("font-size", `${yScaleBarFontSize}px`)
-      .style("font-family", yScaleBarFontFamily)
+      .attr("text-anchor", "middle")
+      .attr("font-size", yScaleBarFontSize + "pt")
+      .attr("font-family", yScaleBarFontFamily)
       .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height - yScaleBarPositiony - yScaleBarPixelLength / 2})`)
       .text(yScaleBarLabel);
   }
@@ -625,9 +627,9 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("x", width / 2 + axisMargin.x)
       .attr("y", height + xLabelDistance)
       .attr("dominant-baseline", "text-before-edge")
-      .style("text-anchor", "middle")
-      .style("font-size", `${xLabelFontSize}px`)
-      .style("font-family", xLabelFontFamily)
+      .attr("text-anchor", "middle")
+      .attr("font-size", xLabelFontSize + "pt")
+      .attr("font-family", xLabelFontFamily)
       .text(xLabel);
   }
   // Y轴标签
@@ -638,9 +640,9 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("y", -yLabelDistance)
       .attr("dominant-baseline", "ideographic")
       .attr("transform", "rotate(-90)")
-      .style("text-anchor", "middle")
-      .style("font-size", `${yLabelFontSize}px`)
-      .style("font-family", yLabelFontFamily)
+      .attr("text-anchor", "middle")
+      .attr("font-size", yLabelFontSize + "pt")
+      .attr("font-family", yLabelFontFamily)
       .text(yLabel);
   }
 
@@ -732,11 +734,11 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("y", y(yPos) + margin.top)
       .attr("transform", transform)
       .text(textStr)
-      .style("font-size", `${fontSize}px`)
-      .style("font-family", fontFamily)
-      .style("fill", fontColor)
-      .style("font-weight", fontWeight)
-      .style("text-anchor", "middle");
+      .attr("font-size", fontSize + "pt")
+      .attr("font-family", fontFamily)
+      .attr("fill", fontColor)
+      .attr("font-weight", fontWeight)
+      .attr("text-anchor", "middle");
   });
 
   // 绘制 area
