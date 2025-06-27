@@ -625,8 +625,7 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
     const xLabelDistance = tickLength + tickFontSize + 6 * PT_TO_PX;
     svg.append("text")
       .attr("x", width / 2 + axisMargin.x)
-      .attr("y", height + xLabelDistance)
-      .attr("dominant-baseline", "text-before-edge")
+      .attr("y", height + xLabelDistance + xLabelFontSize * 0.8)
       .attr("text-anchor", "middle")
       .attr("font-size", xLabelFontSize + "pt")
       .attr("font-family", xLabelFontFamily)
@@ -637,8 +636,7 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
     const yLabelDistance = tickLength + tickFontSize + 6 * PT_TO_PX;
     svg.append("text")
       .attr("x", -(height) / 2 + axisMargin.y)
-      .attr("y", -yLabelDistance)
-      .attr("dominant-baseline", "ideographic")
+      .attr("y", -yLabelDistance - yLabelFontSize * 0.4)
       .attr("transform", "rotate(-90)")
       .attr("text-anchor", "middle")
       .attr("font-size", yLabelFontSize + "pt")
@@ -826,7 +824,7 @@ function renderCanvasTexts() {
     span.className = 'canvas-text-label';
     span.style.left = (item.x * CANVAS_CM_TO_PX) + 'px';
     span.style.top = (item.y * CANVAS_CM_TO_PX) + 'px';
-    span.style.fontSize = item.fontSize + 'px';
+    span.style.fontSize = item.fontSize + 'pt';
     span.style.fontFamily = item.fontFamily;
     span.style.color = item.color;
     span.style.fontWeight = item.bold;
@@ -860,7 +858,7 @@ function renderCanvasTexts() {
   canvasTexts.forEach((item, idx) => {
     const row = document.createElement('div');
     row.style.marginBottom = '4px';
-    row.innerHTML = `<span style="font-size:14px;color:${item.color};font-family:${item.fontFamily};font-weight:${item.bold};">${item.text}</span>
+    row.innerHTML = `<span style="font-size:14pt;color:${item.color};font-family:${item.fontFamily};font-weight:${item.bold};">${item.text}</span>
       <button data-edit="${idx}">edit</button>
       <button data-del="${idx}">delete</button>`;
     row.querySelector('[data-edit]').onclick = () => showCanvasTextEditPanel(item, idx);
@@ -961,9 +959,7 @@ document.getElementById('export-svg').onclick = function() {
 
   // 1. 合并所有子图SVG
   canvasArea.querySelectorAll('.subplot-chart svg').forEach(subsvg => {
-    // 复制节点
     const g = document.createElementNS(svgNS, "g");
-    // 获取父div的left/top
     const parentDiv = subsvg.closest('.subplot-chart');
     const left = parseFloat(parentDiv.style.left) || 0;
     const top = parseFloat(parentDiv.style.top) || 0;
@@ -977,8 +973,14 @@ document.getElementById('export-svg').onclick = function() {
     const text = document.createElementNS(svgNS, "text");
     text.textContent = span.textContent;
     text.setAttribute("x", parseFloat(span.style.left) || 0);
-    text.setAttribute("y", (parseFloat(span.style.top) || 0) + (parseFloat(span.style.fontSize) || 18));
-    text.setAttribute("font-size", span.style.fontSize || "18px");
+    text.setAttribute("y", (parseFloat(span.style.top) || 0) + (parseFloat(span.style.fontSize) || 12));
+    let fontSize = span.style.fontSize;
+    if (fontSize && fontSize.endsWith('px')) {
+      fontSize = (parseFloat(fontSize) * 0.75) + 'pt';
+    } else if (!fontSize || !fontSize.endsWith('pt')) {
+      fontSize = (parseFloat(fontSize) || 12) + 'pt';
+    }
+    text.setAttribute("font-size", fontSize);
     text.setAttribute("font-family", span.style.fontFamily || "Arial");
     text.setAttribute("fill", span.style.color || "#000");
     text.setAttribute("font-weight", span.style.fontWeight || "normal");
@@ -991,7 +993,6 @@ document.getElementById('export-svg').onclick = function() {
   // 3. 导出SVG
   const serializer = new XMLSerializer();
   let source = serializer.serializeToString(svg);
-  // 补全命名空间
   if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
     source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
   }
@@ -1030,8 +1031,14 @@ document.getElementById('export-pdf').onclick = function() {
     const text = document.createElementNS(svgNS, "text");
     text.textContent = span.textContent;
     text.setAttribute("x", parseFloat(span.style.left) || 0);
-    text.setAttribute("y", (parseFloat(span.style.top) || 0) + (parseFloat(span.style.fontSize) || 18));
-    text.setAttribute("font-size", span.style.fontSize || "18px");
+    text.setAttribute("y", (parseFloat(span.style.top) || 0) + (parseFloat(span.style.fontSize) || 12));
+    let fontSize = span.style.fontSize;
+    if (fontSize && fontSize.endsWith('px')) {
+      fontSize = (parseFloat(fontSize) * 0.75) + 'pt';
+    } else if (!fontSize || !fontSize.endsWith('pt')) {
+      fontSize = (parseFloat(fontSize) || 12) + 'pt';
+    }
+    text.setAttribute("font-size", fontSize);
     text.setAttribute("font-family", span.style.fontFamily || "Arial");
     text.setAttribute("fill", span.style.color || "#000");
     text.setAttribute("font-weight", span.style.fontWeight || "normal");
