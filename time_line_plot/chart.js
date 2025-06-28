@@ -590,23 +590,16 @@ document.addEventListener('DOMContentLoaded', function() {
   const widthInput = document.getElementById('canvas-width-cm');
   const heightInput = document.getElementById('canvas-height-cm');
 
+  let isResizing = false; // 标记是否为拖拽
+
   // 输入框 -> 画布
   function updateCanvasSize() {
+    if (isResizing) return; // 拖拽时不响应输入框
     canvasArea.style.width = (parseFloat(widthInput.value) * CM_TO_PX) + 'px';
     canvasArea.style.height = (parseFloat(heightInput.value) * CM_TO_PX) + 'px';
   }
   widthInput.addEventListener('input', updateCanvasSize);
   heightInput.addEventListener('input', updateCanvasSize);
-
-  // 画布 -> 输入框（拖拽时同步）
-  const ro = new ResizeObserver(entries => {
-    for (let entry of entries) {
-      const rect = entry.contentRect;
-      widthInput.value = (rect.width / CM_TO_PX).toFixed(2);
-      heightInput.value = (rect.height / CM_TO_PX).toFixed(2);
-    }
-  });
-  ro.observe(canvasArea);
 
   // 初始化一次
   updateCanvasSize();
