@@ -3,6 +3,7 @@
 
 <!-- Load d3.js -->
 <script src="https://d3js.org/d3.v6.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/save-svg-as-png@1.4.17/lib/saveSvgAsPng.min.js"></script>
 
 <!-- Add a title for the control panel -->
 <h2>Time Series Line Plot 1</h2>
@@ -58,15 +59,15 @@
     </div>
     <!-- Subheading for Axis and Tick Styling -->
     <div class="control-row">
-      <label for="axis-line-width">Line Width (px):</label>
+      <label for="axis-line-width">Line Width (pt):</label>
       <input type="number" id="axis-line-width" value="2" min="1" step="0.1">
-      <label for="tick-line-width">Tick Width (px):</label>
+      <label for="tick-line-width">Tick Width (pt):</label>
       <input type="number" id="tick-line-width" value="2" min="1" step="0.1">
     </div>
     <div class="control-row">
-      <label for="tick-font-size">Font Size (px):</label>
-      <input type="number" id="tick-font-size" value="18" min="1" step="1">
-      <label for="tick-length">Tick Length (px):</label>
+      <label for="tick-font-size">Font Size (pt):</label>
+      <input type="number" id="tick-font-size" value="10" min="1" step="1">
+      <label for="tick-length">Tick Length (pt):</label>
       <input type="number" id="tick-length" value="6" min="1" step="1">
     </div>
     <div class="control-row">
@@ -110,8 +111,8 @@
     <div class="control-row">
       <label for="x-label">X Axis Label:</label>
       <input type="text" id="x-label" value="Time from saccade onset (ms)">
-      <label for="x-label-font-size">Font Size (px):</label>
-      <input type="number" id="x-label-font-size" value="18" min="1" step="1">
+      <label for="x-label-font-size">Font Size (pt):</label>
+      <input type="number" id="x-label-font-size" value="10" min="1" step="1">
     </div>
     <div class="control-row">
       <label for="x-label-font-family">X Font Family:</label>
@@ -127,8 +128,8 @@
     <div class="control-row">
       <label for="y-label">Y Axis Label:</label>
       <input type="text" id="y-label" value="Firing Rate (Hz)">
-      <label for="y-label-font-size">Font Size (px):</label>
-      <input type="number" id="y-label-font-size" value="18" min="1" step="1">
+      <label for="y-label-font-size">Font Size (pt):</label>
+      <input type="number" id="y-label-font-size" value="10" min="1" step="1">
     </div>
     <div class="control-row">
       <label for="y-label-font-family">Y Font Family:</label>
@@ -172,9 +173,9 @@
       </select>
     </div>
     <div class="control-row">
-      <label for="x-scale-bar-font-size">X Bar Font Size (px):</label>
+      <label for="x-scale-bar-font-size">X Bar Font Size (pt):</label>
       <input type="number" id="x-scale-bar-font-size" value="12" min="1" step="1">
-      <label for="x-scale-bar-label-distance">X Label Distance (px):</label>
+      <label for="x-scale-bar-label-distance">X Label Distance (pt):</label>
       <input type="number" id="x-scale-bar-label-distance" value="20" min="0" step="1">
     </div>
     <div class="control-row">
@@ -210,9 +211,9 @@
     </div>
 
     <div class="control-row">
-      <label for="y-scale-bar-font-size">Y Bar Font Size (px):</label>
+      <label for="y-scale-bar-font-size">Y Bar Font Size (pt):</label>
       <input type="number" id="y-scale-bar-font-size" value="12" min="1" step="1">
-      <label for="y-scale-bar-label-distance">Y Label Distance (px):</label>
+      <label for="y-scale-bar-label-distance">Y Label Distance (pt):</label>
       <input type="number" id="y-scale-bar-label-distance" value="20" min="0" step="1">
     </div>
     <div class="control-row">
@@ -236,8 +237,8 @@
       <input type="checkbox" id="show-title" checked>
     </div>
     <div class="control-row">
-      <label for="title-font-size">Font Size (px):</label>
-      <input type="number" id="title-font-size" value="18" min="1" step="1">
+      <label for="title-font-size">Font Size (pt):</label>
+      <input type="number" id="title-font-size" value="10" min="1" step="1">
       <label for="title-font-family">Font Family:</label>
       <select id="title-font-family">
         <option value="Arial">Arial</option>
@@ -314,6 +315,7 @@
   <button id="add-subplot">Add Subplot</button>
   <button id="export-svg">export to SVG</button>
   <button id="export-pdf">export to PDF</button>
+  <button id="export-png">export to PNG</button>
 </div>
 <div id="subplots-container">
   <!-- 控制面板区域 -->

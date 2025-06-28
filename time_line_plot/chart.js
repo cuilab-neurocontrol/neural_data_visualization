@@ -1,238 +1,40 @@
-function createAreaControl(index, controlsDiv, chartDiv, config) {
-  const div = document.createElement("div");
-  div.className = "area-control";
-  div.dataset.index = index;
-  div.innerHTML = `
-    <h4>Area ${index + 1} <button class="delete-area">Delete</button></h4>
-    <div class="control-row">
-      <label>Data URL:</label>
-      <input type="text" class="area-data-url" placeholder="Enter CSV URL">
-      <button class="load-area-data-url">Load Data from URL</button>
-    </div>
-    <div class="control-row">
-      <label>Upload CSV:</label>
-      <input type="file" class="area-data-file" accept=".csv">
-      <button class="load-area-data-file">Load Data from File</button>
-    </div>
-    <div class="control-row">
-      <label>Area Color:</label>
-      <input type="color" class="area-color" value="#cce5df">
-      <label>Opacity:</label>
-      <input type="number" class="area-opacity" value="0.5" min="0" max="1" step="0.1">
-    </div>
-    <div class="control-row">
-      <label>Orientation:</label>
-      <select class="area-orientation">
-        <option value="horizontal">Horizontal</option>
-        <option value="vertical">Vertical</option>
-      </select>
-      <label>Length (units):</label>
-      <input type="number" class="area-length" value="100" min="0" step="1">
-    </div>
-  `;
-
-  // 构造 area 对象，初始时 data 为空
-  const areaObj = { data: null, control: div };
-
-  // 通过 URL 加载 CSV 数据
-  div.querySelector(".load-area-data-url").addEventListener("click", function() {
-    const url = div.querySelector(".area-data-url").value;
-    if (!url) return;
-    d3.csv(url).then(data => {
-      areaObj.data = data;
-      createChartForSubplot(controlsDiv, chartDiv, config);
-    }).catch(error => {
-      console.error("Error loading CSV from URL for Area:", error);
-    });
-  });
-
-  // 通过文件上传加载 CSV 数据
-  div.querySelector(".load-area-data-file").addEventListener("click", function() {
-    const fileInput = div.querySelector(".area-data-file");
-    if (!fileInput.files || fileInput.files.length === 0) return;
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const text = e.target.result;
-      const data = d3.csvParse(text);
-      areaObj.data = data;
-      createChartForSubplot(controlsDiv, chartDiv, config);
-    };
-    reader.onerror = function(error) {
-      console.error("Error reading CSV file for Area:", error);
-    };
-    reader.readAsText(file);
-  });
-
-  // 为删除按钮绑定事件
-  div.querySelector(".delete-area").addEventListener("click", function() {
-    const idx = parseInt(div.dataset.index, 10);
-    config.areasList.splice(idx, 1);
-    div.remove();
-    // 更新索引
-    const controls = controlsDiv.querySelectorAll(".area-control");
-    controls.forEach((ctrl, i) => ctrl.dataset.index = i);
-    createChartForSubplot(controlsDiv, chartDiv, config);
-  });
-
-  return areaObj;
-}
-
-function createTextControl(index, controlsDiv, chartDiv, config) {
-  const div = document.createElement("div");
-  div.className = "text-control";
-  div.dataset.index = index;
-  div.innerHTML = `
-    <h4>Text ${index + 1} <button class="delete-text">Delete</button></h4>
-    <div class="control-row">
-      <label>String:</label>
-      <input type="text" class="text-string" placeholder="Enter string" value="Sample Text">
-    </div>
-    <div class="control-row">
-      <label>X Coordinate:</label>
-      <input type="number" class="text-coordinate-x" value="0">
-      <label>Y Coordinate:</label>
-      <input type="number" class="text-coordinate-y" value="0">
-    </div>
-    <div class="control-row">
-      <label>Font Size (px):</label>
-      <input type="number" class="text-font-size" value="16" min="1" step="1">
-      <label>Font Family:</label>
-      <select class="text-font-family">
-        <option value="Arial">Arial</option>
-        <option value="Courier New">Courier New</option>
-        <option value="Times New Roman">Times New Roman</option>
-        <option value="Verdana">Verdana</option>
-      </select>
-    </div>
-    <div class="control-row">
-      <label>Font Color:</label>
-      <input type="color" class="text-font-color" value="#000000">
-      <label>Font Weight:</label>
-      <select class="text-bold">
-         <option value="normal">Normal</option>
-         <option value="bold">Bold</option>
-         <option value="bolder">Bolder</option>
-         <option value="lighter">Lighter</option>
-      </select>
-      <label>Orientation:</label>
-      <select class="text-orientation">
-        <option value="horizontal">Horizontal</option>
-        <option value="vertical">Vertical</option>
-      </select>
-    </div>
-  `;
-
-  // 绑定删除按钮事件
-  div.querySelector(".delete-text").addEventListener("click", function() {
-    const idx = parseInt(div.dataset.index, 10);
-    config.textList.splice(idx, 1);
-    div.remove();
-    // 更新索引
-    const controls = controlsDiv.querySelectorAll(".text-control");
-    controls.forEach((ctrl, i) => ctrl.dataset.index = i);
-    // 刷新当前子图
-    createChartForSubplot(controlsDiv, chartDiv, config);
-  });
-
-  return div;
-}
-
-function createLineControl(index, controlsDiv, chartDiv, config) {
-  const div = document.createElement("div");
-  div.className = "line-control";
-  div.dataset.index = index;
-  div.innerHTML = `
-    <h4>Line ${index + 1} <button class="delete-line">Delete</button></h4>
-    <div class="control-row">
-      <label>Type:</label>
-      <select class="line-type">
-        <option value="vertical">Vertical</option>
-        <option value="horizontal">Horizontal</option>
-      </select>
-      <label>X Coordinate:</label>
-      <input type="number" class="line-coordinate-x" value="0">
-      <label>Y Coordinate:</label>
-      <input type="number" class="line-coordinate-y" value="0">
-    </div>
-    <div class="control-row">
-      <label>Color:</label>
-      <input type="color" class="line-color" value="#000000">
-      <label>Thickness (px):</label>
-      <input type="number" class="line-thickness" value="1" min="1" step="0.1">
-    </div>
-    <div class="control-row">
-      <label>Style:</label>
-      <select class="line-style">
-        <option value="solid">Solid</option>
-        <option value="dashed">Dashed</option>
-      </select>
-      <label>Length (unit):</label>
-      <input type="number" class="line-length" value="100" min="0" step="1">
-    </div>
-  `;
-
-  // 为删除按钮绑定事件
-  div.querySelector(".delete-line").addEventListener("click", function() {
-    const idx = parseInt(div.dataset.index, 10);
-    config.linesList.splice(idx, 1);
-    div.remove();
-    // 更新索引
-    const controls = controlsDiv.querySelectorAll(".line-control");
-    controls.forEach((ctrl, i) => ctrl.dataset.index = i);
-    // 关键：刷新当前子图
-    createChartForSubplot(controlsDiv, chartDiv, config);
-  });
-
-  return div;
-}
-
-// 创建系列控制块，包含线条颜色、粗细、阴影参数
-function createSeriesControl(index, controlsDiv, chartDiv, config) {
-  const div = document.createElement("div");
-  div.className = "series-control";
-  div.dataset.index = index;
-  div.innerHTML = `
-    <h3>Series ${index + 1} <button class="delete-series">Delete</button></h3>
-    <div class="control-row">
-      <label>Line Color:</label>
-      <input type="color" class="line-color" value="#ff0000">
-      <label>Line Thickness (px):</label>
-      <input type="number" class="line-thickness" value="2" min="1" step="0.1">
-    </div>
-    <div class="control-row">
-      <label>Show Shadow:</label>
-      <input type="checkbox" class="show-shadow" checked>
-      <label>Shadow Color:</label>
-      <input type="color" class="shadow-color" value="#FF5C5C">
-      <label>Shadow Opacity:</label>
-      <input type="number" class="shadow-opacity" value="0.3" min="0" max="1" step="0.1">
-    </div>
-    <div class="control-row">
-      <label>Description:</label>
-      <input type="text" class="series-description" placeholder="Enter description">
-    </div>
-  `;
-
-  // 为删除按钮绑定事件
-  div.querySelector(".delete-series").addEventListener("click", function() {
-    const idx = parseInt(div.dataset.index, 10);
-    config.seriesList.splice(idx, 1);
-    div.remove();
-    // 更新索引
-    const controls = controlsDiv.querySelectorAll(".series-control");
-    controls.forEach((ctrl, i) => ctrl.dataset.index = i);
-    // 关键：刷新当前子图
-    createChartForSubplot(controlsDiv, chartDiv, config);
-  });
-
-  return div;
-}
-
 // Conversion factor: 1 cm = 37.7952755906 pixels
 const CM_TO_PX = 37.7952755906;
 const PT_TO_PX = 1.333;
+const DPI = 72; // SVG/PPT/AI标准DPI
+const PNG_DPI = 300; // 你想要的PNG导出DPI（如300、600等）
 let subplots = [];
+
+// 推荐用DPI参数，保证pt/px转换精度
+function pt2px(pt, dpi = DPI) {
+  return pt * dpi / 72;
+}
+
+// px转pt工具
+function px2pt(px, dpi = DPI) {
+  return px * 72 / dpi;
+}
+
+// SVG导出时递归把所有 font-size/stroke-width 的 px 单位转为 pt 单位
+function fixFontSizeAndStrokeToPt(node, dpi = DPI) {
+  if (node.nodeType === 1) {
+    if (node.hasAttribute('font-size')) {
+      let fs = node.getAttribute('font-size');
+      if (fs.endsWith('px')) {
+        fs = px2pt(parseFloat(fs), dpi) + 'pt';
+        node.setAttribute('font-size', fs);
+      }
+    }
+    if (node.hasAttribute('stroke-width')) {
+      let sw = node.getAttribute('stroke-width');
+      if (sw.endsWith('px')) {
+        sw = px2pt(parseFloat(sw), dpi) + 'pt';
+        node.setAttribute('stroke-width', sw);
+      }
+    }
+    Array.from(node.children).forEach(child => fixFontSizeAndStrokeToPt(child, dpi));
+  }
+}
 
 function createSubplotInstance(baseConfig) {
   const subplotIndex = subplots.length + 1;
@@ -532,10 +334,9 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
   if (showTitle) {
     svg.append("text")
       .attr("x", width / 2)
-      .attr("y", -titleDistancePx - axisMargin.y)
-      .attr("dominant-baseline", "ideographic")
+      .attr("y", -pt2px(titleDistancePt) - axisMargin.y)
       .attr("text-anchor", "middle")
-      .attr("font-size", titleFontSize + "pt")
+      .attr("font-size", pt2px(titleFontSize) + "px")
       .attr("font-family", titleFontFamily)
       .attr("font-weight", titleFontWeight)
       .text(chartTitle);
@@ -554,11 +355,11 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .call(xAxis)
       .selectAll("text")
       .attr("fill", "#000")
-      .attr("font-size", tickFontSize + "pt")
+      .attr("font-size", pt2px(tickFontSize) + "px")
       .attr("font-family", tickFontFamily);
 
-    svg.selectAll(".domain").attr("stroke-width", axisLineWidth).attr("stroke", "#000");
-    svg.selectAll(".tick line").attr("stroke-width", tickLineWidth).attr("stroke", "#000");
+    svg.selectAll(".domain").attr("stroke-width", 1).attr("stroke", "#000");
+    svg.selectAll(".tick line").attr("stroke-width", 1).attr("stroke", "#000");
   }
 
   // Y轴
@@ -574,11 +375,11 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .call(yAxis)
       .selectAll("text")
       .attr("fill", "#000")
-      .attr("font-size", tickFontSize + "pt")
+      .attr("font-size", pt2px(tickFontSize) + "px")
       .attr("font-family", tickFontFamily);
 
-    svg.selectAll(".domain").attr("stroke-width", axisLineWidth).attr("stroke", "#000");
-    svg.selectAll(".tick line").attr("stroke-width", tickLineWidth).attr("stroke", "#000");
+    svg.selectAll(".domain").attr("stroke-width", 1).attr("stroke", "#000");
+    svg.selectAll(".tick line").attr("stroke-width", 1).attr("stroke", "#000");
   }
 
   // Scale Bar
@@ -596,7 +397,7 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("x", xScaleBarPositionx + xScaleBarPixelLength / 2)
       .attr("y", height - xScaleBarPositiony + (xScaleBarLabelOrientation === "outward" ? xScaleBarLabelDistance : -xScaleBarLabelDistance))
       .attr("text-anchor", "middle")
-      .attr("font-size", xScaleBarFontSize + "pt")
+      .attr("font-size", pt2px(xScaleBarFontSize) + "px")
       .attr("font-family", xScaleBarFontFamily)
       .text(xScaleBarLabel);
 
@@ -614,7 +415,7 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("x", x_scaleLabelPosition)
       .attr("y", height - yScaleBarPositiony - yScaleBarPixelLength / 2)
       .attr("text-anchor", "middle")
-      .attr("font-size", yScaleBarFontSize + "pt")
+      .attr("font-size", pt2px(yScaleBarFontSize) + "px")
       .attr("font-family", yScaleBarFontFamily)
       .attr("transform", `rotate(-90, ${x_scaleLabelPosition}, ${height - yScaleBarPositiony - yScaleBarPixelLength / 2})`)
       .text(yScaleBarLabel);
@@ -622,24 +423,25 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
 
   // X轴标签
   if (showXLabel) {
-    const xLabelDistance = tickLength + tickFontSize + 6 * PT_TO_PX;
+    const xLabelDistance = tickLength + pt2px(tickFontSize) + pt2px(13);
     svg.append("text")
       .attr("x", width / 2 + axisMargin.x)
-      .attr("y", height + xLabelDistance + xLabelFontSize * 0.8)
+      .attr("y", height + xLabelDistance)
       .attr("text-anchor", "middle")
-      .attr("font-size", xLabelFontSize + "pt")
+      .attr("font-size", pt2px(xLabelFontSize) + "px")
       .attr("font-family", xLabelFontFamily)
       .text(xLabel);
   }
+
   // Y轴标签
   if (showYLabel) {
-    const yLabelDistance = tickLength + tickFontSize + 6 * PT_TO_PX;
+    const yLabelDistance = tickLength + pt2px(tickFontSize) + pt2px(11);
     svg.append("text")
       .attr("x", -(height) / 2 + axisMargin.y)
-      .attr("y", -yLabelDistance - yLabelFontSize * 0.4)
+      .attr("y", -yLabelDistance)
       .attr("transform", "rotate(-90)")
       .attr("text-anchor", "middle")
-      .attr("font-size", yLabelFontSize + "pt")
+      .attr("font-size", pt2px(yLabelFontSize) + "px")
       .attr("font-family", yLabelFontFamily)
       .text(yLabel);
   }
@@ -669,7 +471,7 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .datum(series.data)
       .attr("fill", "none")
       .attr("stroke", lineColor)
-      .attr("stroke-width", lineThickness)
+      .attr("stroke-width", 1)
       .attr("d", d3.line()
         .x(d => x(d.x) + axisMargin.x)
         .y(d => y(d.y) - axisMargin.y)
@@ -697,7 +499,7 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
         .attr("x2", xPos)
         .attr("y2", yPos - ylength)
         .attr("stroke", color)
-        .attr("stroke-width", thickness)
+        .attr("stroke-width", 1)
         .attr("stroke-dasharray", dasharray);
     } else if (type === "horizontal") {
       const xLength = x(length) - x(0);
@@ -709,7 +511,7 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
         .attr("x2", xPos + xLength)
         .attr("y2", yPos)
         .attr("stroke", color)
-        .attr("stroke-width", thickness)
+        .attr("stroke-width", 1)
         .attr("stroke-dasharray", dasharray);
     }
   });
@@ -732,7 +534,7 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .attr("y", y(yPos) + margin.top)
       .attr("transform", transform)
       .text(textStr)
-      .attr("font-size", fontSize + "pt")
+      .attr("font-size", pt2px(fontSize) + "px")
       .attr("font-family", fontFamily)
       .attr("fill", fontColor)
       .attr("font-weight", fontWeight)
@@ -746,7 +548,6 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
     const areaColor = control.querySelector(".area-color").value;
     const areaOpacity = parseFloat(control.querySelector(".area-opacity").value);
     const orientation = control.querySelector(".area-orientation").value;
-    // const length = parseFloat(control.querySelector(".area-length").value);
 
     if (orientation === "horizontal") {
       svg.append("path")
@@ -824,7 +625,7 @@ function renderCanvasTexts() {
     span.className = 'canvas-text-label';
     span.style.left = (item.x * CANVAS_CM_TO_PX) + 'px';
     span.style.top = (item.y * CANVAS_CM_TO_PX) + 'px';
-    span.style.fontSize = item.fontSize + 'pt';
+    span.style.fontSize = pt2px(item.fontSize) + 'px';
     span.style.fontFamily = item.fontFamily;
     span.style.color = item.color;
     span.style.fontWeight = item.bold;
@@ -964,7 +765,10 @@ document.getElementById('export-svg').onclick = function() {
     const left = parseFloat(parentDiv.style.left) || 0;
     const top = parseFloat(parentDiv.style.top) || 0;
     g.setAttribute("transform", `translate(${left},${top})`);
-    g.appendChild(subsvg.cloneNode(true));
+    // 递归修正 font-size/stroke-width 为 pt 单位
+    const cloned = subsvg.cloneNode(true);
+    fixFontSizeAndStrokeToPt(cloned, DPI);
+    g.appendChild(cloned);
     svg.appendChild(g);
   });
 
@@ -974,9 +778,10 @@ document.getElementById('export-svg').onclick = function() {
     text.textContent = span.textContent;
     text.setAttribute("x", parseFloat(span.style.left) || 0);
     text.setAttribute("y", (parseFloat(span.style.top) || 0) + (parseFloat(span.style.fontSize) || 12));
+    // 统一导出为pt
     let fontSize = span.style.fontSize;
     if (fontSize && fontSize.endsWith('px')) {
-      fontSize = (parseFloat(fontSize) * 0.75) + 'pt';
+      fontSize = px2pt(parseFloat(fontSize), DPI) + 'pt';
     } else if (!fontSize || !fontSize.endsWith('pt')) {
       fontSize = (parseFloat(fontSize) || 12) + 'pt';
     }
@@ -1033,10 +838,10 @@ document.getElementById('export-pdf').onclick = function() {
     text.setAttribute("x", parseFloat(span.style.left) || 0);
     text.setAttribute("y", (parseFloat(span.style.top) || 0) + (parseFloat(span.style.fontSize) || 12));
     let fontSize = span.style.fontSize;
-    if (fontSize && fontSize.endsWith('px')) {
-      fontSize = (parseFloat(fontSize) * 0.75) + 'pt';
-    } else if (!fontSize || !fontSize.endsWith('pt')) {
-      fontSize = (parseFloat(fontSize) || 12) + 'pt';
+    if (fontSize && fontSize.endsWith('pt')) {
+      fontSize = (parseFloat(fontSize) * 1.333) + 'px';
+    } else if (!fontSize || !fontSize.endsWith('px')) {
+      fontSize = (parseFloat(fontSize) || 12) + 'px';
     }
     text.setAttribute("font-size", fontSize);
     text.setAttribute("font-family", span.style.fontFamily || "Arial");
@@ -1062,6 +867,37 @@ document.getElementById('export-pdf').onclick = function() {
   }).then(() => {
     pdf.save('canvas_area.pdf');
   });
+};
+
+document.getElementById('export-png').onclick = function() {
+  // 生成合成SVG（和SVG导出按钮一样）
+  const canvasArea = document.getElementById('canvas-area');
+  const widthPx = canvasArea.offsetWidth;
+  const heightPx = canvasArea.offsetHeight;
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("xmlns", svgNS);
+  svg.setAttribute("width", widthPx);
+  svg.setAttribute("height", heightPx);
+
+  canvasArea.querySelectorAll('.subplot-chart svg').forEach(subsvg => {
+    const g = document.createElementNS(svgNS, "g");
+    const parentDiv = subsvg.closest('.subplot-chart');
+    const left = parseFloat(parentDiv.style.left) || 0;
+    const top = parseFloat(parentDiv.style.top) || 0;
+    g.setAttribute("transform", `translate(${left},${top})`);
+    g.appendChild(subsvg.cloneNode(true));
+    svg.appendChild(g);
+  });
+
+  // 计算scale，使PNG为指定DPI
+  // SVG默认DPI为96
+  const scale = PNG_DPI / 96;
+
+  // 临时加到页面，导出后移除
+  document.body.appendChild(svg);
+  saveSvgAsPng(svg, 'canvas_area.png', { scale: scale, backgroundColor: "#fff" });
+  setTimeout(() => svg.remove(), 1000);
 };
 
 renderCanvasTexts();
