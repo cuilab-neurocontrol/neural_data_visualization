@@ -2,6 +2,7 @@
 const CM_TO_PX = 37.7952755906;
 const PT_TO_PX = 1;
 let seriesList = [];
+let refLines = [];
 
 // Get the container and dimensions in cm
 const container = document.getElementById("my_dataviz");
@@ -142,6 +143,24 @@ let ytickPositions = [-2,0,2,4,6,8,10,12,14]; // Default Y tick positions
 let ytickLabels = ['-2',' ','2',' ','6',' ','10',' ','14']; // Default Y tick labels
 let tickFontFamily = "Arial"; // Default font family
 let tickOrientation = "outward"; // Default tick orientation
+
+document.getElementById("add-ref-line").addEventListener("click", function() {
+  refLines.push({
+    y: parseFloat(document.getElementById("ref-line-y").value),
+    x1: parseFloat(document.getElementById("ref-line-x1").value),
+    x2: parseFloat(document.getElementById("ref-line-x2").value),
+    label: document.getElementById("ref-line-label").value,
+    labelSize: parseFloat(document.getElementById("ref-line-label-size").value),
+    labelDist: parseFloat(document.getElementById("ref-line-label-dist").value)
+  });
+  createChart();
+});
+
+function removeRefLine(idx) {
+  refLines.splice(idx, 1);
+  createChart();
+}
+window.removeRefLine = removeRefLine; // 让HTML按钮能调用
 
 function createChart() {
   
@@ -541,8 +560,7 @@ function createChart() {
         .padding(xGroupPadding);
 
       groupNames.forEach(groupName => {
-        // 计算每个小组的中轴线绝对位置
-        const center = xSeries(`series${seriesIdx}`) + xGroup(groupName) + xGroup.bandwidth() / 2 + axisMargin.x + margin.left;
+        const center = xSeries(`series${seriesIdx}`) + xGroup(groupName) + xGroup.bandwidth() / 2 + axisMargin.x;
         violinCenters.push({
           series: seriesIdx + 1,
           group: groupName,
@@ -550,7 +568,45 @@ function createChart() {
           positionCm: center / CM_TO_PX
         });
       });
+      
     });
+
+    // 清除旧参考线
+    svg.selectAll(".ref-hline").remove();
+    svg.selectAll(".ref-hline-label").remove();
+
+    // 绘制所有参考线
+    refLines.forEach((line, idx) => {
+      svg.append("line")
+        .attr("class", "ref-hline")
+        .attr("x1", line.x1)
+        .attr("x2", line.x2)
+        .attr("y1", y(line.y))
+        .attr("y2", y(line.y))
+        .style("stroke", "#000")
+        .style("stroke-width", 2)
+        //.style("stroke-dasharray", "4,2");
+
+      svg.append("text")
+        .attr("class", "ref-hline-label")
+        .attr("x", (line.x1 + line.x2) / 2)
+        .attr("y", y(line.y) - line.labelDist)
+        .attr("text-anchor", "middle")
+        .style("font-size", `${line.labelSize}px`)
+        .style("fill", "#000")
+        .text(line.label);
+    });
+
+    // 控制面板展示和删除参考线
+    const refListDiv = document.getElementById("ref-lines-list");
+    if (refListDiv) {
+      refListDiv.innerHTML = refLines.map((line, idx) =>
+        `<div style="margin-bottom:2px;">
+          <span style="color:#d62728;">y=${line.y}, x1=${line.x1}, x2=${line.x2}, label="${line.label}"</span>
+          <button onclick="removeRefLine(${idx})" style="margin-left:8px;">Delete</button>
+        </div>`
+      ).join("");
+    }
 
     // 展示到控制面板
     const panel = document.getElementById("violin-centers-panel");

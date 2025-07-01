@@ -283,6 +283,29 @@
     <div id="series-controls"></div>
   </details>
 
+  <!-- 多组假设检验参考线设置 -->
+  <details>
+    <summary>Hypothesis Reference Lines</summary>
+    <div id="ref-lines-list"></div>
+    <div class="control-row">
+      <label>Y:</label>
+      <input type="number" id="ref-line-y" value="6" step="0.1">
+      <label>X1 (px):</label>
+      <input type="number" id="ref-line-x1" value="50" step="1">
+      <label>X2 (px):</label>
+      <input type="number" id="ref-line-x2" value="350" step="1">
+    </div>
+    <div class="control-row">
+      <label>Label:</label>
+      <input type="text" id="ref-line-label" value="p < 0.05">
+      <label>Label Size:</label>
+      <input type="number" id="ref-line-label-size" value="16" min="8" max="48" step="1">
+      <label>Label Distance (px):</label>
+      <input type="number" id="ref-line-label-dist" value="8" step="1">
+      <button id="add-ref-line" type="button">Add Reference Line</button>
+    </div>
+  </details>
+
   <div class="control-row">
     <button id="update" data-param="update">Update</button>
   </div>
