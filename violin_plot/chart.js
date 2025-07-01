@@ -44,6 +44,8 @@ function createSeriesControl(index, groupNames) {
     <div class="control-row">
       <label>Description:</label>
       <input type="text" class="series-description" placeholder="Enter description">
+      <label>Show Dots:</label>
+      <input type="checkbox" class="show-dots" checked>
     </div>
   `;
 
@@ -64,6 +66,15 @@ function createSeriesControl(index, groupNames) {
         <input type="number" class="line-width-group" data-group="${name}" value="2" min="0.5" step="0.5" style="width:50px;">
       `;
       div.appendChild(row1);
+
+      // 箱形图线宽单独一行
+      const row3 = document.createElement("div");
+      row3.className = "control-row";
+      row3.innerHTML = `
+        <label>Box Line Width:</label>
+        <input type="number" class="box-line-width-group" data-group="${name}" value="1" min="0.5" step="0.5" style="width:50px;">
+      `;
+      div.appendChild(row3);
 
       // 点的控制项单独一行
       const row2 = document.createElement("div");
@@ -371,6 +382,7 @@ function createChart() {
             let groupShadowColor = "#FF5C5C";
             let groupLineColor = "#000000";
             let groupLineWidth = 2;
+            let boxLineWidth = 1;
             if (control) {
               const colorInput = control.querySelector(`.shadow-color-group[data-group="${d.key}"]`);
               if (colorInput) groupShadowColor = colorInput.value;
@@ -378,6 +390,8 @@ function createChart() {
               if (lineColorInput) groupLineColor = lineColorInput.value;
               const lineWidthInput = control.querySelector(`.line-width-group[data-group="${d.key}"]`);
               if (lineWidthInput) groupLineWidth = parseFloat(lineWidthInput.value);
+              const boxLineWidthInput = control.querySelector(`.box-line-width-group[data-group="${d.key}"]`);
+              if (boxLineWidthInput) boxLineWidth = parseFloat(boxLineWidthInput.value);
             }
 
             // 右边界线
@@ -413,7 +427,7 @@ function createChart() {
               .attr("height", Math.abs(y(q1) - y(q3)))
               .style("fill", "white")
               .style("stroke", "black")
-              .style("stroke-width", 1);
+              .style("stroke-width", boxLineWidth);
 
             // 画中位线
             d3.select(this)
@@ -423,7 +437,7 @@ function createChart() {
               .attr("y1", y(median))
               .attr("y2", y(median))
               .style("stroke", "black")
-              .style("stroke-width", 1);
+              .style("stroke-width", boxLineWidth);
 
             // 须横线（上，只画左半）
             d3.select(this)
@@ -433,7 +447,7 @@ function createChart() {
               .attr("y1", y(max))
               .attr("y2", y(max))
               .style("stroke", "black")
-              .style("stroke-width", 1);
+              .style("stroke-width", boxLineWidth);
 
             // 须横线（下，只画左半）
             d3.select(this)
@@ -443,7 +457,7 @@ function createChart() {
               .attr("y1", y(min))
               .attr("y2", y(min))
               .style("stroke", "black")
-              .style("stroke-width", 1);
+              .style("stroke-width", boxLineWidth);
 
             // 关键：补箱体右上角到须线的竖线
             d3.select(this)
@@ -453,7 +467,7 @@ function createChart() {
               .attr("y1", y(q3))
               .attr("y2", y(max))
               .style("stroke", "black")
-              .style("stroke-width", 1);
+              .style("stroke-width", boxLineWidth);
 
             // 补箱体右下角到须线的竖线
             d3.select(this)
@@ -463,7 +477,7 @@ function createChart() {
               .attr("y1", y(q1))
               .attr("y2", y(min))
               .style("stroke", "black")
-              .style("stroke-width", 1);
+              .style("stroke-width", boxLineWidth);
 
             // 画右半边提琴图（area + 边界线）
             d3.select(this)
@@ -480,31 +494,34 @@ function createChart() {
                 .curve(d3.curveCatmullRom)
               );
           });
-
+      
       // Add individual points with jitter
-      const jitterWidth = xGroup.bandwidth() * 0.5;
-      svg
-        .selectAll(`.indPoints${seriesIdx}`)
-        .data(series.data)
-        .enter()
-        .append("circle")
-          .attr("cx", d => {
-            return xSeries(`series${seriesIdx}`) + xGroup(d.Species) + xGroup.bandwidth()/2 + axisMargin.x - Math.random()*jitterWidth;
-          })
-          .attr("cy", d => y(d.Sepal_Length))
-          .attr("r", d => {
-            const dotSizeInput = control.querySelector(`.dot-size-group[data-group="${d.Species}"]`);
-            return dotSizeInput ? parseFloat(dotSizeInput.value) : 2;
-          })
-          .style("fill", d => {
-            const dotColorInput = control.querySelector(`.dot-color-group[data-group="${d.Species}"]`);
-            return dotColorInput ? dotColorInput.value : "#222222";
-          })
-          .style("opacity", d => {
-            const dotOpacityInput = control.querySelector(`.dot-opacity-group[data-group="${d.Species}"]`);
-            return dotOpacityInput ? parseFloat(dotOpacityInput.value) : 1;
-          })
-          .attr("stroke", "none");
+      const showDots = control.querySelector(".show-dots")?.checked ?? true;
+      if (showDots) {
+        const jitterWidth = xGroup.bandwidth() * 0.5;
+        svg
+          .selectAll(`.indPoints${seriesIdx}`)
+          .data(series.data)
+          .enter()
+          .append("circle")
+            .attr("cx", d => {
+              return xSeries(`series${seriesIdx}`) + xGroup(d.Species) + xGroup.bandwidth()/2 + axisMargin.x - Math.random()*jitterWidth;
+            })
+            .attr("cy", d => y(d.Sepal_Length))
+            .attr("r", d => {
+              const dotSizeInput = control.querySelector(`.dot-size-group[data-group="${d.Species}"]`);
+              return dotSizeInput ? parseFloat(dotSizeInput.value) : 2;
+            })
+            .style("fill", d => {
+              const dotColorInput = control.querySelector(`.dot-color-group[data-group="${d.Species}"]`);
+              return dotColorInput ? dotColorInput.value : "#222222";
+            })
+            .style("opacity", d => {
+              const dotOpacityInput = control.querySelector(`.dot-opacity-group[data-group="${d.Species}"]`);
+              return dotOpacityInput ? parseFloat(dotOpacityInput.value) : 1;
+            })
+            .attr("stroke", "none");
+      }
     });
 }
 
