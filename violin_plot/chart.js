@@ -29,7 +29,10 @@ function createSeriesControl(index, groupNames) {
   div.className = "series-control";
   div.dataset.index = index;
   div.innerHTML = `
-    <h3>Series ${index + 1} <button class="delete-series">Delete</button></h3>
+    <h3>
+      <input type="text" class="series-description" value="Series ${index + 1}" style="width:120px;">
+      <button class="delete-series">Delete</button>
+    </h3>
     <div class="control-row">
       <label>Line Color:</label>
       <input type="color" class="line-color" value="#ff0000">
@@ -43,8 +46,6 @@ function createSeriesControl(index, groupNames) {
       <input type="number" class="shadow-opacity" value="0.3" min="0" max="1" step="0.1">
     </div>
     <div class="control-row">
-      <label>Description:</label>
-      <input type="text" class="series-description" placeholder="Enter description">
       <label>Show Dots:</label>
       <input type="checkbox" class="show-dots" checked>
     </div>
@@ -553,6 +554,8 @@ function createChart() {
     // 计算所有提琴图中轴线绝对位置
     const violinCenters = [];
     seriesList.forEach((series, seriesIdx) => {
+      // 获取当前series的名称
+      const seriesName = series.control?.querySelector('.series-description')?.value || `Series ${seriesIdx + 1}`;
       const groupNames = Array.from(new Set(series.data.map(d => d.Species)));
       const xGroup = d3.scaleBand()
         .domain(groupNames)
@@ -562,13 +565,12 @@ function createChart() {
       groupNames.forEach(groupName => {
         const center = xSeries(`series${seriesIdx}`) + xGroup(groupName) + xGroup.bandwidth() / 2 + axisMargin.x;
         violinCenters.push({
-          series: seriesIdx + 1,
+          series: seriesName, // 用当前输入框的值
           group: groupName,
           positionPx: center,
           positionCm: center / CM_TO_PX
         });
       });
-      
     });
 
     // 清除旧参考线
@@ -726,4 +728,37 @@ document.getElementById("update").addEventListener("click", function () {
 
   // Recreate the chart with the new settings
   createChart();
+});
+
+document.getElementById("save-svg-btn").addEventListener("click", function () {
+  // 获取SVG元素
+  const svgNode = document.querySelector("#my_dataviz svg");
+  if (!svgNode) return;
+
+  // 克隆SVG节点，去除可能的d3事件
+  const clone = svgNode.cloneNode(true);
+
+  // 添加命名空间（兼容性更好）
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+  // 获取SVG字符串
+  const serializer = new XMLSerializer();
+  let source = serializer.serializeToString(clone);
+
+  // 修复部分浏览器可能缺失的命名空间
+  if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+    source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+
+  // 生成Blob并下载
+  const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "violin_plot.svg";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 });
