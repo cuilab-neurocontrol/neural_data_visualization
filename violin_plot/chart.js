@@ -3,6 +3,7 @@ const CM_TO_PX = 37.7952755906;
 const PT_TO_PX = 1;
 let seriesList = [];
 let refLines = [];
+let annotations = [];
 
 // Get the container and dimensions in cm
 const container = document.getElementById("my_dataviz");
@@ -162,6 +163,25 @@ function removeRefLine(idx) {
   createChart();
 }
 window.removeRefLine = removeRefLine; // 让HTML按钮能调用
+
+document.getElementById("add-anno-btn").addEventListener("click", function() {
+  annotations.push({
+    text: document.getElementById("anno-text").value,
+    x: parseFloat(document.getElementById("anno-x").value),
+    y: parseFloat(document.getElementById("anno-y").value),
+    fontSize: parseFloat(document.getElementById("anno-font-size").value),
+    fontFamily: document.getElementById("anno-font-family").value,
+    color: document.getElementById("anno-color").value,
+    fontWeight: document.getElementById("anno-font-weight").value
+  });
+  createChart();
+});
+
+function removeAnnotation(idx) {
+  annotations.splice(idx, 1);
+  createChart();
+}
+window.removeAnnotation = removeAnnotation;
 
 function createChart() {
   
@@ -616,6 +636,36 @@ function createChart() {
       panel.innerHTML = "<b>Violin Centers:</b><br>" + violinCenters.map(
         v => `Series ${v.series} - ${v.group}: ${v.positionPx.toFixed(2)} px (${v.positionCm.toFixed(2)} cm)`
       ).join("<br>");
+    }
+
+    // 清除旧注释
+    svg.selectAll(".custom-annotation").remove();
+
+    // 绘制所有注释
+    annotations.forEach((anno, idx) => {
+      svg.append("text")
+        .attr("class", "custom-annotation")
+        .attr("x", anno.x)
+        .attr("y", anno.y)
+        .attr("text-anchor", "middle")
+        .style("font-size", `${anno.fontSize}px`)
+        .style("font-family", anno.fontFamily)
+        .style("fill", anno.color)
+        .style("font-weight", anno.fontWeight)
+        .text(anno.text);
+    });
+
+    // 控制面板展示和删除注释
+    const annoListDiv = document.getElementById("annotations-list");
+    if (annoListDiv) {
+      annoListDiv.innerHTML = annotations.map((anno, idx) =>
+        `<div style="margin-bottom:2px;">
+          <span style="color:${anno.color};font-family:${anno.fontFamily};font-size:${anno.fontSize}px;font-weight:${anno.fontWeight};">
+            "${anno.text}" (x=${anno.x}, y=${anno.y})
+          </span>
+          <button onclick="removeAnnotation(${idx})" style="margin-left:8px;">Delete</button>
+        </div>`
+      ).join("");
     }
 }
 

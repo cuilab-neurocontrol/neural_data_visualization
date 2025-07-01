@@ -306,6 +306,36 @@
     </div>
   </details>
 
+  <!-- Annotations -->
+  <details>
+    <summary>Annotations</summary>
+    <div id="annotations-list"></div>
+    <div class="control-row">
+      <label>Text:</label>
+      <input type="text" id="anno-text" value="注释">
+      <label>X (px):</label>
+      <input type="number" id="anno-x" value="100" step="1">
+      <label>Y (px):</label>
+      <input type="number" id="anno-y" value="100" step="1">
+    </div>
+    <div class="control-row">
+      <label>Font Size:</label>
+      <input type="number" id="anno-font-size" value="18" min="6" max="72" step="1">
+      <label>Font Family:</label>
+      <input type="text" id="anno-font-family" value="Arial">
+      <label>Color:</label>
+      <input type="color" id="anno-color" value="#000000">
+      <label>Font Weight:</label>
+      <select id="anno-font-weight">
+        <option value="normal">Normal</option>
+        <option value="bold">Bold</option>
+        <option value="bolder">Bolder</option>
+        <option value="lighter">Lighter</option>
+      </select>
+      <button id="add-anno-btn" type="button">Add Annotation</button>
+    </div>
+  </details>
+
   <div class="control-row">
     <button id="update" data-param="update">Update</button>
     <button id="save-svg-btn" type="button">Export to svg</button>
