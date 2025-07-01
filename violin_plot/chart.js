@@ -50,18 +50,33 @@ function createSeriesControl(index, groupNames) {
   // 为每个分组添加颜色选择器
   if (groupNames && groupNames.length > 0) {
     groupNames.forEach((name, i) => {
-      const color = ["#FF5C5C", "#5CFF5C", "#5C5CFF", "#FFD700", "#FF69B4"][i % 5]; // 默认色
-      const row = document.createElement("div");
-      row.className = "control-row";
-      row.innerHTML = `
+      const color = ["#FF5C5C", "#5CFF5C", "#5C5CFF", "#FFD700", "#FF69B4"][i % 5];
+
+      // 阴影和线的控制项
+      const row1 = document.createElement("div");
+      row1.className = "control-row";
+      row1.innerHTML = `
         <label>${name} Shadow Color:</label>
         <input type="color" class="shadow-color-group" data-group="${name}" value="${color}">
         <label>Line Color:</label>
         <input type="color" class="line-color-group" data-group="${name}" value="#000000">
         <label>Line Width:</label>
         <input type="number" class="line-width-group" data-group="${name}" value="2" min="0.5" step="0.5" style="width:50px;">
-          `;
-      div.appendChild(row);
+      `;
+      div.appendChild(row1);
+
+      // 点的控制项单独一行
+      const row2 = document.createElement("div");
+      row2.className = "control-row";
+      row2.innerHTML = `
+        <label>Dot Color:</label>
+        <input type="color" class="dot-color-group" data-group="${name}" value="#222222">
+        <label>Dot Size:</label>
+        <input type="number" class="dot-size-group" data-group="${name}" value="2" min="0.5" step="0.5" style="width:40px;">
+        <label>Dot Opacity:</label>
+        <input type="number" class="dot-opacity-group" data-group="${name}" value="1" min="0" max="1" step="0.05" style="width:40px;">
+      `;
+      div.appendChild(row2);
     });
   }
 
@@ -477,9 +492,19 @@ function createChart() {
             return xSeries(`series${seriesIdx}`) + xGroup(d.Species) + xGroup.bandwidth()/2 + axisMargin.x - Math.random()*jitterWidth;
           })
           .attr("cy", d => y(d.Sepal_Length))
-          .attr("r", 1)
-          .style("fill", d => myColor(d.Sepal_Length))
-          .attr("stroke", "white");
+          .attr("r", d => {
+            const dotSizeInput = control.querySelector(`.dot-size-group[data-group="${d.Species}"]`);
+            return dotSizeInput ? parseFloat(dotSizeInput.value) : 2;
+          })
+          .style("fill", d => {
+            const dotColorInput = control.querySelector(`.dot-color-group[data-group="${d.Species}"]`);
+            return dotColorInput ? dotColorInput.value : "#222222";
+          })
+          .style("opacity", d => {
+            const dotOpacityInput = control.querySelector(`.dot-opacity-group[data-group="${d.Species}"]`);
+            return dotOpacityInput ? parseFloat(dotOpacityInput.value) : 1;
+          })
+          .attr("stroke", "none");
     });
 }
 
