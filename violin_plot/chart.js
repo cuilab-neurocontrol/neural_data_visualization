@@ -368,6 +368,106 @@ function createChart() {
                 .y(d => y(d.x0))
                 .curve(d3.curveCatmullRom)
               );
+
+            // 计算箱形图五数
+            const values = d.bins.flatMap(bin => bin.map(v => v));
+            const sorted = values.slice().sort((a, b) => a - b);
+            const q1 = d3.quantileSorted(sorted, 0.25);
+            const median = d3.quantileSorted(sorted, 0.5);
+            const q3 = d3.quantileSorted(sorted, 0.75);
+            const min = d3.min(sorted);
+            const max = d3.max(sorted);
+
+            const boxWidth = xGroup.bandwidth() / 2;
+
+            // 画左半边箱体
+            d3.select(this)
+              .append("rect")
+              .attr("x", -(boxWidth*0.75))
+              .attr("y", y(q3))
+              .attr("width", boxWidth*0.75)
+              .attr("height", Math.abs(y(q1) - y(q3)))
+              .style("fill", "white")
+              .style("stroke", "black")
+              .style("stroke-width", 1);
+
+            // 画中位线
+            d3.select(this)
+              .append("line")
+              .attr("x1", -boxWidth*0.75)
+              .attr("x2", 0)
+              .attr("y1", y(median))
+              .attr("y2", y(median))
+              .style("stroke", "black")
+              .style("stroke-width", 1);
+
+            // 须横线（上，只画左半）
+            d3.select(this)
+              .append("line")
+              .attr("x1", -boxWidth * 0.5)
+              .attr("x2", -boxWidth * 0)
+              .attr("y1", y(max))
+              .attr("y2", y(max))
+              .style("stroke", "black")
+              .style("stroke-width", 1);
+
+            // 须横线（下，只画左半）
+            d3.select(this)
+              .append("line")
+              .attr("x1", -boxWidth * 0.5)
+              .attr("x2", -boxWidth * 0)
+              .attr("y1", y(min))
+              .attr("y2", y(min))
+              .style("stroke", "black")
+              .style("stroke-width", 1);
+
+            // 关键：补箱体右上角到须线的竖线
+            d3.select(this)
+              .append("line")
+              .attr("x1", 0)
+              .attr("x2", 0)
+              .attr("y1", y(q3))
+              .attr("y2", y(max))
+              .style("stroke", "black")
+              .style("stroke-width", 1);
+
+            // 补箱体右下角到须线的竖线
+            d3.select(this)
+              .append("line")
+              .attr("x1", 0)
+              .attr("x2", 0)
+              .attr("y1", y(q1))
+              .attr("y2", y(min))
+              .style("stroke", "black")
+              .style("stroke-width", 1);
+
+            // 画右半边提琴图（area + 边界线）
+            d3.select(this)
+              .append("path")
+              .datum(d.bins)
+              .style("fill", shadowColor)
+              .style("fill-opacity", shadowOpacity)
+              .style("stroke", "none")
+              .attr("d", d3.area()
+                .defined(d => d.length > 0)
+                .x0(() => 0)
+                .x1(d => xNum(d.length))
+                .y(d => y(d.x0))
+                .curve(d3.curveCatmullRom)
+              );
+
+            // 右边界线
+            d3.select(this)
+              .append("path")
+              .datum(d.bins.filter(b => b.length > 0))
+              .style("fill", "none")
+              .style("stroke", lineColor)
+              .style("stroke-width", lineThickness)
+              .attr("d", d3.line()
+                .x(d => xNum(d.length))
+                .y(d => y(d.x0))
+                .curve(d3.curveCatmullRom)
+              );
           });
 
       // Add individual points with jitter
