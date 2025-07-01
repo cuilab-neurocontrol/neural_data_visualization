@@ -73,6 +73,8 @@ function createSeriesControl(index, groupNames) {
       row3.innerHTML = `
         <label>Box Line Width:</label>
         <input type="number" class="box-line-width-group" data-group="${name}" value="1" min="0.5" step="0.5" style="width:50px;">
+        <label>Box Line Color:</label>
+        <input type="color" class="box-line-color-group" data-group="${name}" value="#000000">
       `;
       div.appendChild(row3);
 
@@ -383,6 +385,7 @@ function createChart() {
             let groupLineColor = "#000000";
             let groupLineWidth = 2;
             let boxLineWidth = 1;
+            let boxLineColor = "#000000";
             if (control) {
               const colorInput = control.querySelector(`.shadow-color-group[data-group="${d.key}"]`);
               if (colorInput) groupShadowColor = colorInput.value;
@@ -392,6 +395,8 @@ function createChart() {
               if (lineWidthInput) groupLineWidth = parseFloat(lineWidthInput.value);
               const boxLineWidthInput = control.querySelector(`.box-line-width-group[data-group="${d.key}"]`);
               if (boxLineWidthInput) boxLineWidth = parseFloat(boxLineWidthInput.value);
+              const boxLineColorInput = control.querySelector(`.box-line-color-group[data-group="${d.key}"]`);
+              if (boxLineColorInput) boxLineColor = boxLineColorInput.value;
             }
 
             // 右边界线
@@ -426,7 +431,7 @@ function createChart() {
               .attr("width", boxWidth*0.75)
               .attr("height", Math.abs(y(q1) - y(q3)))
               .style("fill", "white")
-              .style("stroke", "black")
+              .style("stroke", boxLineColor)
               .style("stroke-width", boxLineWidth);
 
             // 画中位线
@@ -436,7 +441,7 @@ function createChart() {
               .attr("x2", 0)
               .attr("y1", y(median))
               .attr("y2", y(median))
-              .style("stroke", "black")
+              .style("stroke", boxLineColor)
               .style("stroke-width", boxLineWidth);
 
             // 须横线（上，只画左半）
@@ -446,7 +451,7 @@ function createChart() {
               .attr("x2", -boxWidth * 0)
               .attr("y1", y(max))
               .attr("y2", y(max))
-              .style("stroke", "black")
+              .style("stroke", boxLineColor)
               .style("stroke-width", boxLineWidth);
 
             // 须横线（下，只画左半）
@@ -456,7 +461,7 @@ function createChart() {
               .attr("x2", -boxWidth * 0)
               .attr("y1", y(min))
               .attr("y2", y(min))
-              .style("stroke", "black")
+              .style("stroke", boxLineColor)
               .style("stroke-width", boxLineWidth);
 
             // 关键：补箱体右上角到须线的竖线
@@ -466,7 +471,7 @@ function createChart() {
               .attr("x2", 0)
               .attr("y1", y(q3))
               .attr("y2", y(max))
-              .style("stroke", "black")
+              .style("stroke", boxLineColor)
               .style("stroke-width", boxLineWidth);
 
             // 补箱体右下角到须线的竖线
@@ -476,7 +481,7 @@ function createChart() {
               .attr("x2", 0)
               .attr("y1", y(q1))
               .attr("y2", y(min))
-              .style("stroke", "black")
+              .style("stroke", boxLineColor)
               .style("stroke-width", boxLineWidth);
 
             // 画右半边提琴图（area + 边界线）
