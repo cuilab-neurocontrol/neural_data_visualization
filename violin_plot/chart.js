@@ -33,7 +33,7 @@ function createSeriesControl(index, groupNames) {
       <label>Line Color:</label>
       <input type="color" class="line-color" value="#ff0000">
       <label>Line Thickness (px):</label>
-      <input type="number" class="line-thickness" value="2" min="1" step="0.1">
+      <input type="number" class="line-thickness" value="1" min="1" step="0.1">
     </div>
     <div class="control-row">
       <label>Show Shadow:</label>
@@ -63,7 +63,7 @@ function createSeriesControl(index, groupNames) {
         <label>Line Color:</label>
         <input type="color" class="line-color-group" data-group="${name}" value="#000000">
         <label>Line Width:</label>
-        <input type="number" class="line-width-group" data-group="${name}" value="2" min="0.5" step="0.5" style="width:50px;">
+        <input type="number" class="line-width-group" data-group="${name}" value="1" min="0.5" step="0.5" style="width:50px;">
       `;
       div.appendChild(row1);
 
@@ -85,9 +85,9 @@ function createSeriesControl(index, groupNames) {
         <label>Dot Color:</label>
         <input type="color" class="dot-color-group" data-group="${name}" value="#222222">
         <label>Dot Size:</label>
-        <input type="number" class="dot-size-group" data-group="${name}" value="2" min="0.5" step="0.5" style="width:40px;">
+        <input type="number" class="dot-size-group" data-group="${name}" value="1" min="0.5" step="0.5" style="width:40px;">
         <label>Dot Opacity:</label>
-        <input type="number" class="dot-opacity-group" data-group="${name}" value="1" min="0" max="1" step="0.05" style="width:40px;">
+        <input type="number" class="dot-opacity-group" data-group="${name}" value="0.5" min="0" max="1" step="0.05" style="width:40px;">
       `;
       div.appendChild(row2);
     });
