@@ -56,7 +56,11 @@ function createSeriesControl(index, groupNames) {
       row.innerHTML = `
         <label>${name} Shadow Color:</label>
         <input type="color" class="shadow-color-group" data-group="${name}" value="${color}">
-      `;
+        <label>Line Color:</label>
+        <input type="color" class="line-color-group" data-group="${name}" value="#000000">
+        <label>Line Width:</label>
+        <input type="number" class="line-width-group" data-group="${name}" value="2" min="0.5" step="0.5" style="width:50px;">
+          `;
       div.appendChild(row);
     });
   }
@@ -303,7 +307,6 @@ function createChart() {
       const lineColor = control.querySelector(".line-color").value;
       const lineThickness = parseFloat(control.querySelector(".line-thickness").value);
       const showShadow = control.querySelector(".show-shadow").checked;
-      //const shadowColor = control.querySelector(".shadow-color").value;
       const shadowOpacity = parseFloat(control.querySelector(".shadow-opacity").value);
 
       const groupNames = Array.from(new Set(series.data.map(d => d.Species)));
@@ -350,10 +353,16 @@ function createChart() {
           // 画填充（无描边）
           .each(function(d) {
             // 获取当前分组的阴影颜色
-            let groupShadowColor = "#FF5C5C"; // 默认色
+            let groupShadowColor = "#FF5C5C";
+            let groupLineColor = "#000000";
+            let groupLineWidth = 2;
             if (control) {
               const colorInput = control.querySelector(`.shadow-color-group[data-group="${d.key}"]`);
               if (colorInput) groupShadowColor = colorInput.value;
+              const lineColorInput = control.querySelector(`.line-color-group[data-group="${d.key}"]`);
+              if (lineColorInput) groupLineColor = lineColorInput.value;
+              const lineWidthInput = control.querySelector(`.line-width-group[data-group="${d.key}"]`);
+              if (lineWidthInput) groupLineWidth = parseFloat(lineWidthInput.value);
             }
 
             // 右边界线
@@ -361,8 +370,8 @@ function createChart() {
               .append("path")
               .datum(d.bins.filter(b => b.length > 0))
               .style("fill", "none")
-              .style("stroke", lineColor)
-              .style("stroke-width", lineThickness)
+              .style("stroke", groupLineColor)
+              .style("stroke-width", groupLineWidth)
               .attr("d", d3.line()
                 .x(d => xNum(d.length))
                 .y(d => y(d.x0))
