@@ -23,7 +23,7 @@ let axisMargin = {
 };
 
 // 创建系列控制块，包含线条颜色、粗细、阴影参数
-function createSeriesControl(index) {
+function createSeriesControl(index, groupNames) {
   const div = document.createElement("div");
   div.className = "series-control";
   div.dataset.index = index;
@@ -38,8 +38,6 @@ function createSeriesControl(index) {
     <div class="control-row">
       <label>Show Shadow:</label>
       <input type="checkbox" class="show-shadow" checked>
-      <label>Shadow Color:</label>
-      <input type="color" class="shadow-color" value="#FF5C5C">
       <label>Shadow Opacity:</label>
       <input type="number" class="shadow-opacity" value="0.3" min="0" max="1" step="0.1">
     </div>
@@ -49,18 +47,27 @@ function createSeriesControl(index) {
     </div>
   `;
 
-  // 为删除按钮绑定事件
+  // 为每个分组添加颜色选择器
+  if (groupNames && groupNames.length > 0) {
+    groupNames.forEach((name, i) => {
+      const color = ["#FF5C5C", "#5CFF5C", "#5C5CFF", "#FFD700", "#FF69B4"][i % 5]; // 默认色
+      const row = document.createElement("div");
+      row.className = "control-row";
+      row.innerHTML = `
+        <label>${name} Shadow Color:</label>
+        <input type="color" class="shadow-color-group" data-group="${name}" value="${color}">
+      `;
+      div.appendChild(row);
+    });
+  }
+
+  // 删除按钮事件
   div.querySelector(".delete-series").addEventListener("click", function() {
-    // 获取当前系列的索引（字符串需转换为数字）
     const idx = parseInt(div.dataset.index, 10);
-    // 从全局数组中移除该系列
     seriesList.splice(idx, 1);
-    // 从DOM中删除该控制块
     div.remove();
-    // 重新更新剩余控制块的索引（可选，对于展示编号）
     const controls = document.querySelectorAll(".series-control");
     controls.forEach((ctrl, i) => ctrl.dataset.index = i);
-    // 重新绘制图表
     createChart();
   });
 
@@ -296,7 +303,7 @@ function createChart() {
       const lineColor = control.querySelector(".line-color").value;
       const lineThickness = parseFloat(control.querySelector(".line-thickness").value);
       const showShadow = control.querySelector(".show-shadow").checked;
-      const shadowColor = control.querySelector(".shadow-color").value;
+      //const shadowColor = control.querySelector(".shadow-color").value;
       const shadowOpacity = parseFloat(control.querySelector(".shadow-opacity").value);
 
       const groupNames = Array.from(new Set(series.data.map(d => d.Species)));
@@ -342,20 +349,13 @@ function createChart() {
           .attr("transform", d => `translate(${xSeries(`series${seriesIdx}`)+ xGroup.bandwidth()/2 + xGroup(d.key) + axisMargin.x},0)`)
           // 画填充（无描边）
           .each(function(d) {
-            // 填充
-            d3.select(this)
-              .append("path")
-              .datum(d.bins)
-              .style("fill", shadowColor)
-              .style("fill-opacity", shadowOpacity)
-              .style("stroke", "none")
-              .attr("d", d3.area()
-                .defined(d => d.length > 0)
-                .x0(() => xNum(0))
-                .x1(d => xNum(d.length))
-                .y(d => y(d.x0))
-                .curve(d3.curveCatmullRom)
-              );
+            // 获取当前分组的阴影颜色
+            let groupShadowColor = "#FF5C5C"; // 默认色
+            if (control) {
+              const colorInput = control.querySelector(`.shadow-color-group[data-group="${d.key}"]`);
+              if (colorInput) groupShadowColor = colorInput.value;
+            }
+
             // 右边界线
             d3.select(this)
               .append("path")
@@ -445,26 +445,13 @@ function createChart() {
             d3.select(this)
               .append("path")
               .datum(d.bins)
-              .style("fill", shadowColor)
+              .style("fill", groupShadowColor)
               .style("fill-opacity", shadowOpacity)
               .style("stroke", "none")
               .attr("d", d3.area()
                 .defined(d => d.length > 0)
                 .x0(() => 0)
                 .x1(d => xNum(d.length))
-                .y(d => y(d.x0))
-                .curve(d3.curveCatmullRom)
-              );
-
-            // 右边界线
-            d3.select(this)
-              .append("path")
-              .datum(d.bins.filter(b => b.length > 0))
-              .style("fill", "none")
-              .style("stroke", lineColor)
-              .style("stroke-width", lineThickness)
-              .attr("d", d3.line()
-                .x(d => xNum(d.length))
                 .y(d => y(d.x0))
                 .curve(d3.curveCatmullRom)
               );
@@ -495,10 +482,11 @@ document.getElementById("data-files").addEventListener("change", function(e) {
     reader.onload = function(evt) {
       const text = evt.target.result;
       const data = d3.csvParse(text); // 解析CSV数据
+      const groupNames = Array.from(new Set(data.map(d => d.Species)));
       // 创建一个系列控制块，该控制块只控制此数据系列
-      const seriesControl = createSeriesControl(seriesList.length);
+      const seriesControl = createSeriesControl(seriesList.length, groupNames);
       // 保存数据与其控制块
-      seriesList.push({ data, control: seriesControl });
+      seriesList.push({ data, control: seriesControl, groupNames });
       // 将该控制块添加到控制面板中
       document.getElementById("series-controls").appendChild(seriesControl);
     };
@@ -511,8 +499,9 @@ document.getElementById("add-url").addEventListener("click", function() {
   const url = document.getElementById("data-url").value;
   if (!url) return;
   d3.csv(url).then(data => {
-    const seriesControl = createSeriesControl(seriesList.length);
-    seriesList.push({ data, control: seriesControl });
+    const groupNames = Array.from(new Set(data.map(d => d.Species)));
+    const seriesControl = createSeriesControl(seriesList.length, groupNames);
+    seriesList.push({ data, control: seriesControl, groupNames });
     document.getElementById("series-controls").appendChild(seriesControl);
   }).catch(error => {
     console.error("Error loading CSV from URL:", error);
