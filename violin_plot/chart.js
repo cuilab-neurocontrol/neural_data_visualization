@@ -339,7 +339,7 @@ function createChart() {
         .data(sumstat)
         .enter()
         .append("g")
-          .attr("transform", d => `translate(${xSeries(`series${seriesIdx}`) + xGroup(d.key) + axisMargin.x},0)`)
+          .attr("transform", d => `translate(${xSeries(`series${seriesIdx}`)+ xGroup.bandwidth()/2 + xGroup(d.key) + axisMargin.x},0)`)
           // 画填充（无描边）
           .each(function(d) {
             // 填充
@@ -471,7 +471,7 @@ function createChart() {
           });
 
       // Add individual points with jitter
-      const jitterWidth = xGroup.bandwidth() * 0.7;
+      const jitterWidth = xGroup.bandwidth() * 0.5;
       svg
         .selectAll(`.indPoints${seriesIdx}`)
         .data(series.data)
