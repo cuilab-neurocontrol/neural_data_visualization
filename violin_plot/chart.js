@@ -530,6 +530,35 @@ function createChart() {
             .attr("stroke", "none");
       }
     });
+
+    // 计算所有提琴图中轴线绝对位置
+    const violinCenters = [];
+    seriesList.forEach((series, seriesIdx) => {
+      const groupNames = Array.from(new Set(series.data.map(d => d.Species)));
+      const xGroup = d3.scaleBand()
+        .domain(groupNames)
+        .range([0, xSeries.bandwidth()])
+        .padding(xGroupPadding);
+
+      groupNames.forEach(groupName => {
+        // 计算每个小组的中轴线绝对位置
+        const center = xSeries(`series${seriesIdx}`) + xGroup(groupName) + xGroup.bandwidth() / 2 + axisMargin.x + margin.left;
+        violinCenters.push({
+          series: seriesIdx + 1,
+          group: groupName,
+          positionPx: center,
+          positionCm: center / CM_TO_PX
+        });
+      });
+    });
+
+    // 展示到控制面板
+    const panel = document.getElementById("violin-centers-panel");
+    if (panel) {
+      panel.innerHTML = "<b>Violin Centers:</b><br>" + violinCenters.map(
+        v => `Series ${v.series} - ${v.group}: ${v.positionPx.toFixed(2)} px (${v.positionCm.toFixed(2)} cm)`
+      ).join("<br>");
+    }
 }
 
 // 处理通过文件上传的CSV
