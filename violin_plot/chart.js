@@ -300,10 +300,12 @@ function createChart() {
     // Function to create or update the SVG
     const showXAxis = document.getElementById("show-x-axis").checked;
     const seriesNames = seriesList.map((s, i) => `series${i}`);
+    const xSeriesPadding = parseFloat(document.getElementById("xseries-padding").value);
+    const xGroupPadding = parseFloat(document.getElementById("xgroup-padding").value);
     const xSeries = d3.scaleBand()
       .domain(seriesNames)
       .range([0, width])
-      .padding(0.2);
+      .padding(xSeriesPadding);
 
     if (showXAxis) {
         // 自动生成 tick labels
@@ -341,7 +343,7 @@ function createChart() {
       const xGroup = d3.scaleBand()
         .domain(groupNames)
         .range([0, xSeries.bandwidth()])
-        .padding(0.01); // 小分组间距小
+        .padding(xGroupPadding); // 小分组间距小
 
       // 直方图设置
       const histogram = d3.histogram()
