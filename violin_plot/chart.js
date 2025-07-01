@@ -231,15 +231,14 @@ function createChart() {
       .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
       .call(yAxis)
       .selectAll("text") // Customize tick labels
+      .attr("fill", "#000")
       .style("font-size", `${tickFontSize}px`) // Set font size
       .style("font-family", tickFontFamily); // Set font family
 
-      // Customize Y axis line and ticks
-      svg.selectAll(".domain") // Axis line
-      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
-
-      svg.selectAll(".tick line") // Tick lines
-      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
+      svg.selectAll(".domain").style("stroke-width", axisLineWidth);
+      svg.selectAll(".tick line").style("stroke-width", tickLineWidth);
+      svg.selectAll(".domain").style("stroke", "#000");
+      svg.selectAll(".tick line").style("stroke", "#000");
   }
 
   const showScaleBar = document.getElementById("show-scale-bar").checked;
@@ -291,12 +290,12 @@ function createChart() {
     //const xLabelDistance = 26;
     const showXLabel = document.getElementById("show-x-label").checked;
     if (showXLabel) {
-      const xLabelDistance = tickLength+tickFontSize+6 * PT_TO_PX;
+      const xLabelDistance = tickLength + 1.8*tickFontSize + 6 * PT_TO_PX;
       svg.append("text")
       .attr("x", (width) / 2 +axisMargin.x) // Center the label horizontally
       .attr("y", height + xLabelDistance) // Position below the X axis
       //.attr("y", height - xScaleBarPositiony+xLabelFontSize-3)
-      .attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
+      //.attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
       .style("text-anchor", "middle")
       .style("font-size", `${xLabelFontSize}px`)
       .style("font-family", xLabelFontFamily)
@@ -305,11 +304,11 @@ function createChart() {
     // Add Y axis label
     const showYLabel = document.getElementById("show-y-label").checked;
     if (showYLabel) {
-      const yLabelDistance = tickLength + tickFontSize+6 * PT_TO_PX;
+      const yLabelDistance = tickLength + 1.5*tickFontSize + 6 * PT_TO_PX;
       svg.append("text")
       .attr("x", -(height) / 2+axisMargin.y) // Center the label vertically
       .attr("y", -yLabelDistance) // Position to the left of the Y axis
-      .attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
+      //.attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
       .attr("transform", "rotate(-90)") // Rotate the label
       .style("text-anchor", "middle")
       .style("font-size", `${yLabelFontSize}px`)
@@ -343,13 +342,14 @@ function createChart() {
           .attr("transform", `translate(${axisMargin.x}, ${height})`)
           .call(xAxis)
           .selectAll("text")
+          .attr("fill", "#000")
           .style("font-size", `${tickFontSize}px`)
           .style("font-family", tickFontFamily);
 
-        svg.selectAll(".domain")
-          .style("stroke-width", axisLineWidth + "px");
-        svg.selectAll(".tick line")
-          .style("stroke-width", tickLineWidth + "px");
+        svg.selectAll(".domain").style("stroke-width", axisLineWidth);
+        svg.selectAll(".tick line").style("stroke-width", tickLineWidth);
+        svg.selectAll(".domain").style("stroke", "#000");
+        svg.selectAll(".tick line").style("stroke", "#000");
     }
 
     seriesList.forEach((series, seriesIdx) => {
