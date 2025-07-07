@@ -4,7 +4,7 @@ import random
 
 n_traj = 120
 n_step = 40
-cx, cy = 250, 250
+cx, cy = 100, 10
 
 with open('trajectories.csv', 'w', newline='') as f:
     writer = csv.writer(f)
