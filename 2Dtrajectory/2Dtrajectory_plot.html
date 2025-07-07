@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>D3 Trajectory Plot (Upload CSV)</title>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <style>
+    body { background: #fff; }
+    .traj { fill: none; stroke-width: 2px; opacity: 0.7; }
+  </style>
+</head>
+<body>
+  <h3>上传你的 trajectories.csv：</h3>
+  <input type="file" id="file-input" accept=".csv">
+  <svg id="svg" width="500" height="500"></svg>
+  <!-- 引入外部脚本 -->
+  <script src="chart.js"></script>
+</body>
+</html>
