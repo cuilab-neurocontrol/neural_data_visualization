@@ -643,23 +643,28 @@ document.getElementById("add-line").addEventListener("click", function() {
 });
 
 // 处理通过文件上传的CSV
-document.getElementById("data-files").addEventListener("change", function(e) {
-  const files = e.target.files;
-  Array.from(files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-      const text = evt.target.result;
-      const data = d3.csvParse(text); // 解析CSV数据
-      // 创建一个系列控制块，该控制块只控制此数据系列
-      const seriesControl = createSeriesControl(seriesList.length);
-      // 保存数据与其控制块
-      seriesList.push({ data, control: seriesControl });
-      // 将该控制块添加到控制面板中
-      document.getElementById("series-controls").appendChild(seriesControl);
-    };
-    reader.readAsText(file);
+document.getElementById("data-files")
+  .addEventListener("change", function(e) {
+    const names = Array.from(this.files).map(f => f.name).join(", ");
+    const disp = document.getElementById("data-files-names");
+    disp.textContent = names;
+    disp.title = names;    // ← 让它悬停时 tooltip 显示完整名
+    const files = e.target.files;
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const text = evt.target.result;
+        const data = d3.csvParse(text); // 解析CSV数据
+        // 创建一个系列控制块，该控制块只控制此数据系列
+        const seriesControl = createSeriesControl(seriesList.length);
+        // 保存数据与其控制块
+        seriesList.push({ data, control: seriesControl });
+        // 将该控制块添加到控制面板中
+        document.getElementById("series-controls").appendChild(seriesControl);
+      };
+      reader.readAsText(file);
+    });
   });
-});
 
 // 处理通过URL添加CSV数据
 document.getElementById("add-url").addEventListener("click", function() {
