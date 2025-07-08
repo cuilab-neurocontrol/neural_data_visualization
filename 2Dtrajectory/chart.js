@@ -235,7 +235,7 @@ function createSeriesControl(index) {
 
 // Conversion factor: 1 cm = 37.7952755906 pixels
 const CM_TO_PX = 37.7952755906;
-const PT_TO_PX = 1.333;
+const PT_TO_PX = 1;
 let seriesList = [];
 let linesList = [];
 let textList = [];
@@ -243,6 +243,9 @@ let areasList = [];
 
 function createChart() {
   // Get the container and dimensions in cm
+  const xLabelDistancePlus = parseFloat(document.getElementById("x-label-distance").value);
+  const yLabelDistancePlus = parseFloat(document.getElementById("y-label-distance").value);
+
   const container = document.getElementById("my_dataviz");
   let width = parseFloat(container.dataset.width) * CM_TO_PX; // Convert cm to pixels
   let height = parseFloat(container.dataset.height) * CM_TO_PX; // Convert cm to pixels
@@ -426,15 +429,14 @@ function createChart() {
       .attr("transform", `translate(${axisMargin.x}, ${height})`) // Translate X axis
       .call(xAxis)
       .selectAll("text") // Customize tick labels
+      .attr("fill", "#000")
       .style("font-size", `${tickFontSize}px`) // Set font size
       .style("font-family", tickFontFamily); // Set font family
 
-      // Customize X axis line and ticks
-      svg.selectAll(".domain") // Axis line
-      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
-
-      svg.selectAll(".tick line") // Tick lines
-      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
+      svg.selectAll(".domain").style("stroke-width", axisLineWidth);
+      svg.selectAll(".tick line").style("stroke-width", tickLineWidth);
+      svg.selectAll(".domain").style("stroke", "#000");
+      svg.selectAll(".tick line").style("stroke", "#000");
   }
   
   if (showYAxis) {
@@ -451,15 +453,14 @@ function createChart() {
       .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
       .call(yAxis)
       .selectAll("text") // Customize tick labels
+      .attr("fill", "#000")
       .style("font-size", `${tickFontSize}px`) // Set font size
       .style("font-family", tickFontFamily); // Set font family
 
-      // Customize Y axis line and ticks
-      svg.selectAll(".domain") // Axis line
-      .style("stroke-width", axisLineWidth + "px"); // Set axis line width
-
-      svg.selectAll(".tick line") // Tick lines
-      .style("stroke-width", tickLineWidth + "px"); // Set tick line width
+      svg.selectAll(".domain").style("stroke-width", axisLineWidth);
+      svg.selectAll(".tick line").style("stroke-width", tickLineWidth);
+      svg.selectAll(".domain").style("stroke", "#000");
+      svg.selectAll(".tick line").style("stroke", "#000");
   }
 
   if (showScaleBar) {
@@ -509,12 +510,12 @@ function createChart() {
   // Add X axis label
   //const xLabelDistance = 26;
   if (showXLabel) {
-    const xLabelDistance = tickLength+tickFontSize+6 * PT_TO_PX;
+    const xLabelDistance = tickLength + 1.8*tickFontSize + (xLabelDistancePlus) * PT_TO_PX;
     svg.append("text")
     .attr("x", (width) / 2 +axisMargin.x) // Center the label horizontally
     .attr("y", height + xLabelDistance) // Position below the X axis
     //.attr("y", height - xScaleBarPositiony+xLabelFontSize-3)
-    .attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
+    //.attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
     .style("text-anchor", "middle")
     .style("font-size", `${xLabelFontSize}px`)
     .style("font-family", xLabelFontFamily)
@@ -522,11 +523,11 @@ function createChart() {
   }
   // Add Y axis label
   if (showYLabel) {
-    const yLabelDistance = tickLength + tickFontSize+6 * PT_TO_PX;
+    const yLabelDistance = tickLength + 1.5*tickFontSize + (yLabelDistancePlus) * PT_TO_PX;
     svg.append("text")
     .attr("x", -(height) / 2+axisMargin.y) // Center the label vertically
     .attr("y", -yLabelDistance) // Position to the left of the Y axis
-    .attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
+    //.attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
     .attr("transform", "rotate(-90)") // Rotate the label
     .style("text-anchor", "middle")
     .style("font-size", `${yLabelFontSize}px`)
@@ -689,4 +690,37 @@ document.getElementById("update").addEventListener("click", function () {
 
   // Recreate the chart with the new settings
   createChart();
+});
+
+document.getElementById("save-svg-btn").addEventListener("click", function () {
+  // 获取SVG元素
+  const svgNode = document.querySelector("#my_dataviz svg");
+  if (!svgNode) return;
+
+  // 克隆SVG节点，去除可能的d3事件
+  const clone = svgNode.cloneNode(true);
+
+  // 添加命名空间（兼容性更好）
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+  // 获取SVG字符串
+  const serializer = new XMLSerializer();
+  let source = serializer.serializeToString(clone);
+
+  // 修复部分浏览器可能缺失的命名空间
+  if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+    source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+
+  // 生成Blob并下载
+  const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "violin_plot.svg";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 });

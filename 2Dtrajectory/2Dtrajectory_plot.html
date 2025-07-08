@@ -71,15 +71,15 @@
     </div>
     <div class="control-row">
       <label for="tick-positions">xTick Positions:</label>
-      <input type="text" id="x-tick-positions" value="0,10,20,30,40,50,60,70,80,90,100">
+      <input type="text" id="x-tick-positions" value="-200,-150,-100,-50,0,50,100,150,200">
       <label for="tick-labels">xTick Labels:</label>
-      <input type="text" id="x-tick-labels" value="0, ,20, , 40, ,60, ,80, ,100 ">
+      <input type="text" id="x-tick-labels" value="-200, ,-100, ,0, ,100, ,200">
     </div>
     <div class="control-row">
       <label for="tick-positions">yTick Positions:</label>
-      <input type="text" id="y-tick-positions" value="-2,0,2,4,6,8,10,12,14">
+      <input type="text" id="y-tick-positions" value="-200,-150,-100,-50,0,50,100,150,200">
       <label for="tick-labels">yTick Labels:</label>
-      <input type="text" id="y-tick-labels" value="-2, ,2, ,6, ,10, ,14">
+      <input type="text" id="y-tick-labels" value="-200, ,-100, ,0, ,100, ,200">
     </div>
     <div class="control-row">
       <label for="tick-font-family">Tick Font Family:</label>
@@ -97,15 +97,15 @@
     </div>
     <div class="control-row">
       <label for="x-domain-min">X Domain Min:</label>
-      <input type="number" id="x-domain-min" value="0" step="1">
+      <input type="number" id="x-domain-min" value="-200" step="0.001">
       <label for="x-domain-max">X Domain Max:</label>
-      <input type="number" id="x-domain-max" value="100" step="1">
+      <input type="number" id="x-domain-max" value="200" step="0.001">
     </div>
     <div class="control-row">
       <label for="y-domain-min">Y Domain Min:</label>
-      <input type="number" id="y-domain-min" value="-2" step="1">
+      <input type="number" id="y-domain-min" value="-200" step="0.001">
       <label for="y-domain-max">Y Domain Max:</label>
-      <input type="number" id="y-domain-max" value="16" step="1">
+      <input type="number" id="y-domain-max" value="200" step="0.001">
     </div>
     <div class="control-row">
       <label for="x-label">X Axis Label:</label>
@@ -136,6 +136,12 @@
       </select>
       <label for="show-y-label">Show Y Label:</label>
       <input type="checkbox" id="show-y-label" checked>
+    </div>
+    <div class="control-row">
+      <label for="x-label-distance">X Label Distance (px):</label>
+      <input type="number" id="x-label-distance" value="6" min="0" step="1">
+      <label for="y-label-distance">Y Label Distance (px):</label>
+      <input type="number" id="y-label-distance" value="6" min="0" step="1">
     </div>
   </details>
   <!-- Subheading for Scale Bar Styling -->
@@ -303,8 +309,11 @@
 
   <div class="control-row">
     <button id="update" data-param="update">Update</button>
+    <button id="save-svg-btn" type="button">Export to svg</button>
   </div>
 </div>
+
+
 
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz" data-width="10" data-height="8"></div>
