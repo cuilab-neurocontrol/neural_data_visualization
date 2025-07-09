@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive 3D Trajectory</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <style>
+    body { margin:0; overflow:hidden; }
+    #canvas-container { width:100vw; height:100vh; display:block; }
+    #ui-panel { position:absolute; top:10px; left:10px; z-index:1; background:rgba(255,255,255,0.8); padding:5px; border-radius:4px; }
+  </style>
+</head>
+<body>
+  <div id="ui-panel">
+    <input type="file" id="file-input" accept=".csv"><br>
+    <label>Region W (cm):<input type="number" id="region-width-cm" value="200" style="width:60px"></label>
+    <label>Region D (cm):<input type="number" id="region-depth-cm" value="200" style="width:60px"></label>
+    <button id="update-region">Apply</button>
+  </div>
+  <div id="canvas-container"></div>
+  <script src="3Dtrajectory_interactive.js"></script>
+</body>
+</html>
