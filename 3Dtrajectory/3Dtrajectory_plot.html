@@ -2,24 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Interactive 3D Trajectory</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <title>D3 伪3D轨迹</title>
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <style>
-    body { margin:0; overflow:hidden; }
-    #canvas-container { width:100vw; height:100vh; display:block; }
-    #ui-panel { position:absolute; top:10px; left:10px; z-index:1; background:rgba(255,255,255,0.8); padding:5px; border-radius:4px; }
+    body { font-family: sans-serif; }
+    #ui-panel { margin-bottom: 1em; }
+    svg { border: 1px solid #888; background: #fff; }
   </style>
 </head>
 <body>
   <div id="ui-panel">
-    <input type="file" id="file-input" accept=".csv"><br>
-    <label>Region W (cm):<input type="number" id="region-width-cm" value="200" style="width:60px"></label>
-    <label>Region D (cm):<input type="number" id="region-depth-cm" value="200" style="width:60px"></label>
-    <button id="update-region">Apply</button>
+    <input type="file" id="file-input" accept=".csv">
+    <label>X domain: <input id="x-domain" value="-100,100"></label>
+    <label>Y domain: <input id="y-domain" value="-20,20"></label>
+    <label>Z domain: <input id="z-domain" value="-100,100"></label>
+    <label>Canvas width (cm): <input id="canvas-width" type="number" value="18.5" min="1" step="0.1"></label>
+    <label>Canvas height (cm): <input id="canvas-height" type="number" value="15.9" min="1" step="0.1"></label>
+    <label>Margin (cm): <input id="canvas-margin" type="number" value="1.5" min="0" step="0.1"></label>
+    <button id="update">Update Axes</button>
   </div>
-  <div id="canvas-container"></div>
-  <script src="3Dtrajectory_interactive.js"></script>
+  <svg id="svg" width="700" height="600"></svg>
+  <script src="3Dtrajectory_d3.js"></script>
 </body>
 </html>
