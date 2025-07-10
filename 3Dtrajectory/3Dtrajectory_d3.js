@@ -58,7 +58,7 @@ function draw() {
   const xScale = d3.scaleLinear().domain([d3.min(xs), d3.max(xs)]).range([-width/2+margin, width/2-margin]);
   const yScale = d3.scaleLinear().domain([d3.min(ys), d3.max(ys)]).range([height/2-margin, -height/2+margin]);
 
-  // 1. 画三面网格（底面PC1-PC2，左面PC1-PC3，里面PC2-PC3）
+  // 1. 画三面网格（底面PC1-PC2，左面PC1-PC3，外面PC2-PC3）
   const gridN = 5;
   for (let i = 0; i <= gridN; i++) {
     // --- 底面 PC1-PC2 (y=ydom[0]) ---
@@ -96,17 +96,17 @@ function draw() {
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
       .attr("stroke", "#eee").attr("stroke-width", 1);
 
-    // --- 里面 PC2-PC3 (x=xdom[1]) ---
+    // --- 外面 PC2-PC3 (x=xdom[0]) ---
     // PC2方向平行线（PC3变）
-    p1 = project3d(xdom[1], ty, zdom[0]);
-    p2 = project3d(xdom[1], ty, zdom[1]);
+    p1 = project3d(xdom[0], ty, zdom[0]);
+    p2 = project3d(xdom[0], ty, zdom[1]);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
       .attr("stroke", "#eee").attr("stroke-width", 1);
     // PC3方向平行线（PC2变）
-    p1 = project3d(xdom[1], ydom[0], tz);
-    p2 = project3d(xdom[1], ydom[1], tz);
+    p1 = project3d(xdom[0], ydom[0], tz);
+    p2 = project3d(xdom[0], ydom[1], tz);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
