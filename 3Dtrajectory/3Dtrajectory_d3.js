@@ -143,9 +143,9 @@ function draw() {
     // PC3（左前直立 y 轴）在 x = xdom[0] 平面，刻度沿 +x 方向
     // PC2（右侧直立 z 轴）在 x = xdom[1]、y = ydom[0] 角，刻度沿 -y 方向
     let dir3d;
-    if (axis.label === "PC 1")      dir3d = [0, 0, -1];
-    else if (axis.label === "PC 3") dir3d = [1, 0, 0];
-    else                            dir3d = [0, -1, 0];
+    if (axis.label === "PC 1")      dir3d = [0, 0, 1];
+    else if (axis.label === "PC 3") dir3d = [0, 0, 1];
+    else                            dir3d = [1, 0, 0];
 
     for (let i = 1; i < N; i++) {
       const t = i / N;
