@@ -134,44 +134,39 @@ function draw() {
       .text(axis.label).style("font-weight", "bold");
   });
 
-  // 刻度线方向
-  const tickLenPx = 10;
-  const tickDirType = document.getElementById("tick-direction")?.value || "out";
+  // 3. 刻度线：只在各自轴所在的平面内画入格内的短线（内向或外向由 tick-direction 控制）
+  const tickLen =  (document.getElementById("tick-direction")?.value === "in" ? -1 : 1) *  (margin/10);
   axes.forEach(axis => {
     const N = 5;
+    // 根据轴 label 决定 3D 刻度方向（单位向量）
+    // PC1（前沿 x 轴） 在 z = zdom[1] 平面，刻度朝内/外沿 -z 方向
+    // PC3（左前直立 y 轴）在 x = xdom[0] 平面，刻度沿 +x 方向
+    // PC2（右侧直立 z 轴）在 x = xdom[1]、y = ydom[0] 角，刻度沿 -y 方向
+    let dir3d;
+    if (axis.label === "PC 1")      dir3d = [0, 0, -1];
+    else if (axis.label === "PC 3") dir3d = [1, 0, 0];
+    else                            dir3d = [0, -1, 0];
+
     for (let i = 1; i < N; i++) {
       const t = i / N;
-      const tickPos = [
+      // 刻度基点
+      const base3d = [
         axis.from[0] + t * (axis.to[0] - axis.from[0]),
         axis.from[1] + t * (axis.to[1] - axis.from[1]),
         axis.from[2] + t * (axis.to[2] - axis.from[2])
       ];
-      const pt = project3d(...tickPos);
-
-      // 刻度线方向
-      let tickDir3d;
-      if (axis.label === "PC 1") tickDir3d = [0, 1, 0]; // PC1朝+y（竖直向上）
-      else if (axis.label === "PC 3") tickDir3d = [1, 0, 0]; // PC3朝+x（右）
-      else tickDir3d = [0, 1, 0]; // PC2朝+y（竖直向上）
-      if (tickDirType === "in") tickDir3d = tickDir3d.map(d => -d);
-
-      const tickEnd3d = [
-        tickPos[0] + tickDir3d[0],
-        tickPos[1] + tickDir3d[1],
-        tickPos[2] + tickDir3d[2]
+      // 刻度终点
+      const end3d = [
+        base3d[0] + dir3d[0] * tickLen,
+        base3d[1] + dir3d[1] * tickLen,
+        base3d[2] + dir3d[2] * tickLen
       ];
-      const ptEnd = project3d(...tickEnd3d);
-
-      const dx = ptEnd[0] - pt[0], dy = ptEnd[1] - pt[1];
-      const len = Math.sqrt(dx * dx + dy * dy) || 1;
-      const ux = dx / len, uy = dy / len;
-
-      const px1 = xScale(pt[0]), py1 = yScale(pt[1]);
-      const px2 = px1 + ux * tickLenPx, py2 = py1 + uy * tickLenPx;
-
+      // 投影
+      const [b0, b1] = project3d(...base3d),
+            [e0, e1] = project3d(...end3d);
       g.append("line")
-        .attr("x1", px1).attr("y1", py1)
-        .attr("x2", px2).attr("y2", py2)
+        .attr("x1", xScale(b0)).attr("y1", yScale(b1))
+        .attr("x2", xScale(e0)).attr("y2", yScale(e1))
         .attr("stroke", "#000").attr("stroke-width", 1);
     }
   });
