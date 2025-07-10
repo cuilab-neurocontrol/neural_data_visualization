@@ -58,52 +58,55 @@ function draw() {
   const xScale = d3.scaleLinear().domain([d3.min(xs), d3.max(xs)]).range([-width/2+margin, width/2-margin]);
   const yScale = d3.scaleLinear().domain([d3.min(ys), d3.max(ys)]).range([height/2-margin, -height/2+margin]);
 
-  // 1. 画三面网格（底面 xz，左面 yz，后面 xy），都从原点出发
+  // 1. 画三面网格（底面PC1-PC2，左面PC1-PC3，里面PC2-PC3）
   const gridN = 5;
   for (let i = 0; i <= gridN; i++) {
-    // x-z平面（y=最小）
+    // --- 底面 PC1-PC2 (y=ydom[0]) ---
     let tx = xdom[0] + (xdom[1] - xdom[0]) * i / gridN;
     let tz = zdom[0] + (zdom[1] - zdom[0]) * i / gridN;
-    // x方向平行线（z变）
-    let p1 = project3d(xdom[0], ydom[0], tz);
-    let p2 = project3d(xdom[1], ydom[0], tz);
+    // PC1方向平行线（PC2变）
+    let p1 = project3d(tx, ydom[0], zdom[0]);
+    let p2 = project3d(tx, ydom[0], zdom[1]);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
       .attr("stroke", "#ddd").attr("stroke-width", 1);
-    // z方向平行线（x变）
-    p1 = project3d(tx, ydom[0], zdom[0]);
-    p2 = project3d(tx, ydom[0], zdom[1]);
-    g.append("line")
-      .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
-      .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#ddd").attr("stroke-width", 1);
-
-    // y-z平面（x=最小）
+    // PC2方向平行线（PC1变）
     p1 = project3d(xdom[0], ydom[0], tz);
-    p2 = project3d(xdom[0], ydom[1], tz);
+    p2 = project3d(xdom[1], ydom[0], tz);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#eee").attr("stroke-width", 1);
-    // y方向平行线（z变）
-    let ty = ydom[0] + (ydom[1] - ydom[0]) * i / gridN;
-    p1 = project3d(xdom[0], ty, zdom[0]);
-    p2 = project3d(xdom[0], ty, zdom[1]);
-    g.append("line")
-      .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
-      .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#eee").attr("stroke-width", 1);
+      .attr("stroke", "#ddd").attr("stroke-width", 1);
 
-    // x-y平面（z=最小）
-    p1 = project3d(xdom[0], ydom[0], zdom[0]);
-    p2 = project3d(xdom[1], ydom[0], zdom[0]);
-    g.append("line")
-      .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
-      .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#eee").attr("stroke-width", 1);
+    // --- 左面 PC1-PC3 (z=zdom[0]) ---
+    let ty = ydom[0] + (ydom[1] - ydom[0]) * i / gridN;
+    // PC1方向平行线（PC3变）
     p1 = project3d(xdom[0], ty, zdom[0]);
     p2 = project3d(xdom[1], ty, zdom[0]);
+    g.append("line")
+      .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
+      .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
+      .attr("stroke", "#eee").attr("stroke-width", 1);
+    // PC3方向平行线（PC1变）
+    p1 = project3d(tx, ydom[0], zdom[0]);
+    p2 = project3d(tx, ydom[1], zdom[0]);
+    g.append("line")
+      .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
+      .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
+      .attr("stroke", "#eee").attr("stroke-width", 1);
+
+    // --- 里面 PC2-PC3 (x=xdom[1]) ---
+    // PC2方向平行线（PC3变）
+    p1 = project3d(xdom[1], ty, zdom[0]);
+    p2 = project3d(xdom[1], ty, zdom[1]);
+    g.append("line")
+      .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
+      .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
+      .attr("stroke", "#eee").attr("stroke-width", 1);
+    // PC3方向平行线（PC2变）
+    p1 = project3d(xdom[1], ydom[0], tz);
+    p2 = project3d(xdom[1], ydom[1], tz);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
