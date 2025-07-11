@@ -134,8 +134,11 @@ function draw() {
       .text(axis.label).style("font-weight", "bold");
   });
 
-  // 3. 刻度线：只在各自轴所在的平面内画入格内的短线（内向或外向由 tick-direction 控制）
-  const tickLen =  (document.getElementById("tick-direction")?.value === "in" ? -1 : 1) *  (margin/10);
+  // 3. 刻度线：只在各自轴所在的平面内画入格内的短线
+  const tickPx  = parseFloat(document.getElementById("tick-length-px")?.value) || 10;
+  const dirSign = document.getElementById("tick-direction")?.value === "in" ? -1 : 1;
+  const tickLen = tickPx * dirSign;
+
   axes.forEach(axis => {
     const N = 5;
     // 根据轴 label 决定 3D 刻度方向（单位向量）
@@ -227,3 +230,7 @@ document.getElementById("canvas-height")?.addEventListener("change", draw);
 
 // 新增：监听margin输入
 document.getElementById("canvas-margin")?.addEventListener("change", draw);
+
+// 让新的输入也能触发重绘
+document.getElementById("tick-length-px")?.addEventListener("change", draw);
+document.getElementById("update")?.addEventListener("click", draw);
