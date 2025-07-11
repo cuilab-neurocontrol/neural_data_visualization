@@ -125,22 +125,57 @@ function draw() {
       .attr("stroke", "#eee").attr("stroke-width", gridWidth);
   });
 
-  // 2. 画三条主轴（完全不变）
+  // 2. 画三条主轴
   const axes = [
     { from: [xdom[0], ydom[0], zdom[1]], to: [xdom[1], ydom[0], zdom[1]], label: "PC 1" },
     { from: [xdom[0], ydom[0], zdom[1]], to: [xdom[0], ydom[1], zdom[1]], label: "PC 3" },
     { from: [xdom[1], ydom[0], zdom[0]], to: [xdom[1], ydom[0], zdom[1]], label: "PC 2" }
   ];
+
+  // 读取轴标题样式参数（单独的控制项）
+  const axisLabelFontSize = parseFloat(document.getElementById("axis-label-font-size")?.value) || 14;
+  const axisLabelFontFamily = document.getElementById("axis-label-font-family")?.value || "Arial";
+  const axisLabelDistance = parseFloat(document.getElementById("axis-label-distance")?.value) || 30;
+
   axes.forEach(axis => {
     const p1 = project3d(...axis.from), p2 = project3d(...axis.to);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
       .attr("stroke", "#000").attr("stroke-width", axisWidth);
+    
+    // 1. 找轴的中点
+    const midPoint3d = [
+      (axis.from[0] + axis.to[0]) / 2,
+      (axis.from[1] + axis.to[1]) / 2,
+      (axis.from[2] + axis.to[2]) / 2
+    ];
+    
+    // 2. 使用与刻度线相同的方向，但距离更远
+    let dir3d;
+    if (axis.label === "PC 1")      dir3d = [0, 0, 1];  // 与刻度线方向相同
+    else if (axis.label === "PC 3") dir3d = [0, 0, 1];  // 与刻度线方向相同
+    else                            dir3d = [1, 0, 0];  // 与刻度线方向相同
+    
+    // 3. 标签位置 = 轴中点 + 方向 * 距离
+    const labelPos3d = [
+      midPoint3d[0] + dir3d[0] * axisLabelDistance,
+      midPoint3d[1] + dir3d[1] * axisLabelDistance,
+      midPoint3d[2] + dir3d[2] * axisLabelDistance
+    ];
+    
+    const [lx, ly] = project3d(...labelPos3d);
+    
     g.append("text")
-      .attr("x", xScale(p2[0])).attr("y", yScale(p2[1]))
-      .attr("dx", 8).attr("dy", -8)
-      .text(axis.label).style("font-weight", "bold");
+      .attr("x", xScale(lx))
+      .attr("y", yScale(ly))
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "middle")
+      .style("font-size", axisLabelFontSize + "px")
+      .style("font-family", axisLabelFontFamily)
+      .style("font-weight", "bold")
+      .style("fill", "#000")
+      .text(axis.label);
   });
 
   // 3. 刻度线：在指定位置画，方向完全不变
@@ -284,6 +319,7 @@ document.getElementById("update")?.addEventListener("click", draw);
 
 // 监听新的输入
 ["x-ticks","y-ticks","z-ticks","x-labels","y-labels","z-labels",
- "label-font-size","label-font-family","label-distance"].forEach(id =>
+ "label-font-size","label-font-family","label-distance",
+ "axis-label-font-size","axis-label-font-family","axis-label-distance"].forEach(id =>
   document.getElementById(id)?.addEventListener("change", draw)
 );
