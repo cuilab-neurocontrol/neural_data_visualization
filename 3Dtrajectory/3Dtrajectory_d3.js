@@ -58,6 +58,11 @@ function draw() {
   const xScale = d3.scaleLinear().domain([d3.min(xs), d3.max(xs)]).range([-width/2+margin, width/2-margin]);
   const yScale = d3.scaleLinear().domain([d3.min(ys), d3.max(ys)]).range([height/2-margin, -height/2+margin]);
 
+  // 读取粗细参数（px），不改方向逻辑
+  const axisWidth = parseFloat(document.getElementById("axis-width-px")?.value) || 2;
+  const tickWidth = parseFloat(document.getElementById("tick-width-px")?.value) || 1;
+  const gridWidth = parseFloat(document.getElementById("grid-width-px")?.value) || 1;
+
   // 1. 画三面网格（底面PC1-PC2，左面PC1-PC3，外面PC2-PC3）
   const gridN = 5;
   for (let i = 0; i <= gridN; i++) {
@@ -70,14 +75,14 @@ function draw() {
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#ddd").attr("stroke-width", 1);
+      .attr("stroke", "#ddd").attr("stroke-width", gridWidth);
     // PC2方向平行线（PC1变）
     p1 = project3d(xdom[0], ydom[0], tz);
     p2 = project3d(xdom[1], ydom[0], tz);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#ddd").attr("stroke-width", 1);
+      .attr("stroke", "#ddd").attr("stroke-width", gridWidth);
 
     // --- 左面 PC1-PC3 (z=zdom[0]) ---
     let ty = ydom[0] + (ydom[1] - ydom[0]) * i / gridN;
@@ -87,14 +92,14 @@ function draw() {
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#eee").attr("stroke-width", 1);
+      .attr("stroke", "#eee").attr("stroke-width", gridWidth);
     // PC3方向平行线（PC1变）
     p1 = project3d(tx, ydom[0], zdom[0]);
     p2 = project3d(tx, ydom[1], zdom[0]);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#eee").attr("stroke-width", 1);
+      .attr("stroke", "#eee").attr("stroke-width", gridWidth);
 
     // --- 外面 PC2-PC3 (x=xdom[0]) ---
     // PC2方向平行线（PC3变）
@@ -103,14 +108,14 @@ function draw() {
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#eee").attr("stroke-width", 1);
+      .attr("stroke", "#eee").attr("stroke-width", gridWidth);
     // PC3方向平行线（PC2变）
     p1 = project3d(xdom[0], ydom[0], tz);
     p2 = project3d(xdom[0], ydom[1], tz);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#eee").attr("stroke-width", 1);
+      .attr("stroke", "#eee").attr("stroke-width", gridWidth);
   }
 
   // 2. 画三条主轴（matplotlib风格L型：PC1在前，PC2在右，PC3竖直）
@@ -127,7 +132,7 @@ function draw() {
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
-      .attr("stroke", "#000").attr("stroke-width", 2);
+      .attr("stroke", "#000").attr("stroke-width", axisWidth);
     g.append("text")
       .attr("x", xScale(p2[0])).attr("y", yScale(p2[1]))
       .attr("dx", 8).attr("dy", -8)
@@ -170,7 +175,7 @@ function draw() {
       g.append("line")
         .attr("x1", xScale(b0)).attr("y1", yScale(b1))
         .attr("x2", xScale(e0)).attr("y2", yScale(e1))
-        .attr("stroke", "#000").attr("stroke-width", 1);
+        .attr("stroke", "#000").attr("stroke-width", tickWidth);
     }
   });
 
@@ -234,3 +239,8 @@ document.getElementById("canvas-margin")?.addEventListener("change", draw);
 // 让新的输入也能触发重绘
 document.getElementById("tick-length-px")?.addEventListener("change", draw);
 document.getElementById("update")?.addEventListener("click", draw);
+
+// 确保这三个新的输入也能触发 draw()
+["axis-width-px","tick-width-px","grid-width-px"].forEach(id =>
+  document.getElementById(id)?.addEventListener("change", draw)
+);
