@@ -148,17 +148,25 @@ function draw() {
   const dirSign = document.getElementById("tick-direction")?.value === "in" ? -1 : 1;
   const tickLen = tickPx * dirSign;
 
+  // 读取刻度标签
+  const xLabels = document.getElementById("x-labels").value.split(",").map(s => s.trim());
+  const yLabels = document.getElementById("y-labels").value.split(",").map(s => s.trim());
+  const zLabels = document.getElementById("z-labels").value.split(",").map(s => s.trim());
+
   axes.forEach(axis => {
     const ticks = axis.label === "PC 1" ? xTicks
                 : axis.label === "PC 3" ? yTicks
                 : zTicks;
+    const labels = axis.label === "PC 1" ? xLabels
+                : axis.label === "PC 3" ? yLabels
+                : zLabels;
     // 方向完全不变
     let dir3d;
     if (axis.label === "PC 1")      dir3d = [0, 0, 1];
     else if (axis.label === "PC 3") dir3d = [0, 0, 1];
     else                            dir3d = [1, 0, 0];
 
-    ticks.forEach(val => {
+    ticks.forEach((val, i) => {
       // 根据轴的定义计算刻度基点
       let base3d;
       if (axis.label === "PC 1") {
@@ -179,10 +187,30 @@ function draw() {
       ];
       const [b0, b1] = project3d(...base3d),
             [e0, e1] = project3d(...end3d);
+      
+      // 画刻度线
       g.append("line")
         .attr("x1", xScale(b0)).attr("y1", yScale(b1))
         .attr("x2", xScale(e0)).attr("y2", yScale(e1))
         .attr("stroke", "#000").attr("stroke-width", tickWidth);
+      
+      // 添加刻度数值标签
+      const labelOffset = 15; // 标签距离刻度线的偏移
+      const labelPos = [
+        base3d[0] + dir3d[0] * (tickLen + labelOffset),
+        base3d[1] + dir3d[1] * (tickLen + labelOffset),
+        base3d[2] + dir3d[2] * (tickLen + labelOffset)
+      ];
+      const [lx, ly] = project3d(...labelPos);
+      
+      g.append("text")
+        .attr("x", xScale(lx))
+        .attr("y", yScale(ly))
+        .attr("text-anchor", "middle")
+        .attr("dominant-baseline", "middle")
+        .style("font-size", "12px")
+        .style("fill", "#000")
+        .text(labels[i] || val); // 优先使用自定义标签，否则用数值
     });
   });
 
@@ -253,6 +281,6 @@ document.getElementById("update")?.addEventListener("click", draw);
 );
 
 // 监听新的输入
-["x-ticks","y-ticks","z-ticks"].forEach(id =>
+["x-ticks","y-ticks","z-ticks","x-labels","y-labels","z-labels"].forEach(id =>
   document.getElementById(id)?.addEventListener("change", draw)
 );
