@@ -127,14 +127,16 @@ function draw() {
 
   // 2. 画三条主轴
   const axes = [
-    { from: [xdom[0], ydom[0], zdom[1]], to: [xdom[1], ydom[0], zdom[1]], label: "PC 1" },
-    { from: [xdom[0], ydom[0], zdom[1]], to: [xdom[0], ydom[1], zdom[1]], label: "PC 3" },
-    { from: [xdom[1], ydom[0], zdom[0]], to: [xdom[1], ydom[0], zdom[1]], label: "PC 2" }
+    { from: [xdom[0], ydom[0], zdom[1]], to: [xdom[1], ydom[0], zdom[1]], label: "PC 1", index: 0 },
+    { from: [xdom[0], ydom[0], zdom[1]], to: [xdom[0], ydom[1], zdom[1]], label: "PC 3", index: 1 },
+    { from: [xdom[1], ydom[0], zdom[0]], to: [xdom[1], ydom[0], zdom[1]], label: "PC 2", index: 2 }
   ];
 
-  // 读取轴标题样式参数（单独的控制项）
+  // 读取轴标签样式参数
+  const axisLabels = document.getElementById("axis-labels").value.split(",").map(s => s.trim());
   const axisLabelFontSize = parseFloat(document.getElementById("axis-label-font-size")?.value) || 14;
   const axisLabelFontFamily = document.getElementById("axis-label-font-family")?.value || "Arial";
+  const axisLabelFontWeight = document.getElementById("axis-label-font-weight")?.value || "bold";
   const axisLabelDistance = parseFloat(document.getElementById("axis-label-distance")?.value) || 30;
 
   axes.forEach(axis => {
@@ -166,16 +168,23 @@ function draw() {
     
     const [lx, ly] = project3d(...labelPos3d);
     
+    // 获取自定义标签内容
+    const labelText = axisLabels[axis.index] || axis.label;
+    
+    // PC3标签保持垂直，其他标签水平
+    const transform = axis.label === "PC 3" ? `rotate(-90, ${xScale(lx)}, ${yScale(ly)})` : "";
+    
     g.append("text")
       .attr("x", xScale(lx))
       .attr("y", yScale(ly))
+      .attr("transform", transform)
       .attr("text-anchor", "middle")
       .attr("dominant-baseline", "middle")
       .style("font-size", axisLabelFontSize + "px")
       .style("font-family", axisLabelFontFamily)
-      .style("font-weight", "bold")
+      .style("font-weight", axisLabelFontWeight)
       .style("fill", "#000")
-      .text(axis.label);
+      .text(labelText);
   });
 
   // 3. 刻度线：在指定位置画，方向完全不变
@@ -320,6 +329,6 @@ document.getElementById("update")?.addEventListener("click", draw);
 // 监听新的输入
 ["x-ticks","y-ticks","z-ticks","x-labels","y-labels","z-labels",
  "label-font-size","label-font-family","label-distance",
- "axis-label-font-size","axis-label-font-family","axis-label-distance"].forEach(id =>
+ "axis-labels","axis-label-font-size","axis-label-font-family","axis-label-font-weight","axis-label-distance"].forEach(id =>
   document.getElementById(id)?.addEventListener("change", draw)
 );
