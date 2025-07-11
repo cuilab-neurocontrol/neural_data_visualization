@@ -256,7 +256,7 @@ function draw() {
         .style("font-size", labelFontSize + "px")
         .style("font-family", labelFontFamily)
         .style("fill", "#000")
-        .text(labels[i] || val);
+        .text(labels[i] !== undefined ? labels[i] : val); // 优先使用自定义标签，支持空字符串
     });
   });
 
