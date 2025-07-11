@@ -63,68 +63,72 @@ function draw() {
   const tickWidth = parseFloat(document.getElementById("tick-width-px")?.value) || 1;
   const gridWidth = parseFloat(document.getElementById("grid-width-px")?.value) || 1;
 
+  // 读取用户指定的刻度位置
+  const xTicks = document.getElementById("x-ticks").value.split(",").map(Number);
+  const yTicks = document.getElementById("y-ticks").value.split(",").map(Number);
+  const zTicks = document.getElementById("z-ticks").value.split(",").map(Number);
+
   // 1. 画三面网格（底面PC1-PC2，左面PC1-PC3，外面PC2-PC3）
-  const gridN = 5;
-  for (let i = 0; i <= gridN; i++) {
-    // --- 底面 PC1-PC2 (y=ydom[0]) ---
-    let tx = xdom[0] + (xdom[1] - xdom[0]) * i / gridN;
-    let tz = zdom[0] + (zdom[1] - zdom[0]) * i / gridN;
-    // PC1方向平行线（PC2变）
-    let p1 = project3d(tx, ydom[0], zdom[0]);
-    let p2 = project3d(tx, ydom[0], zdom[1]);
+  // 用刻度位置替代原来的均分
+  
+  // --- 底面 PC1-PC2 (y=ydom[0]) ---
+  xTicks.forEach(xv => {
+    let p1 = project3d(xv, ydom[0], zdom[0]);
+    let p2 = project3d(xv, ydom[0], zdom[1]);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
       .attr("stroke", "#ddd").attr("stroke-width", gridWidth);
-    // PC2方向平行线（PC1变）
-    p1 = project3d(xdom[0], ydom[0], tz);
-    p2 = project3d(xdom[1], ydom[0], tz);
+  });
+  zTicks.forEach(zv => {
+    let p1 = project3d(xdom[0], ydom[0], zv);
+    let p2 = project3d(xdom[1], ydom[0], zv);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
       .attr("stroke", "#ddd").attr("stroke-width", gridWidth);
+  });
 
-    // --- 左面 PC1-PC3 (z=zdom[0]) ---
-    let ty = ydom[0] + (ydom[1] - ydom[0]) * i / gridN;
-    // PC1方向平行线（PC3变）
-    p1 = project3d(xdom[0], ty, zdom[0]);
-    p2 = project3d(xdom[1], ty, zdom[0]);
+  // --- 左面 PC1-PC3 (z=zdom[0]) ---
+  xTicks.forEach(xv => {
+    let p1 = project3d(xv, ydom[0], zdom[0]);
+    let p2 = project3d(xv, ydom[1], zdom[0]);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
       .attr("stroke", "#eee").attr("stroke-width", gridWidth);
-    // PC3方向平行线（PC1变）
-    p1 = project3d(tx, ydom[0], zdom[0]);
-    p2 = project3d(tx, ydom[1], zdom[0]);
+  });
+  yTicks.forEach(yv => {
+    let p1 = project3d(xdom[0], yv, zdom[0]);
+    let p2 = project3d(xdom[1], yv, zdom[0]);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
       .attr("stroke", "#eee").attr("stroke-width", gridWidth);
+  });
 
-    // --- 外面 PC2-PC3 (x=xdom[0]) ---
-    // PC2方向平行线（PC3变）
-    p1 = project3d(xdom[0], ty, zdom[0]);
-    p2 = project3d(xdom[0], ty, zdom[1]);
+  // --- 外面 PC2-PC3 (x=xdom[0]) ---
+  yTicks.forEach(yv => {
+    let p1 = project3d(xdom[0], yv, zdom[0]);
+    let p2 = project3d(xdom[0], yv, zdom[1]);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
       .attr("stroke", "#eee").attr("stroke-width", gridWidth);
-    // PC3方向平行线（PC2变）
-    p1 = project3d(xdom[0], ydom[0], tz);
-    p2 = project3d(xdom[0], ydom[1], tz);
+  });
+  zTicks.forEach(zv => {
+    let p1 = project3d(xdom[0], ydom[0], zv);
+    let p2 = project3d(xdom[0], ydom[1], zv);
     g.append("line")
       .attr("x1", xScale(p1[0])).attr("y1", yScale(p1[1]))
       .attr("x2", xScale(p2[0])).attr("y2", yScale(p2[1]))
       .attr("stroke", "#eee").attr("stroke-width", gridWidth);
-  }
+  });
 
-  // 2. 画三条主轴（matplotlib风格L型：PC1在前，PC2在右，PC3竖直）
+  // 2. 画三条主轴（完全不变）
   const axes = [
-    // PC1: x轴，前沿
     { from: [xdom[0], ydom[0], zdom[1]], to: [xdom[1], ydom[0], zdom[1]], label: "PC 1" },
-    // PC3: y轴，左前角竖直
     { from: [xdom[0], ydom[0], zdom[1]], to: [xdom[0], ydom[1], zdom[1]], label: "PC 3" },
-    // PC2: z轴，右侧
     { from: [xdom[1], ydom[0], zdom[0]], to: [xdom[1], ydom[0], zdom[1]], label: "PC 2" }
   ];
   axes.forEach(axis => {
@@ -139,44 +143,47 @@ function draw() {
       .text(axis.label).style("font-weight", "bold");
   });
 
-  // 3. 刻度线：只在各自轴所在的平面内画入格内的短线
+  // 3. 刻度线：在指定位置画，方向完全不变
   const tickPx  = parseFloat(document.getElementById("tick-length-px")?.value) || 10;
   const dirSign = document.getElementById("tick-direction")?.value === "in" ? -1 : 1;
   const tickLen = tickPx * dirSign;
 
   axes.forEach(axis => {
-    const N = 5;
-    // 根据轴 label 决定 3D 刻度方向（单位向量）
-    // PC1（前沿 x 轴） 在 z = zdom[1] 平面，刻度朝内/外沿 -z 方向
-    // PC3（左前直立 y 轴）在 x = xdom[0] 平面，刻度沿 +x 方向
-    // PC2（右侧直立 z 轴）在 x = xdom[1]、y = ydom[0] 角，刻度沿 -y 方向
+    const ticks = axis.label === "PC 1" ? xTicks
+                : axis.label === "PC 3" ? yTicks
+                : zTicks;
+    // 方向完全不变
     let dir3d;
     if (axis.label === "PC 1")      dir3d = [0, 0, 1];
     else if (axis.label === "PC 3") dir3d = [0, 0, 1];
     else                            dir3d = [1, 0, 0];
 
-    for (let i = 1; i < N; i++) {
-      const t = i / N;
-      // 刻度基点
-      const base3d = [
-        axis.from[0] + t * (axis.to[0] - axis.from[0]),
-        axis.from[1] + t * (axis.to[1] - axis.from[1]),
-        axis.from[2] + t * (axis.to[2] - axis.from[2])
-      ];
-      // 刻度终点
+    ticks.forEach(val => {
+      // 根据轴的定义计算刻度基点
+      let base3d;
+      if (axis.label === "PC 1") {
+        // PC1轴：从[xdom[0], ydom[0], zdom[1]]到[xdom[1], ydom[0], zdom[1]]
+        base3d = [val, ydom[0], zdom[1]];
+      } else if (axis.label === "PC 3") {
+        // PC3轴：从[xdom[0], ydom[0], zdom[1]]到[xdom[0], ydom[1], zdom[1]]
+        base3d = [xdom[0], val, zdom[1]];
+      } else {
+        // PC2轴：从[xdom[1], ydom[0], zdom[0]]到[xdom[1], ydom[0], zdom[1]]
+        base3d = [xdom[1], ydom[0], val];
+      }
+      
       const end3d = [
         base3d[0] + dir3d[0] * tickLen,
         base3d[1] + dir3d[1] * tickLen,
         base3d[2] + dir3d[2] * tickLen
       ];
-      // 投影
       const [b0, b1] = project3d(...base3d),
             [e0, e1] = project3d(...end3d);
       g.append("line")
         .attr("x1", xScale(b0)).attr("y1", yScale(b1))
         .attr("x2", xScale(e0)).attr("y2", yScale(e1))
         .attr("stroke", "#000").attr("stroke-width", tickWidth);
-    }
+    });
   });
 
   // 4. 画轨迹
@@ -242,5 +249,10 @@ document.getElementById("update")?.addEventListener("click", draw);
 
 // 确保这三个新的输入也能触发 draw()
 ["axis-width-px","tick-width-px","grid-width-px"].forEach(id =>
+  document.getElementById(id)?.addEventListener("change", draw)
+);
+
+// 监听新的输入
+["x-ticks","y-ticks","z-ticks"].forEach(id =>
   document.getElementById(id)?.addEventListener("change", draw)
 );
