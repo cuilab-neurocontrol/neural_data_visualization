@@ -87,6 +87,24 @@
       <span>Z 刻度标签:</span>
       <input id="z-labels" type="text" value="-1,-0.5,0,0.5,1">
     </label>
+    <label>
+      <span>标签字体大小 (px):</span>
+      <input id="label-font-size" type="number" value="12" min="6" step="1">
+    </label>
+    <label>
+      <span>标签字体:</span>
+      <select id="label-font-family">
+        <option value="Arial">Arial</option>
+        <option value="sans-serif">Sans-serif</option>
+        <option value="serif">Serif</option>
+        <option value="monospace">Monospace</option>
+        <option value="Times New Roman">Times New Roman</option>
+      </select>
+    </label>
+    <label>
+      <span>标签距离 (px):</span>
+      <input id="label-distance" type="number" value="15" min="5" step="1">
+    </label>
     <button id="update">Update Axes</button>
   </div>
   <svg id="svg" width="700" height="600"></svg>

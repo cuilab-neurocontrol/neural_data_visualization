@@ -153,6 +153,11 @@ function draw() {
   const yLabels = document.getElementById("y-labels").value.split(",").map(s => s.trim());
   const zLabels = document.getElementById("z-labels").value.split(",").map(s => s.trim());
 
+  // 读取标签样式参数
+  const labelFontSize = parseFloat(document.getElementById("label-font-size")?.value) || 12;
+  const labelFontFamily = document.getElementById("label-font-family")?.value || "Arial";
+  const labelDistance = parseFloat(document.getElementById("label-distance")?.value) || 15;
+
   axes.forEach(axis => {
     const ticks = axis.label === "PC 1" ? xTicks
                 : axis.label === "PC 3" ? yTicks
@@ -170,13 +175,10 @@ function draw() {
       // 根据轴的定义计算刻度基点
       let base3d;
       if (axis.label === "PC 1") {
-        // PC1轴：从[xdom[0], ydom[0], zdom[1]]到[xdom[1], ydom[0], zdom[1]]
         base3d = [val, ydom[0], zdom[1]];
       } else if (axis.label === "PC 3") {
-        // PC3轴：从[xdom[0], ydom[0], zdom[1]]到[xdom[0], ydom[1], zdom[1]]
         base3d = [xdom[0], val, zdom[1]];
       } else {
-        // PC2轴：从[xdom[1], ydom[0], zdom[0]]到[xdom[1], ydom[0], zdom[1]]
         base3d = [xdom[1], ydom[0], val];
       }
       
@@ -195,11 +197,10 @@ function draw() {
         .attr("stroke", "#000").attr("stroke-width", tickWidth);
       
       // 添加刻度数值标签
-      const labelOffset = 15; // 标签距离刻度线的偏移
       const labelPos = [
-        base3d[0] + dir3d[0] * (tickLen + labelOffset),
-        base3d[1] + dir3d[1] * (tickLen + labelOffset),
-        base3d[2] + dir3d[2] * (tickLen + labelOffset)
+        base3d[0] + dir3d[0] * (tickLen + labelDistance),
+        base3d[1] + dir3d[1] * (tickLen + labelDistance),
+        base3d[2] + dir3d[2] * (tickLen + labelDistance)
       ];
       const [lx, ly] = project3d(...labelPos);
       
@@ -208,9 +209,10 @@ function draw() {
         .attr("y", yScale(ly))
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "middle")
-        .style("font-size", "12px")
+        .style("font-size", labelFontSize + "px")
+        .style("font-family", labelFontFamily)
         .style("fill", "#000")
-        .text(labels[i] || val); // 优先使用自定义标签，否则用数值
+        .text(labels[i] || val);
     });
   });
 
@@ -281,6 +283,7 @@ document.getElementById("update")?.addEventListener("click", draw);
 );
 
 // 监听新的输入
-["x-ticks","y-ticks","z-ticks","x-labels","y-labels","z-labels"].forEach(id =>
+["x-ticks","y-ticks","z-ticks","x-labels","y-labels","z-labels",
+ "label-font-size","label-font-family","label-distance"].forEach(id =>
   document.getElementById(id)?.addEventListener("change", draw)
 );
