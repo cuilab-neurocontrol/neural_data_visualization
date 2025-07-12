@@ -1,5 +1,7 @@
-let trajGroups = []; // 修改：使用trajGroups来存储每次上传的轨迹组
-let groupCounter = 0; // 新增：组计数器
+let trajGroups = []; // 存储每次上传的轨迹组
+let groupCounter = 0; // 组计数器
+let scatterGroups = []; // 新增：存储散点图组
+let scatterGroupCounter = 0; // 新增：散点图组计数器
 let projection = { alpha: Math.PI/6, beta: Math.PI/6 }; // 初始旋转角
 
 // 单位换算：1cm = 37.8px (标准96dpi)
@@ -284,6 +286,50 @@ function draw() {
         .attr("opacity", 0.7);
     });
   });
+
+  // 5. 画散点图
+  scatterGroups.forEach(group => {
+    if (!group.visible) return;
+
+    group.points.forEach(point => {
+      const [x2d, y2d] = project3d(point.x, point.y, point.z);
+      g.append("circle")
+        .attr("cx", xScale(x2d))
+        .attr("cy", yScale(y2d))
+        .attr("r", group.size) // 使用组的点大小
+        .attr("fill", group.color) // 使用组的颜色
+        .attr("opacity", 0.8);
+    });
+  });
+
+  // 6. 画图例
+  const legend = g.append("g")
+    .attr("class", "legend")
+    .attr("transform", `translate(${-(width/2 - margin - 20)}, ${-(height/2 - margin - 20)})`);
+
+  let legendY = 0;
+  scatterGroups.forEach((group, i) => {
+    if (!group.visible) return;
+
+    const legendItem = legend.append("g")
+      .attr("transform", `translate(0, ${legendY})`);
+    
+    legendItem.append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", 15)
+      .attr("height", 15)
+      .attr("fill", group.color);
+      
+    legendItem.append("text")
+      .attr("x", 20)
+      .attr("y", 12)
+      .text(group.name)
+      .style("font-size", "12px")
+      .attr("alignment-baseline", "middle");
+      
+    legendY += 20;
+  });
 }
 
 // 拖拽旋转
@@ -382,6 +428,65 @@ function deleteGroup(id) {
   }
 }
 
+// --- 新增：散点图组和面板管理函数 ---
+
+// 创建散点图控制面板
+function createScatterPanel(group) {
+  const panelsContainer = document.getElementById('scatter-panels');
+  
+  const panel = document.createElement('div');
+  panel.className = 'trajectory-panel'; // Re-use same style
+  panel.id = `scatter-panel-${group.id}`;
+  
+  panel.innerHTML = `
+    <h4>
+      <span>${group.name} (${group.points.length}个点)</span>
+      <button class="delete-btn" onclick="deleteScatterGroup(${group.id})">删除</button>
+    </h4>
+    <div class="trajectory-controls">
+      <label>
+        <span>点大小 (px):</span>
+        <input type="number" value="${group.size}" min="1" step="0.5" 
+               onchange="updateScatterGroup(${group.id}, 'size', this.value)">
+      </label>
+      <label>
+        <span>颜色:</span>
+        <input type="color" value="${group.color}" 
+               onchange="updateScatterGroup(${group.id}, 'color', this.value)">
+      </label>
+      <label>
+        <span>显示:</span>
+        <input type="checkbox" ${group.visible ? 'checked' : ''} 
+               onchange="updateScatterGroup(${group.id}, 'visible', this.checked)">
+      </label>
+    </div>
+  `;
+  
+  panelsContainer.appendChild(panel);
+}
+
+// 更新散点图组属性
+function updateScatterGroup(id, property, value) {
+  const group = scatterGroups.find(g => g.id === id);
+  if (group) {
+    if (property === 'size') group.size = parseFloat(value);
+    else if (property === 'color') group.color = value;
+    else if (property === 'visible') group.visible = value;
+    
+    draw();
+  }
+}
+
+// 删除散点图组
+function deleteScatterGroup(id) {
+  const index = scatterGroups.findIndex(g => g.id === id);
+  if (index > -1) {
+    scatterGroups.splice(index, 1);
+    document.getElementById(`scatter-panel-${id}`).remove();
+    draw();
+  }
+}
+
 document.getElementById("file-input").addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -408,6 +513,39 @@ document.getElementById("file-input").addEventListener("change", e => {
   };
   reader.readAsText(file);
   // 清空文件输入，允许重复上传同一文件
+  e.target.value = '';
+});
+
+// 新增：散点图文件上传处理
+document.getElementById("scatter-file-input").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = evt => {
+    const data = d3.csvParse(evt.target.result, d3.autoType);
+    
+    // 按 'category' 分组，为每个类别创建一个散点图组
+    const groupedByCategory = d3.groups(data, d => d.category);
+    
+    groupedByCategory.forEach(([category, points]) => {
+      const newGroup = {
+        id: ++scatterGroupCounter,
+        name: category || file.name, // Use category for legend, fallback to filename
+        points: points,
+        size: 4, // Default point size
+        color: `hsl(${(scatterGroupCounter * 100) % 360}, 70%, 50%)`,
+        visible: true,
+      };
+      scatterGroups.push(newGroup);
+      createScatterPanel(newGroup);
+    });
+
+    draw();
+  };
+  reader.readAsText(file);
+  
+  // 清空文件输入
   e.target.value = '';
 });
 
