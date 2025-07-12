@@ -371,6 +371,31 @@ function draw() {
       
     legendYOffset += (legendFontSize + 8); // 根据字体大小动态调整行间距
   });
+
+  // 7. 画图标
+  const chartTitleVisible = document.getElementById("chart-title-visible").checked;
+  if (chartTitleVisible) {
+    const chartTitleText = document.getElementById("chart-title-text").value;
+    const chartTitleX = parseFloat(document.getElementById("chart-title-x").value);
+    const chartTitleY = parseFloat(document.getElementById("chart-title-y").value);
+    const chartTitleFontSize = parseFloat(document.getElementById("chart-title-font-size").value);
+    const chartTitleFontFamily = document.getElementById("chart-title-font-family").value;
+    const chartTitleFontWeight = document.getElementById("chart-title-font-weight").value;
+
+    // 坐标转换为相对于中心 g
+    const chartTitleTranslateX = chartTitleX - width / 2;
+    const chartTitleTranslateY = chartTitleY - height / 2;
+
+    g.append("text")
+      .attr("class", "chart-title")
+      .attr("x", chartTitleTranslateX)
+      .attr("y", chartTitleTranslateY)
+      .attr("text-anchor", "middle")
+      .style("font-size", `${chartTitleFontSize}px`)
+      .style("font-family", chartTitleFontFamily)
+      .style("font-weight", chartTitleFontWeight)
+      .text(chartTitleText);
+  }
 }
 
 // 拖拽旋转
@@ -626,7 +651,8 @@ document.getElementById("update")?.addEventListener("click", draw);
 ["x-ticks","y-ticks","z-ticks","x-labels","y-labels","z-labels",
  "label-font-size","label-font-family","label-distance",
  "axis-labels","axis-label-font-size","axis-label-font-family","axis-label-font-weight","axis-label-distance",
- "legend-x", "legend-y", "legend-font-size", "legend-font-family"].forEach(id => // 添加新控件ID
+ "legend-x", "legend-y", "legend-font-size", "legend-font-family",
+ "chart-title-visible", "chart-title-text", "chart-title-x", "chart-title-y", "chart-title-font-size", "chart-title-font-family", "chart-title-font-weight"].forEach(id => // 添加新控件ID
   document.getElementById(id)?.addEventListener("change", draw)
 );
 
