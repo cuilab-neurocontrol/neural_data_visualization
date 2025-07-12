@@ -314,6 +314,7 @@ function draw() {
         .attr("d", symbolGenerator)
         .attr("transform", `translate(${xScale(x2d)}, ${yScale(y2d)})`)
         .attr("fill", group.color) // 使用组的颜色
+        .attr("stroke", "none") // 移除边框
         .attr("opacity", 0.8);
     });
   });
@@ -357,7 +358,8 @@ function draw() {
     legendItem.append("path")
       .attr("d", legendSymbol)
       .attr("transform", `translate(8, 8)`) // Center the symbol in a 15x15 area
-      .attr("fill", group.color);
+      .attr("fill", group.color)
+      .attr("stroke", "none"); // 同样移除图例中符号的边框
       
     legendItem.append("text")
       .attr("x", 20)
