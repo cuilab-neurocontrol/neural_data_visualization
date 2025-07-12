@@ -291,44 +291,83 @@ function draw() {
   scatterGroups.forEach(group => {
     if (!group.visible) return;
 
+    // Map string shape name to D3 symbol type
+    const symbolTypes = {
+      'circle': d3.symbolCircle,
+      'cross': d3.symbolCross,
+      'diamond': d3.symbolDiamond,
+      'square': d3.symbolSquare,
+      'star': d3.symbolStar,
+      'triangle': d3.symbolTriangle,
+      'wye': d3.symbolWye
+    };
+
+    // Create a symbol generator for the group
+    const symbolGenerator = d3.symbol()
+      .type(symbolTypes[group.shape] || d3.symbolCircle) // Fallback to circle
+      .size(group.size * group.size * Math.PI); // Set area based on radius-like size
+
     group.points.forEach(point => {
       const [x2d, y2d] = project3d(point.x, point.y, point.z);
-      g.append("circle")
-        .attr("cx", xScale(x2d))
-        .attr("cy", yScale(y2d))
-        .attr("r", group.size) // 使用组的点大小
+      // Use a path for the symbol instead of a circle
+      g.append("path")
+        .attr("d", symbolGenerator)
+        .attr("transform", `translate(${xScale(x2d)}, ${yScale(y2d)})`)
         .attr("fill", group.color) // 使用组的颜色
         .attr("opacity", 0.8);
     });
   });
 
   // 6. 画图例
+  // 读取图例设置
+  const legendX = parseFloat(document.getElementById("legend-x").value);
+  const legendY = parseFloat(document.getElementById("legend-y").value);
+  const legendFontSize = parseFloat(document.getElementById("legend-font-size").value);
+  const legendFontFamily = document.getElementById("legend-font-family").value;
+
+  // 计算相对于中心g的坐标
+  const legendTranslateX = legendX - width / 2;
+  const legendTranslateY = legendY - height / 2;
+
   const legend = g.append("g")
     .attr("class", "legend")
-    .attr("transform", `translate(${-(width/2 - margin - 20)}, ${-(height/2 - margin - 20)})`);
+    .attr("transform", `translate(${legendTranslateX}, ${legendTranslateY})`);
 
-  let legendY = 0;
+  let legendYOffset = 0;
   scatterGroups.forEach((group, i) => {
     if (!group.visible) return;
 
     const legendItem = legend.append("g")
-      .attr("transform", `translate(0, ${legendY})`);
+      .attr("transform", `translate(0, ${legendYOffset})`);
     
-    legendItem.append("rect")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", 15)
-      .attr("height", 15)
+    // Also draw the correct symbol in the legend
+    const symbolTypes = {
+      'circle': d3.symbolCircle,
+      'cross': d3.symbolCross,
+      'diamond': d3.symbolDiamond,
+      'square': d3.symbolSquare,
+      'star': d3.symbolStar,
+      'triangle': d3.symbolTriangle,
+      'wye': d3.symbolWye
+    };
+    const legendSymbol = d3.symbol()
+      .type(symbolTypes[group.shape] || d3.symbolCircle)
+      .size(100); // A fixed size for the legend
+
+    legendItem.append("path")
+      .attr("d", legendSymbol)
+      .attr("transform", `translate(8, 8)`) // Center the symbol in a 15x15 area
       .attr("fill", group.color);
       
     legendItem.append("text")
       .attr("x", 20)
       .attr("y", 12)
       .text(group.name)
-      .style("font-size", "12px")
+      .style("font-size", `${legendFontSize}px`) // 应用字体大小
+      .style("font-family", legendFontFamily) // 应用字体
       .attr("alignment-baseline", "middle");
       
-    legendY += 20;
+    legendYOffset += (legendFontSize + 8); // 根据字体大小动态调整行间距
   });
 }
 
@@ -455,6 +494,18 @@ function createScatterPanel(group) {
                onchange="updateScatterGroup(${group.id}, 'color', this.value)">
       </label>
       <label>
+        <span>点形状:</span>
+        <select onchange="updateScatterGroup(${group.id}, 'shape', this.value)">
+          <option value="circle" ${group.shape === 'circle' ? 'selected' : ''}>Circle</option>
+          <option value="cross" ${group.shape === 'cross' ? 'selected' : ''}>Cross</option>
+          <option value="diamond" ${group.shape === 'diamond' ? 'selected' : ''}>Diamond</option>
+          <option value="square" ${group.shape === 'square' ? 'selected' : ''}>Square</option>
+          <option value="star" ${group.shape === 'star' ? 'selected' : ''}>Star</option>
+          <option value="triangle" ${group.shape === 'triangle' ? 'selected' : ''}>Triangle</option>
+          <option value="wye" ${group.shape === 'wye' ? 'selected' : ''}>Wye</option>
+        </select>
+      </label>
+      <label>
         <span>显示:</span>
         <input type="checkbox" ${group.visible ? 'checked' : ''} 
                onchange="updateScatterGroup(${group.id}, 'visible', this.checked)">
@@ -472,6 +523,7 @@ function updateScatterGroup(id, property, value) {
     if (property === 'size') group.size = parseFloat(value);
     else if (property === 'color') group.color = value;
     else if (property === 'visible') group.visible = value;
+    else if (property === 'shape') group.shape = value; // Add shape handling
     
     draw();
   }
@@ -534,6 +586,7 @@ document.getElementById("scatter-file-input").addEventListener("change", e => {
         name: category || file.name, // Use category for legend, fallback to filename
         points: points,
         size: 4, // Default point size
+        shape: 'circle', // Add default shape
         color: `hsl(${(scatterGroupCounter * 100) % 360}, 70%, 50%)`,
         visible: true,
       };
@@ -570,6 +623,10 @@ document.getElementById("update")?.addEventListener("click", draw);
 // 监听新的输入
 ["x-ticks","y-ticks","z-ticks","x-labels","y-labels","z-labels",
  "label-font-size","label-font-family","label-distance",
- "axis-labels","axis-label-font-size","axis-label-font-family","axis-label-font-weight","axis-label-distance"].forEach(id =>
+ "axis-labels","axis-label-font-size","axis-label-font-family","axis-label-font-weight","axis-label-distance",
+ "legend-x", "legend-y", "legend-font-size", "legend-font-family"].forEach(id => // 添加新控件ID
   document.getElementById(id)?.addEventListener("change", draw)
 );
+
+// 初始化
+draw();

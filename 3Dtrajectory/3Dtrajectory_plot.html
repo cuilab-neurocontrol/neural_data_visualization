@@ -30,12 +30,14 @@
     }
     svg { border: 1px solid #888; background: #fff; }
 
-    /* 轨迹控制面板样式 */
-    #trajectory-panels {
+    /* 控制面板容器样式 */
+    #trajectory-panels, #scatter-panels {
       margin-top: 1em;
       margin-bottom: 1em;
       max-width: 700px;
     }
+
+    /* 单个控制面板样式 */
     .trajectory-panel {
       border: 1px solid #ccc;
       border-radius: 4px;
@@ -182,6 +184,31 @@
       <span>轴标签距离 (px):</span>
       <input id="axis-label-distance" type="number" value="30" min="10" step="1">
     </label>
+
+    <h3 style="grid-column: 1 / -1; margin-top: 1em; margin-bottom: 0;">图例设置</h3>
+    <label>
+        <span>图例 X 位置 (px):</span>
+        <input id="legend-x" type="number" value="20" step="1">
+    </label>
+    <label>
+        <span>图例 Y 位置 (px):</span>
+        <input id="legend-y" type="number" value="20" step="1">
+    </label>
+    <label>
+        <span>图例字体大小 (px):</span>
+        <input id="legend-font-size" type="number" value="12" min="6" step="1">
+    </label>
+    <label>
+        <span>图例字体:</span>
+        <select id="legend-font-family">
+            <option value="Arial">Arial</option>
+            <option value="sans-serif" selected>Sans-serif</option>
+            <option value="serif">Serif</option>
+            <option value="monospace">Monospace</option>
+            <option value="Times New Roman">Times New Roman</option>
+        </select>
+    </label>
+
     <button id="update">Update Axes</button>
   </div>
 
