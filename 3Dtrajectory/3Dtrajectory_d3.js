@@ -282,8 +282,8 @@ function draw() {
         .attr("stroke", group.color) // 使用组的颜色
         .attr("stroke-width", group.width) // 使用组的线宽
         .attr("stroke-dasharray", strokeDasharray) // 使用组的线型
-        .attr("fill", "none")
-        .attr("opacity", 0.7);
+        //.attr("fill", "none")
+        //.attr("opacity", 0.7);
     });
   });
 
@@ -580,7 +580,7 @@ document.getElementById("file-input").addEventListener("change", e => {
       name: file.name,
       trajectories: trajectories,
       width: 2,
-      color: `hsl(${(groupCounter * 60) % 360}, 70%, 50%)`, // 自动分配不同颜色
+      color: `#${Math.floor(Math.random() * 16777215).toString(16)}`, // 使用随机十六进制颜色
       style: 'solid',
       visible: true,
       description: ''
@@ -608,17 +608,17 @@ document.getElementById("scatter-file-input").addEventListener("change", e => {
     const groupedByCategory = d3.groups(data, d => d.category);
     
     groupedByCategory.forEach(([category, points]) => {
-      const newGroup = {
+      const newScatterGroup = {
         id: ++scatterGroupCounter,
         name: category || file.name, // Use category for legend, fallback to filename
         points: points,
         size: 4, // Default point size
         shape: 'circle', // Add default shape
-        color: `hsl(${(scatterGroupCounter * 100) % 360}, 70%, 50%)`,
+        color: `#${Math.floor(Math.random() * 16777215).toString(16)}`, // 使用随机十六进制颜色
         visible: true,
       };
-      scatterGroups.push(newGroup);
-      createScatterPanel(newGroup);
+      scatterGroups.push(newScatterGroup);
+      createScatterPanel(newScatterGroup);
     });
 
     draw();
@@ -655,6 +655,33 @@ document.getElementById("update")?.addEventListener("click", draw);
  "chart-title-visible", "chart-title-text", "chart-title-x", "chart-title-y", "chart-title-font-size", "chart-title-font-family", "chart-title-font-weight"].forEach(id => // 添加新控件ID
   document.getElementById(id)?.addEventListener("change", draw)
 );
+
+// 新增：保存 SVG 功能
+document.getElementById("save-svg").addEventListener("click", () => {
+  const svgElement = document.getElementById("svg");
+
+  // 确保 SVG 根元素包含必要的命名空间
+  svgElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  svgElement.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+
+  // 序列化 SVG 内容
+  const serializer = new XMLSerializer();
+  const svgString = serializer.serializeToString(svgElement);
+
+  // 创建一个 Blob 对象
+  const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+
+  // 创建一个下载链接
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "chart.svg";
+  link.style.display = "none";
+
+  // 添加到文档并触发下载
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+});
 
 // 初始化
 draw();
