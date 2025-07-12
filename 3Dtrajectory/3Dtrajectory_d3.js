@@ -1,4 +1,5 @@
-let trajs = [];
+let trajGroups = []; // 修改：使用trajGroups来存储每次上传的轨迹组
+let groupCounter = 0; // 新增：组计数器
 let projection = { alpha: Math.PI/6, beta: Math.PI/6 }; // 初始旋转角
 
 // 单位换算：1cm = 37.8px (标准96dpi)
@@ -261,16 +262,27 @@ function draw() {
   });
 
   // 4. 画轨迹
-  trajs.forEach(traj => {
-    const lineData = traj.map(d => {
-      const [x2d, y2d] = project3d(d.x, d.y, d.z);
-      return [xScale(x2d), yScale(y2d)];
+  trajGroups.forEach(group => {
+    if (!group.visible) return; // 如果组不可见，则跳过
+
+    // 设置虚线样式
+    let strokeDasharray = "none";
+    if (group.style === "dashed") strokeDasharray = "5,5";
+    else if (group.style === "dotted") strokeDasharray = "2,2";
+
+    group.trajectories.forEach(traj => {
+      const lineData = traj.map(d => {
+        const [x2d, y2d] = project3d(d.x, d.y, d.z);
+        return [xScale(x2d), yScale(y2d)];
+      });
+      g.append("path")
+        .attr("d", d3.line()(lineData))
+        .attr("stroke", group.color) // 使用组的颜色
+        .attr("stroke-width", group.width) // 使用组的线宽
+        .attr("stroke-dasharray", strokeDasharray) // 使用组的线型
+        .attr("fill", "none")
+        .attr("opacity", 0.7);
     });
-    g.append("path")
-      .attr("d", d3.line()(lineData))
-      .attr("stroke", "#007")
-      .attr("fill", "none")
-      .attr("opacity", 0.7);
   });
 }
 
@@ -296,16 +308,107 @@ svg.call(
 
 svg.style("cursor", "grab");
 
+// --- 新增：轨迹组和面板管理函数 ---
+
+// 创建轨迹组控制面板
+function createTrajectoryPanel(group) {
+  const panelsContainer = document.getElementById('trajectory-panels');
+  
+  const panel = document.createElement('div');
+  panel.className = 'trajectory-panel';
+  panel.id = `panel-${group.id}`;
+  
+  panel.innerHTML = `
+    <h4>
+      <span>${group.name} (${group.trajectories.length}条轨迹)</span>
+      <button class="delete-btn" onclick="deleteGroup(${group.id})">删除</button>
+    </h4>
+    <div class="trajectory-controls">
+      <label>
+        <span>线粗细 (px):</span>
+        <input type="number" value="${group.width}" min="0.1" step="0.1" 
+               onchange="updateGroup(${group.id}, 'width', this.value)">
+      </label>
+      <label>
+        <span>颜色:</span>
+        <input type="color" value="${group.color}" 
+               onchange="updateGroup(${group.id}, 'color', this.value)">
+      </label>
+      <label>
+        <span>线型:</span>
+        <select onchange="updateGroup(${group.id}, 'style', this.value)">
+          <option value="solid" ${group.style === 'solid' ? 'selected' : ''}>实线</option>
+          <option value="dashed" ${group.style === 'dashed' ? 'selected' : ''}>虚线</option>
+          <option value="dotted" ${group.style === 'dotted' ? 'selected' : ''}>点线</option>
+        </select>
+      </label>
+      <label>
+        <span>显示:</span>
+        <input type="checkbox" ${group.visible ? 'checked' : ''} 
+               onchange="updateGroup(${group.id}, 'visible', this.checked)">
+      </label>
+      <label class="description-input">
+        <span>描述:</span>
+        <input type="text" placeholder="输入描述..." value="${group.description}"
+               onchange="updateGroup(${group.id}, 'description', this.value)">
+      </label>
+    </div>
+  `;
+  
+  panelsContainer.appendChild(panel);
+}
+
+// 更新轨迹组属性
+function updateGroup(id, property, value) {
+  const group = trajGroups.find(g => g.id === id);
+  if (group) {
+    if (property === 'width') group.width = parseFloat(value);
+    else if (property === 'color') group.color = value;
+    else if (property === 'style') group.style = value;
+    else if (property === 'visible') group.visible = value;
+    else if (property === 'description') group.description = value;
+    
+    draw();
+  }
+}
+
+// 删除轨迹组
+function deleteGroup(id) {
+  const index = trajGroups.findIndex(g => g.id === id);
+  if (index > -1) {
+    trajGroups.splice(index, 1);
+    document.getElementById(`panel-${id}`).remove();
+    draw();
+  }
+}
+
 document.getElementById("file-input").addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = evt => {
     const data = d3.csvParse(evt.target.result, d3.autoType);
-    trajs = d3.groups(data, d => d.traj_id).map(g => g[1]);
+    const trajectories = d3.groups(data, d => d.traj_id).map(g => g[1]);
+    
+    // 创建新的轨迹组
+    const newGroup = {
+      id: ++groupCounter,
+      name: file.name,
+      trajectories: trajectories,
+      width: 2,
+      color: `hsl(${(groupCounter * 60) % 360}, 70%, 50%)`, // 自动分配不同颜色
+      style: 'solid',
+      visible: true,
+      description: ''
+    };
+    
+    trajGroups.push(newGroup);
+    createTrajectoryPanel(newGroup);
     draw();
   };
   reader.readAsText(file);
+  // 清空文件输入，允许重复上传同一文件
+  e.target.value = '';
 });
 
 document.getElementById("update").addEventListener("click", draw);

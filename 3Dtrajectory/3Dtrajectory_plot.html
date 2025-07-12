@@ -29,6 +29,51 @@
       width: 100%;
     }
     svg { border: 1px solid #888; background: #fff; }
+
+    /* 轨迹控制面板样式 */
+    #trajectory-panels {
+      margin-top: 1em;
+      margin-bottom: 1em;
+      max-width: 700px;
+    }
+    .trajectory-panel {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 1em;
+      margin-bottom: 1em;
+      background: #f9f9f9;
+    }
+    .trajectory-panel h4 {
+      margin: 0 0 0.5em 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .trajectory-controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5em 1em;
+    }
+    .trajectory-controls label {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .trajectory-controls input, .trajectory-controls select {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .description-input {
+      grid-column: 1 / -1;
+    }
+    .delete-btn {
+      background: #ff4444;
+      color: white;
+      border: none;
+      padding: 0.25em 0.5em;
+      border-radius: 3px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -138,6 +183,12 @@
     </label>
     <button id="update">Update Axes</button>
   </div>
+
+  <!-- 轨迹控制面板容器 -->
+  <div id="trajectory-panels">
+    <h3>轨迹控制面板</h3>
+  </div>
+
   <svg id="svg" width="700" height="600"></svg>
   <script src="3Dtrajectory_d3.js"></script>
 </body>
