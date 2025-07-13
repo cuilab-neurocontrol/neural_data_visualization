@@ -1,4 +1,5 @@
 // 全局数组，用于存放添加的 area 配置
+let scatterList = [];
 function createAreaControl(index) {
   const div = document.createElement("div");
   div.className = "area-control";
@@ -231,6 +232,131 @@ function createSeriesControl(index) {
   });
 
   return div;
+}
+
+// 添加散点图控制块创建函数
+function createScatterControl(index) {
+  const div = document.createElement("div");
+  div.className = "scatter-control";
+  div.dataset.index = index;
+  div.innerHTML = `
+    <h4>Scatter ${index + 1} <button class="delete-scatter">Delete</button></h4>
+    <div class="control-row">
+      <label>Data URL:</label>
+      <input type="text" class="scatter-data-url" placeholder="Enter CSV URL">
+      <button class="load-scatter-data-url">Load Data from URL</button>
+    </div>
+    <div class="control-row">
+      <label>Upload CSV:</label>
+      <input type="file" class="scatter-data-file" accept=".csv">
+      <button class="load-scatter-data-file">Load Data from File</button>
+    </div>
+    <div class="control-row">
+      <label>Point Color:</label>
+      <input type="color" class="scatter-color" value="#ff0000">
+      <label>Point Size (px):</label>
+      <input type="number" class="scatter-size" value="5" min="1" step="0.1">
+    </div>
+    <div class="control-row">
+      <label>Point Shape:</label>
+      <select class="scatter-shape">
+        <option value="circle">Circle</option>
+        <option value="square">Square</option>
+        <option value="triangle">Triangle</option>
+        <option value="diamond">Diamond</option>
+        <option value="cross">Cross</option>
+        <option value="star">Star</option>
+      </select>
+      <label>Opacity:</label>
+      <input type="number" class="scatter-opacity" value="0.8" min="0" max="1" step="0.1">
+    </div>
+    <div class="control-row">
+      <label>Description:</label>
+      <input type="text" class="scatter-description" placeholder="Enter description">
+    </div>
+  `;
+
+  const scatterObj = { data: null, control: div };
+
+  // 通过 URL 加载 CSV 数据
+  div.querySelector(".load-scatter-data-url").addEventListener("click", function () {
+    const url = div.querySelector(".scatter-data-url").value;
+    if (!url) return;
+    d3.csv(url).then(data => {
+      scatterObj.data = data;
+      createChart(); // 重新绘制图表来显示新加载的散点图
+    }).catch(error => {
+      console.error("Error loading CSV from URL for Scatter:", error);
+    });
+  });
+
+  // 通过文件上传加载 CSV 数据
+  div.querySelector(".load-scatter-data-file").addEventListener("click", function () {
+    const fileInput = div.querySelector(".scatter-data-file");
+    if (!fileInput.files || fileInput.files.length === 0) return;
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const text = e.target.result;
+      const data = d3.csvParse(text);
+      scatterObj.data = data;
+      createChart(); // 重新绘制图表以显示新加载的散点图
+    };
+    reader.onerror = function (error) {
+      console.error("Error reading CSV file for Scatter:", error);
+    };
+    reader.readAsText(file);
+  });
+
+  // 为删除按钮绑定事件
+  div.querySelector(".delete-scatter").addEventListener("click", function () {
+    const idx = parseInt(div.dataset.index, 10);
+    scatterList.splice(idx, 1);
+    div.remove();
+    // 更新剩余 scatter-control 的索引
+    document.querySelectorAll(".scatter-control").forEach((ctrl, i) => {
+      ctrl.dataset.index = i;
+    });
+    createChart();
+  });
+
+  return scatterObj;
+}
+
+// 添加形状绘制函数
+function drawScatterShape(svg, shape, x, y, size, color, opacity) {
+  const symbolSize = size * size * Math.PI;
+  
+  let symbolGenerator;
+  switch (shape) {
+    case 'circle':
+      symbolGenerator = d3.symbol().type(d3.symbolCircle).size(symbolSize);
+      break;
+    case 'square':
+      symbolGenerator = d3.symbol().type(d3.symbolSquare).size(symbolSize);
+      break;
+    case 'triangle':
+      symbolGenerator = d3.symbol().type(d3.symbolTriangle).size(symbolSize);
+      break;
+    case 'diamond':
+      symbolGenerator = d3.symbol().type(d3.symbolDiamond).size(symbolSize);
+      break;
+    case 'cross':
+      symbolGenerator = d3.symbol().type(d3.symbolCross).size(symbolSize);
+      break;
+    case 'star':
+      symbolGenerator = d3.symbol().type(d3.symbolStar).size(symbolSize);
+      break;
+    default:
+      symbolGenerator = d3.symbol().type(d3.symbolCircle).size(symbolSize);
+  }
+
+  svg.append("path")
+    .attr("d", symbolGenerator)
+    .attr("transform", `translate(${x}, ${y})`)
+    .attr("fill", color)
+    .attr("stroke", "none") // 移除边框
+    .attr("opacity", opacity);
 }
 
 // Conversion factor: 1 cm = 37.7952755906 pixels
@@ -625,6 +751,24 @@ function createChart() {
       .style("font-weight", fontWeight)
       .style("text-anchor", "middle");
   });
+
+  // 绘制散点图
+  scatterList.forEach(scatterItem => {
+    if (!scatterItem.data) return; // 如果没有数据，跳过
+    
+    const control = scatterItem.control;
+    const color = control.querySelector(".scatter-color").value;
+    const size = parseFloat(control.querySelector(".scatter-size").value);
+    const shape = control.querySelector(".scatter-shape").value;
+    const opacity = parseFloat(control.querySelector(".scatter-opacity").value);
+
+    scatterItem.data.forEach(point => {
+      const xPos = x(parseFloat(point.x)) + axisMargin.x;
+      const yPos = y(parseFloat(point.y)) - axisMargin.y;
+      
+      drawScatterShape(svg, shape, xPos, yPos, size, color, opacity);
+    });
+  });
   
 }
 
@@ -687,6 +831,14 @@ document.getElementById("add-area").addEventListener("click", function() {
   document.getElementById("area-controls").appendChild(areaObj.control);
 });
 
+// 绑定 Add Scatter 按钮事件（在文件末尾添加）
+document.getElementById("add-scatter").addEventListener("click", function () {
+  const index = scatterList.length;
+  const scatterObj = createScatterControl(index);
+  scatterList.push(scatterObj);
+  document.getElementById("scatter-controls").appendChild(scatterObj.control);
+});
+
 // Initial chart creation
 createChart();
 
@@ -723,7 +875,7 @@ document.getElementById("save-svg-btn").addEventListener("click", function () {
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = "violin_plot.svg";
+  a.download = "scatter_plot.svg";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
