@@ -394,7 +394,7 @@ function createChart() {
       // 分组数据
       const sumstatMap = d3.group(series.data, d => d.Species);
       const sumstat = Array.from(sumstatMap, ([key, values]) => {
-        const input = values.map(g => +g.Sepal_Length);
+        const input = values.map(g => +g.group_value);
         const bins = histogram(input);
         return { key, bins };
       });
@@ -677,7 +677,7 @@ document.getElementById("data-files").addEventListener("change", function(e) {
     reader.onload = function(evt) {
       const text = evt.target.result;
       const data = d3.csvParse(text); // 解析CSV数据
-      const groupNames = Array.from(new Set(data.map(d => d.Species)));
+      const groupNames = Array.from(new Set(data.map(d => d.group_name)));
       // 创建一个系列控制块，该控制块只控制此数据系列
       const seriesControl = createSeriesControl(seriesList.length, groupNames);
       // 保存数据与其控制块

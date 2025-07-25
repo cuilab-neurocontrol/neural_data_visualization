@@ -1043,5 +1043,33 @@ document.getElementById('export-pdf').onclick = function() {
   });
 };
 
+// 像素到厘米的换算因子
+//const CM_TO_PX = 37.7952755906;
+
+// 初始化换算计算器
+function initConversionCalculator() {
+  const pxInput = document.getElementById("px-input");
+  const cmOutput = document.getElementById("cm-output");
+  const cmInput = document.getElementById("cm-input");
+  const pxOutput = document.getElementById("px-output");
+
+  // 像素转厘米
+  pxInput.addEventListener("input", () => {
+    const pxValue = parseFloat(pxInput.value) || 0;
+    cmOutput.value = (pxValue / CM_TO_PX).toFixed(2);
+  });
+
+  // 厘米转像素
+  cmInput.addEventListener("input", () => {
+    const cmValue = parseFloat(cmInput.value) || 0;
+    pxOutput.value = (cmValue * CM_TO_PX).toFixed(0);
+  });
+}
+
+// 页面加载时初始化换算计算器
+document.addEventListener("DOMContentLoaded", () => {
+  initConversionCalculator();
+});
+
 renderCanvasTexts();
 
