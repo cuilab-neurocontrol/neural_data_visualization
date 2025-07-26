@@ -379,7 +379,7 @@ function createChart() {
       const showShadow = control.querySelector(".show-shadow").checked;
       const shadowOpacity = parseFloat(control.querySelector(".shadow-opacity").value);
 
-      const groupNames = Array.from(new Set(series.data.map(d => d.Species)));
+      const groupNames = Array.from(new Set(series.data.map(d => d.group_name))); // 修改
       const xGroup = d3.scaleBand()
         .domain(groupNames)
         .range([0, xSeries.bandwidth()])
@@ -392,7 +392,7 @@ function createChart() {
         .value(d => d);
 
       // 分组数据
-      const sumstatMap = d3.group(series.data, d => d.Species);
+      const sumstatMap = d3.group(series.data, d => d.group_name); // 修改
       const sumstat = Array.from(sumstatMap, ([key, values]) => {
         const input = values.map(g => +g.group_value);
         const bins = histogram(input);
@@ -552,19 +552,19 @@ function createChart() {
           .enter()
           .append("circle")
             .attr("cx", d => {
-              return xSeries(`series${seriesIdx}`) + xGroup(d.Species) + xGroup.bandwidth()/2 + axisMargin.x - Math.random()*jitterWidth;
+              return xSeries(`series${seriesIdx}`) + xGroup(d.group_name) + xGroup.bandwidth()/2 + axisMargin.x - Math.random()*jitterWidth;
             })
-            .attr("cy", d => y(d.Sepal_Length))
+            .attr("cy", d => y(d.group_value)) // 修复：散点图的值也应来自 group_value
             .attr("r", d => {
-              const dotSizeInput = control.querySelector(`.dot-size-group[data-group="${d.Species}"]`);
+              const dotSizeInput = control.querySelector(`.dot-size-group[data-group="${d.group_name}"]`);
               return dotSizeInput ? parseFloat(dotSizeInput.value) : 2;
             })
             .style("fill", d => {
-              const dotColorInput = control.querySelector(`.dot-color-group[data-group="${d.Species}"]`);
+              const dotColorInput = control.querySelector(`.dot-color-group[data-group="${d.group_name}"]`);
               return dotColorInput ? dotColorInput.value : "#222222";
             })
             .style("opacity", d => {
-              const dotOpacityInput = control.querySelector(`.dot-opacity-group[data-group="${d.Species}"]`);
+              const dotOpacityInput = control.querySelector(`.dot-opacity-group[data-group="${d.group_name}"]`);
               return dotOpacityInput ? parseFloat(dotOpacityInput.value) : 1;
             })
             .attr("stroke", "none");
@@ -576,7 +576,7 @@ function createChart() {
     seriesList.forEach((series, seriesIdx) => {
       // 获取当前series的名称
       const seriesName = series.control?.querySelector('.series-description')?.value || `Series ${seriesIdx + 1}`;
-      const groupNames = Array.from(new Set(series.data.map(d => d.Species)));
+      const groupNames = Array.from(new Set(series.data.map(d => d.group_name))); // 修改
       const xGroup = d3.scaleBand()
         .domain(groupNames)
         .range([0, xSeries.bandwidth()])
@@ -677,6 +677,7 @@ document.getElementById("data-files").addEventListener("change", function(e) {
     reader.onload = function(evt) {
       const text = evt.target.result;
       const data = d3.csvParse(text); // 解析CSV数据
+      // 修复：统一使用 'group_name' 作为分组列名
       const groupNames = Array.from(new Set(data.map(d => d.group_name)));
       // 创建一个系列控制块，该控制块只控制此数据系列
       const seriesControl = createSeriesControl(seriesList.length, groupNames);
@@ -684,6 +685,7 @@ document.getElementById("data-files").addEventListener("change", function(e) {
       seriesList.push({ data, control: seriesControl, groupNames });
       // 将该控制块添加到控制面板中
       document.getElementById("series-controls").appendChild(seriesControl);
+      createChart(); // 新增：重新绘制图表以显示新数据
     };
     reader.readAsText(file);
   });
@@ -694,10 +696,11 @@ document.getElementById("add-url").addEventListener("click", function() {
   const url = document.getElementById("data-url").value;
   if (!url) return;
   d3.csv(url).then(data => {
-    const groupNames = Array.from(new Set(data.map(d => d.Species)));
+    const groupNames = Array.from(new Set(data.map(d => d.group_name)));
     const seriesControl = createSeriesControl(seriesList.length, groupNames);
     seriesList.push({ data, control: seriesControl, groupNames });
     document.getElementById("series-controls").appendChild(seriesControl);
+    createChart(); // 新增：重新绘制图表以显示新数据
   }).catch(error => {
     console.error("Error loading CSV from URL:", error);
   });

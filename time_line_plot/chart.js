@@ -624,25 +624,26 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .text(yScaleBarLabel);
   }
 
+  // 获取 X 和 Y 轴标签距离
+  const xLabelDistance = parseFloat(controlsDiv.querySelector("#x-label-distance").value);
+  const yLabelDistance = parseFloat(controlsDiv.querySelector("#y-label-distance").value);
+
   // X轴标签
   if (showXLabel) {
-    const xLabelDistance = tickLength + 1.8*tickFontSize + 6 * PT_TO_PX;
     svg.append("text")
       .attr("x", width / 2 + axisMargin.x)
-      .attr("y", height + xLabelDistance)
-      //.attr("dominant-baseline", "text-before-edge")
+      .attr("y", height + xLabelDistance) // 使用动态距离
       .style("text-anchor", "middle")
       .style("font-size", `${xLabelFontSize}px`)
       .style("font-family", xLabelFontFamily)
       .text(xLabel);
   }
+
   // Y轴标签
   if (showYLabel) {
-    const yLabelDistance = tickLength + 1.5*tickFontSize + 6 * PT_TO_PX;
     svg.append("text")
       .attr("x", -(height) / 2 + axisMargin.y)
-      .attr("y", -yLabelDistance)
-      //.attr("dominant-baseline", "ideographic")
+      .attr("y", -yLabelDistance) // 使用动态距离
       .attr("transform", "rotate(-90)")
       .style("text-anchor", "middle")
       .style("font-size", `${yLabelFontSize}px`)

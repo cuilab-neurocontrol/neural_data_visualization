@@ -14,9 +14,9 @@
     <summary>Canvas Size</summary>
     <div class="control-row">
       <label for="width">Width (cm):</label>
-      <input type="number" id="width" value="12" min="5" step="0.1" data-param="width">
+      <input type="number" id="width" value="3.15" min="0" step="0.1" data-param="width">
       <label for="height">Height (cm):</label>
-      <input type="number" id="height" value="8" min="5" step="0.1" data-param="height">
+      <input type="number" id="height" value="2.93" min="0" step="0.1" data-param="height">
     </div>
   </details>
 
@@ -25,15 +25,15 @@
     <summary>Margins</summary>
     <div class="control-row">
       <label for="margin-top">Top (cm):</label>
-      <input type="number" id="margin-top" value="2" min="0" step="0.1">
+      <input type="number" id="margin-top" value="0.3" min="0" step="0.1">
       <label for="margin-right">Right (cm):</label>
-      <input type="number" id="margin-right" value="2" min="0" step="0.1">
+      <input type="number" id="margin-right" value="0.3" min="0" step="0.1">
     </div>
     <div class="control-row">
       <label for="margin-bottom">Bottom (cm):</label>
-      <input type="number" id="margin-bottom" value="2" min="0" step="0.1">
+      <input type="number" id="margin-bottom" value="0.6" min="0" step="0.1">
       <label for="margin-left">Left (cm):</label>
-      <input type="number" id="margin-left" value="2" min="0" step="0.1">
+      <input type="number" id="margin-left" value="0.7" min="0" step="0.1">
     </div>
   </details>
 
@@ -52,22 +52,22 @@
     </div>
     <div class="control-row">
       <label for="axis-margin-x">X Margin (cm):</label>
-      <input type="number" id="axis-margin-x" value="0.3" min="0" step="0.1">
+      <input type="number" id="axis-margin-x" value="0.1" min="0" step="0.1">
       <label for="axis-margin-y">Y Margin (cm):</label>
       <input type="number" id="axis-margin-y" value="0" min="0" step="0.1">
     </div>
     <!-- Subheading for Axis and Tick Styling -->
     <div class="control-row">
       <label for="axis-line-width">Line Width (px):</label>
-      <input type="number" id="axis-line-width" value="2" min="1" step="0.1">
+      <input type="number" id="axis-line-width" value="0.5" min="0" step="0.1">
       <label for="tick-line-width">Tick Width (px):</label>
-      <input type="number" id="tick-line-width" value="2" min="1" step="0.1">
+      <input type="number" id="tick-line-width" value="0.5" min="0" step="0.1">
     </div>
     <div class="control-row">
       <label for="tick-font-size">Font Size (px):</label>
-      <input type="number" id="tick-font-size" value="18" min="1" step="1">
+      <input type="number" id="tick-font-size" value="7" min="1" step="1">
       <label for="tick-length">Tick Length (px):</label>
-      <input type="number" id="tick-length" value="6" min="1" step="1">
+      <input type="number" id="tick-length" value="3" min="1" step="1">
     </div>
     <div class="control-row">
       <label for="tick-positions">xTick Positions:</label>
@@ -111,7 +111,7 @@
       <label for="x-label">X Axis Label:</label>
       <input type="text" id="x-label" value="Time from saccade onset (ms)">
       <label for="x-label-font-size">Font Size (px):</label>
-      <input type="number" id="x-label-font-size" value="18" min="1" step="1">
+      <input type="number" id="x-label-font-size" value="7" min="1" step="1">
       <label for="x-label-font-family">Font Family:</label>
       <select id="x-label-font-family">
         <option value="Arial">Arial</option>
@@ -126,7 +126,7 @@
       <label for="y-label">Y Axis Label:</label>
       <input type="text" id="y-label" value="Firing Rate (Hz)">
       <label for="y-label-font-size">Font Size (px):</label>
-      <input type="number" id="y-label-font-size" value="18" min="1" step="1">
+      <input type="number" id="y-label-font-size" value="7" min="1" step="1">
       <label for="y-label-font-family">Font Family:</label>
       <select id="y-label-font-family">
         <option value="Arial">Arial</option>
@@ -154,7 +154,7 @@
     </div>
     <div class="control-row">
       <label for="x-scale-bar-width">X Bar Width (px):</label>
-      <input type="number" id="x-scale-bar-width" value="2" min="1" step="0.1">
+      <input type="number" id="x-scale-bar-width" value="0.5" min="0" step="0.1">
       <label for="x-scale-bar-length">X Bar Len (units):</label>
       <input type="number" id="x-scale-bar-length" value="100" min="1" step="1">
     </div>
@@ -169,7 +169,7 @@
     </div>
     <div class="control-row">
       <label for="x-scale-bar-font-size">X Bar Font Size (px):</label>
-      <input type="number" id="x-scale-bar-font-size" value="12" min="1" step="1">
+      <input type="number" id="x-scale-bar-font-size" value="7" min="1" step="1">
       <label for="x-scale-bar-label-distance">X Label Distance (px):</label>
       <input type="number" id="x-scale-bar-label-distance" value="20" min="0" step="1">
     </div>
@@ -207,7 +207,7 @@
 
     <div class="control-row">
       <label for="y-scale-bar-font-size">Y Bar Font Size (px):</label>
-      <input type="number" id="y-scale-bar-font-size" value="12" min="1" step="1">
+      <input type="number" id="y-scale-bar-font-size" value="7" min="1" step="1">
       <label for="y-scale-bar-label-distance">Y Label Distance (px):</label>
       <input type="number" id="y-scale-bar-label-distance" value="20" min="0" step="1">
     </div>
@@ -245,7 +245,7 @@
     </div>
     <div class="control-row">
       <label for="title-font-size">Font Size (px):</label>
-      <input type="number" id="title-font-size" value="18" min="1" step="1">
+      <input type="number" id="title-font-size" value="7" min="1" step="1">
       <label for="title-font-family">Font Family:</label>
       <select id="title-font-family">
         <option value="Arial">Arial</option>
@@ -299,7 +299,7 @@
       <label>Label:</label>
       <input type="text" id="ref-line-label" value="p < 0.05">
       <label>Label Size:</label>
-      <input type="number" id="ref-line-label-size" value="16" min="8" max="48" step="1">
+      <input type="number" id="ref-line-label-size" value="7" min="8" max="48" step="1">
       <label>Label Distance (px):</label>
       <input type="number" id="ref-line-label-dist" value="8" step="1">
       <button id="add-ref-line" type="button">Add Reference Line</button>

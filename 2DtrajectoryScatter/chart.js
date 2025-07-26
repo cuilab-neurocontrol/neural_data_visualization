@@ -636,7 +636,8 @@ function createChart() {
   // Add X axis label
   //const xLabelDistance = 26;
   if (showXLabel) {
-    const xLabelDistance = tickLength + 1.8*tickFontSize + (xLabelDistancePlus) * PT_TO_PX;
+    // const xLabelDistance = tickLength + 1.8*tickFontSize + (xLabelDistancePlus) * PT_TO_PX;
+    const xLabelDistance = xLabelDistancePlus;
     svg.append("text")
     .attr("x", (width) / 2 +axisMargin.x) // Center the label horizontally
     .attr("y", height + xLabelDistance) // Position below the X axis
@@ -649,7 +650,8 @@ function createChart() {
   }
   // Add Y axis label
   if (showYLabel) {
-    const yLabelDistance = tickLength + 1.5*tickFontSize + (yLabelDistancePlus) * PT_TO_PX;
+    //const yLabelDistance = tickLength + 1.5*tickFontSize + (yLabelDistancePlus) * PT_TO_PX;
+    const yLabelDistance = yLabelDistancePlus;
     svg.append("text")
     .attr("x", -(height) / 2+axisMargin.y) // Center the label vertically
     .attr("y", -yLabelDistance) // Position to the left of the Y axis
