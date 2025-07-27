@@ -352,24 +352,69 @@ function createChart() {
         const xTickLabels = seriesList.map((s, i) =>
           s.control?.querySelector('.series-description')?.value || `Series ${i + 1}`
         );
-        const xAxis = d3.axisBottom(xSeries)
+        // 1. 先把 axisBottom 的内外刻度长度都设为 0
+        
+        if (tickOrientation === "inward"){
+          const xAxis = d3.axisBottom(xSeries)
           .tickValues(seriesNames)
-          .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
-          .tickFormat((d, i) => xTickLabels[i])
-          .tickSizeOuter(showOuterTicks ? tickLength : 0);
+          .tickSizeInner(0)
+          .tickSizeOuter(0)
+          //.tickPadding(6)
+          .tickPadding(tickLength)
+          .tickFormat((d, i) => xTickLabels[i]);
 
-        svg.append("g")
+          svg.selectAll(".x-axis").remove();
+
+          svg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(${axisMargin.x}, ${height})`)
+            .call(xAxis)
+            // 2. 调整刻度线的位置：所有 tick line 的起点 y1 上移 halfLine，
+            //    然后 y2 再往内/外延伸 tickLength
+            .call(g => g.selectAll(".tick line")
+              .attr("y1", -axisLineWidth / 2)
+              .attr("y2", - tickLength)
+            )
+            .call(g => g.selectAll("text")
+              .attr("fill", "#000")
+              .style("font-size", `${tickFontSize}px`)
+              .style("font-family", tickFontFamily)
+            );
+        } else {
+          const xAxis = d3.axisBottom(xSeries)
+            .tickValues(seriesNames)
+            .tickSizeInner(0)
+            .tickSizeOuter(0)
+            //.tickPadding(6)
+            .tickPadding(2*tickLength)
+            .tickFormat((d, i) => xTickLabels[i]);
+
+          svg.selectAll(".x-axis").remove();
+
+          svg.append("g")
+          .attr("class", "x-axis")
           .attr("transform", `translate(${axisMargin.x}, ${height})`)
           .call(xAxis)
-          .selectAll("text")
-          .attr("fill", "#000")
-          .style("font-size", `${tickFontSize}px`)
-          .style("font-family", tickFontFamily);
+          // 2. 调整刻度线的位置：所有 tick line 的起点 y1 上移 halfLine，
+          //    然后 y2 再往内/外延伸 tickLength
+          .call(g => g.selectAll(".tick line")
+            .attr("y1", axisLineWidth / 2)
+            .attr("y2", tickLength)  // 向下（图外）延伸
+          )
+          .call(g => g.selectAll("text")
+            .attr("fill", "#000")
+            .style("font-size", `${tickFontSize}px`)
+            .style("font-family", tickFontFamily)
+          );
+        }
 
-        svg.selectAll(".domain").style("stroke-width", axisLineWidth);
-        svg.selectAll(".tick line").style("stroke-width", tickLineWidth);
-        svg.selectAll(".domain").style("stroke", "#000");
-        svg.selectAll(".tick line").style("stroke", "#000");
+        // 3. 最后恢复 domain 和 tick 的线宽/颜色
+        svg.selectAll(".x-axis .domain")
+           .style("stroke-width", axisLineWidth)
+           .style("stroke", "#000");
+        svg.selectAll(".x-axis .tick line")
+           .style("stroke-width", tickLineWidth)
+           .style("stroke", "#000");
     }
 
     seriesList.forEach((series, seriesIdx) => {
