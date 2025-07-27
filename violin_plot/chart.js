@@ -395,7 +395,26 @@ function createChart() {
       const sumstatMap = d3.group(series.data, d => d.group_name); // 修改
       const sumstat = Array.from(sumstatMap, ([key, values]) => {
         const input = values.map(g => +g.group_value);
-        const bins = histogram(input);
+        let bins = histogram(input); // 使用 let 允许修改
+
+        // --- 修复开始：为提琴图添加闭合点 ---
+        // 为了确保提琴图的形状是闭合的，我们在其数据范围的上下两端添加密度为0的点。
+        if (bins.length > 0) {
+            const dataMin = d3.min(input);
+            const dataMax = d3.max(input);
+            const verySmallValue = 0.001;
+            
+            // 在数据最小值处添加一个零点
+            if (bins[0].x0 > dataMin) {
+                bins.unshift({x0: dataMin, x1: dataMin, length: verySmallValue});
+            }
+            // 在数据最大值处添加一个零点
+            if (bins[bins.length - 1].x1 < dataMax) {
+                bins.push({x0: dataMax, x1: dataMax, length: verySmallValue});
+            }
+        }
+        // --- 修复结束 ---
+
         return { key, bins };
       });
 
@@ -440,19 +459,6 @@ function createChart() {
               const boxLineColorInput = control.querySelector(`.box-line-color-group[data-group="${d.key}"]`);
               if (boxLineColorInput) boxLineColor = boxLineColorInput.value;
             }
-
-            // 右边界线
-            d3.select(this)
-              .append("path")
-              .datum(d.bins.filter(b => b.length > 0))
-              .style("fill", "none")
-              .style("stroke", groupLineColor)
-              .style("stroke-width", groupLineWidth)
-              .attr("d", d3.line()
-                .x(d => xNum(d.length))
-                .y(d => y(d.x0))
-                .curve(d3.curveCatmullRom)
-              );
 
             // 计算箱形图五数
             const values = d.bins.flatMap(bin => bin.map(v => v));
@@ -526,20 +532,61 @@ function createChart() {
               .style("stroke", boxLineColor)
               .style("stroke-width", boxLineWidth);
 
+              // 右边界线
+            const binsForLine = d.bins.filter((bin, i, arr) =>
+                bin.length > 0
+              );
+            
+            const minX0 = d3.min(binsForLine, b => b.x0);
+            const minX1 = d3.min(binsForLine, b => b.x1);
+            const deltaY = minX1 - minX0;
+            const verySmallValue = 0.001;
+            binsForLine.unshift({
+              x0: minX0 - deltaY,
+              x1: minX1 - deltaY,
+              length: verySmallValue
+            });
+
+            const maxX0 = d3.max(binsForLine, b => b.x0);
+            const maxX1 = d3.max(binsForLine, b => b.x1);
+            binsForLine.push({
+              x0: maxX0 + deltaY,
+              x1: maxX1 + deltaY,
+              length: verySmallValue
+            });
+
+            binsForLine.forEach(bin => {
+              bin.x0 += deltaY;
+              bin.x1 += deltaY;
+            });
+
             // 画右半边提琴图（area + 边界线）
             d3.select(this)
               .append("path")
-              .datum(d.bins)
+              //.datum(d.bins)
+              .datum(binsForLine)
               .style("fill", groupShadowColor)
               .style("fill-opacity", shadowOpacity)
               .style("stroke", "none")
               .attr("d", d3.area()
-                .defined(d => d.length > 0)
                 .x0(() => 0)
                 .x1(d => xNum(d.length))
                 .y(d => y(d.x0))
-                .curve(d3.curveCatmullRom)
+                .curve(d3.curveBasis) // 建议改用更平滑的 curveBasis
               );
+
+            d3.select(this)
+              .append("path")
+              //.datum(d.bins.filter(b => b.length > 0))
+              .datum(binsForLine)
+              .style("fill", "none")
+              .style("stroke", groupLineColor)
+              .style("stroke-width", groupLineWidth)
+              .attr("d", d3.line()
+                .x(d => xNum(d.length))
+                .y(d => y(d.x0))
+                .curve(d3.curveBasis)
+            );
           });
       
       // Add individual points with jitter
