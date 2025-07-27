@@ -238,27 +238,42 @@ function createChart() {
 
   const showYAxis = document.getElementById("show-y-axis").checked;
   if (showYAxis) {
-      const yAxis = d3.axisLeft(y)
-      //.ticks(tickCount) // Set the number of ticks
-      .tickValues(ytickPositions) // Set custom tick positions
-      //.tickSize(tickLength) // Set the tick size (length of the tick lines)
-      .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
-      //.tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
-      .tickFormat((d, i) => ytickLabels[i] || d) // Set custom tick labels
-      .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
+    svg.selectAll(".y-axis").remove();
 
-      svg.append("g")
-      .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
+    // 1. 定义一个不画默认刻度的轴
+    const yAxis = d3.axisLeft(y)
+      .tickValues(ytickPositions)
+      .tickFormat((d, i) => ytickLabels[i] ?? d)
+      .tickSizeInner(0)       // 内部刻度长度设为 0
+      .tickSizeOuter(0)       // 端点刻度长度也设为 0
+      .tickPadding(tickOrientation === "inward" ? tickLength : 2 * tickLength) // 外部刻度长度为 2 * tickLength;
+  
+    // 2. 添加 Y 轴并手动调整每条刻度线的 x1、x2
+    svg.append("g")
+      .attr("class", "y-axis")
+      .attr("transform", `translate(0, ${-axisMargin.y})`)
       .call(yAxis)
-      .selectAll("text") // Customize tick labels
-      .attr("fill", "#000")
-      .style("font-size", `${tickFontSize}px`) // Set font size
-      .style("font-family", tickFontFamily); // Set font family
-
-      svg.selectAll(".domain").style("stroke-width", axisLineWidth);
-      svg.selectAll(".tick line").style("stroke-width", tickLineWidth);
-      svg.selectAll(".domain").style("stroke", "#000");
-      svg.selectAll(".tick line").style("stroke", "#000");
+      .call(g => g.selectAll(".tick line")
+        // 起点推到轴线边缘
+        .attr("x1", axisLineWidth / 2)
+        // 终点根据方向向内或向外延伸 tickLength
+        .attr("x2", tickOrientation === "inward"
+          ? tickLength   // 向图内（右）延伸
+          : -tickLength)  // 向图外（左）延伸
+      )
+      .call(g => g.selectAll("text")
+        .attr("fill", "#000")
+        .style("font-size", `${tickFontSize}px`)
+        .style("font-family", tickFontFamily)
+      );
+  
+    // 3. 恢复轴线和刻度线的样式
+    svg.selectAll(".y-axis .domain")
+       .style("stroke-width", axisLineWidth)
+       .style("stroke", "#000");
+    svg.selectAll(".y-axis .tick line")
+       .style("stroke-width", tickLineWidth)
+       .style("stroke", "#000");
   }
 
   const showScaleBar = document.getElementById("show-scale-bar").checked;
