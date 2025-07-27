@@ -184,7 +184,14 @@ function removeAnnotation(idx) {
 window.removeAnnotation = removeAnnotation;
 
 function createChart() {
-  
+  // --- 新增：直接读取用户输入的 X/Y 标签距离（px） ---
+  const xLabelDistancePx = parseFloat(
+    document.getElementById("x-label-distance-px")?.value
+  ) || 0;
+  const yLabelDistancePx = parseFloat(
+    document.getElementById("y-label-distance-px")?.value
+  ) || 0;
+
   const showOuterTicks = document.getElementById("show-outer-ticks").checked;
   const xLabel = document.getElementById("x-label").value;
   const xLabelFontSize = parseFloat(document.getElementById("x-label-font-size").value);
@@ -322,15 +329,11 @@ function createChart() {
     .text(yScaleBarLabel);
     }
     // Add X axis label
-    //const xLabelDistance = 26;
     const showXLabel = document.getElementById("show-x-label").checked;
     if (showXLabel) {
-      const xLabelDistance = tickLength + 1.8*tickFontSize + 6 * PT_TO_PX;
       svg.append("text")
       .attr("x", (width) / 2 +axisMargin.x) // Center the label horizontally
-      .attr("y", height + xLabelDistance) // Position below the X axis
-      //.attr("y", height - xScaleBarPositiony+xLabelFontSize-3)
-      //.attr("dominant-baseline", "text-before-edge")  // 添加 hanging 属性
+      .attr("y", height + xLabelDistancePx) // 直接用 px 输入值
       .style("text-anchor", "middle")
       .style("font-size", `${xLabelFontSize}px`)
       .style("font-family", xLabelFontFamily)
@@ -339,11 +342,9 @@ function createChart() {
     // Add Y axis label
     const showYLabel = document.getElementById("show-y-label").checked;
     if (showYLabel) {
-      const yLabelDistance = tickLength + 1.5*tickFontSize + 6 * PT_TO_PX;
       svg.append("text")
       .attr("x", -(height) / 2+axisMargin.y) // Center the label vertically
-      .attr("y", -yLabelDistance) // Position to the left of the Y axis
-      //.attr("dominant-baseline", "ideographic")  // 使用下沿作为基线
+      .attr("y", -yLabelDistancePx) // 直接用 px 输入值
       .attr("transform", "rotate(-90)") // Rotate the label
       .style("text-anchor", "middle")
       .style("font-size", `${yLabelFontSize}px`)
