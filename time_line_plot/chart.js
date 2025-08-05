@@ -559,8 +559,8 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
         .attr("transform", `translate(${axisMargin.x}, ${height})`)
         .call(xAxis)
         .call(g => g.selectAll(".tick line")
-          .attr("y1", -axisLineWidth / 2)
-          .attr("y2", -tickLength)
+          .attr("y1", -axisLineWidth)
+          .attr("y2", -tickLength-axisLineWidth)
         )
         .call(g => g.selectAll("text")
           .attr("fill", "#000")
@@ -580,8 +580,8 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
         .attr("transform", `translate(${axisMargin.x}, ${height})`)
         .call(xAxis)
         .call(g => g.selectAll(".tick line")
-          .attr("y1", axisLineWidth / 2)
-          .attr("y2", tickLength)
+          .attr("y1", axisLineWidth)
+          .attr("y2", tickLength+axisLineWidth)
         )
         .call(g => g.selectAll("text")
           .attr("fill", "#000")
@@ -608,16 +608,16 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
       .tickSizeInner(0)
       .tickSizeOuter(0)
       .tickPadding(tickOrientation === "inward" ? tickLength : 2 * tickLength);
-
+    //const tickstart = tickLength-(axisLineWidth/2);
     svg.append("g")
       .attr("class", "y-axis")
       .attr("transform", `translate(0, ${-axisMargin.y})`)
       .call(yAxis)
       .call(g => g.selectAll(".tick line")
-        .attr("x1", axisLineWidth / 2)
+        .attr("x1", axisLineWidth)
         .attr("x2", tickOrientation === "inward"
-          ? tickLength   // 向图内（右）延伸
-          : -tickLength) // 向图外（左）延伸
+          ? (tickLength-axisLineWidth)   // 向图内（右）延伸
+          : (-tickLength+axisLineWidth)) // 向图外（左）延伸
       )
       .call(g => g.selectAll("text")
         .attr("fill", "#000")
