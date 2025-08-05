@@ -543,46 +543,94 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
 
   // X轴
   if (showXAxis) {
-    const xAxis = d3.axisBottom(x)
-      .tickValues(xtickPositions)
-      .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
-      .tickFormat((d, i) => xtickLabels[i] || d)
-      .tickSizeOuter(showOuterTicks ? tickLength : 0);
+    svg.selectAll(".x-axis").remove();
+    const xTickLabels = xtickPositions.map((pos, i) => xtickLabels[i] || pos);
+    
+    if (tickOrientation === "inward") {
+      const xAxis = d3.axisBottom(x)
+        .tickValues(xtickPositions)
+        .tickSizeInner(0)
+        .tickSizeOuter(0)
+        .tickPadding(tickLength)
+        .tickFormat((d, i) => xtickLabels[i] || d);
 
-    svg.append("g")
-      .attr("transform", `translate(${axisMargin.x}, ${height})`)
-      .call(xAxis)
-      .selectAll("text")
-      .attr("fill", "#000")
-      .style("font-size", `${tickFontSize}px`)
-      .style("font-family", tickFontFamily);
+      svg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(${axisMargin.x}, ${height})`)
+        .call(xAxis)
+        .call(g => g.selectAll(".tick line")
+          .attr("y1", -axisLineWidth / 2)
+          .attr("y2", -tickLength)
+        )
+        .call(g => g.selectAll("text")
+          .attr("fill", "#000")
+          .style("font-size", `${tickFontSize}px`)
+          .style("font-family", tickFontFamily)
+        );
+    } else {
+      const xAxis = d3.axisBottom(x)
+        .tickValues(xtickPositions)
+        .tickSizeInner(0)
+        .tickSizeOuter(0)
+        .tickPadding(2 * tickLength)
+        .tickFormat((d, i) => xtickLabels[i] || d);
 
-    svg.selectAll(".domain").style("stroke-width", axisLineWidth);
-    svg.selectAll(".tick line").style("stroke-width", tickLineWidth);
-    svg.selectAll(".domain").style("stroke", "#000");
-    svg.selectAll(".tick line").style("stroke", "#000");
+      svg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(${axisMargin.x}, ${height})`)
+        .call(xAxis)
+        .call(g => g.selectAll(".tick line")
+          .attr("y1", axisLineWidth / 2)
+          .attr("y2", tickLength)
+        )
+        .call(g => g.selectAll("text")
+          .attr("fill", "#000")
+          .style("font-size", `${tickFontSize}px`)
+          .style("font-family", tickFontFamily)
+        );
+    }
+
+    svg.selectAll(".x-axis .domain")
+       .style("stroke-width", axisLineWidth)
+       .style("stroke", "#000");
+    svg.selectAll(".x-axis .tick line")
+       .style("stroke-width", tickLineWidth)
+       .style("stroke", "#000");
   }
 
   // Y轴
   if (showYAxis) {
+    svg.selectAll(".y-axis").remove();
+    
     const yAxis = d3.axisLeft(y)
       .tickValues(ytickPositions)
-      .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
-      .tickFormat((d, i) => ytickLabels[i] || d)
-      .tickSizeOuter(showOuterTicks ? tickLength : 0);
+      .tickFormat((d, i) => ytickLabels[i] ?? d)
+      .tickSizeInner(0)
+      .tickSizeOuter(0)
+      .tickPadding(tickOrientation === "inward" ? tickLength : 2 * tickLength);
 
     svg.append("g")
+      .attr("class", "y-axis")
       .attr("transform", `translate(0, ${-axisMargin.y})`)
       .call(yAxis)
-      .selectAll("text")
-      .attr("fill", "#000")
-      .style("font-size", `${tickFontSize}px`)
-      .style("font-family", tickFontFamily);
+      .call(g => g.selectAll(".tick line")
+        .attr("x1", axisLineWidth / 2)
+        .attr("x2", tickOrientation === "inward"
+          ? tickLength   // 向图内（右）延伸
+          : -tickLength) // 向图外（左）延伸
+      )
+      .call(g => g.selectAll("text")
+        .attr("fill", "#000")
+        .style("font-size", `${tickFontSize}px`)
+        .style("font-family", tickFontFamily)
+      );
 
-    svg.selectAll(".domain").style("stroke-width", axisLineWidth);
-    svg.selectAll(".tick line").style("stroke-width", tickLineWidth);
-    svg.selectAll(".domain").style("stroke", "#000");
-    svg.selectAll(".tick line").style("stroke", "#000");
+    svg.selectAll(".y-axis .domain")
+       .style("stroke-width", axisLineWidth)
+       .style("stroke", "#000");
+    svg.selectAll(".y-axis .tick line")
+       .style("stroke-width", tickLineWidth)
+       .style("stroke", "#000");
   }
 
   // Scale Bar
