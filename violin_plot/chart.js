@@ -923,3 +923,190 @@ document.getElementById("save-svg-btn").addEventListener("click", function () {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 });
+
+// =========================
+// Save/Load parameters (JSON)
+// =========================
+
+function collectAllInputsUnder(root) {
+  const map = {};
+  root.querySelectorAll('input[id], select[id], textarea[id]').forEach(el => {
+    const id = el.id;
+    if (!id) return;
+    if (el.type === 'checkbox') {
+      map[id] = !!el.checked;
+    } else if (el.type === 'number') {
+      const v = el.value;
+      map[id] = v === '' ? null : Number(v);
+    } else {
+      map[id] = el.value;
+    }
+  });
+  return map;
+}
+
+function collectSeriesState() {
+  return seriesList.map(s => {
+    const c = s.control;
+    // collect per-group options visible in controls
+    const groupOptions = {};
+    (s.groupNames || []).forEach(name => {
+      groupOptions[name] = {
+        shadowColor: c?.querySelector(`.shadow-color-group[data-group="${name}"]`)?.value ?? '#FF5C5C',
+        lineColor: c?.querySelector(`.line-color-group[data-group="${name}"]`)?.value ?? '#000000',
+        lineWidth: Number(c?.querySelector(`.line-width-group[data-group="${name}"]`)?.value ?? 1),
+        boxLineWidth: Number(c?.querySelector(`.box-line-width-group[data-group="${name}"]`)?.value ?? 1),
+        boxLineColor: c?.querySelector(`.box-line-color-group[data-group="${name}"]`)?.value ?? '#000000',
+        dotColor: c?.querySelector(`.dot-color-group[data-group="${name}"]`)?.value ?? '#222222',
+        dotSize: Number(c?.querySelector(`.dot-size-group[data-group="${name}"]`)?.value ?? 2),
+        dotOpacity: Number(c?.querySelector(`.dot-opacity-group[data-group="${name}"]`)?.value ?? 1)
+      };
+    });
+
+    return {
+      options: {
+        description: c?.querySelector('.series-description')?.value || '',
+        lineColor: c?.querySelector('.line-color')?.value || '#ff0000',
+        lineThickness: Number(c?.querySelector('.line-thickness')?.value || 1),
+        showShadow: !!c?.querySelector('.show-shadow')?.checked,
+        shadowOpacity: Number(c?.querySelector('.shadow-opacity')?.value || 0.3)
+      },
+      groupOptions,
+      groupNames: s.groupNames || [],
+      data: s.data || []
+    };
+  });
+}
+
+function collectState() {
+  const controlsRoot = document.getElementById('control-panel');
+  const controls = collectAllInputsUnder(controlsRoot);
+  return {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    controls,
+    refLines: refLines.slice(),
+    annotations: annotations.slice(),
+    series: collectSeriesState()
+  };
+}
+
+function applyInputs(controlsMap) {
+  if (!controlsMap) return;
+  Object.keys(controlsMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = controlsMap[id];
+    if (el.type === 'checkbox') {
+      el.checked = !!val;
+    } else {
+      el.value = val;
+    }
+  });
+}
+
+function clearSeriesUI() {
+  seriesList = [];
+  const container = document.getElementById('series-controls');
+  if (container) container.innerHTML = '';
+}
+
+function rebuildSeries(seriesState) {
+  (seriesState || []).forEach(s => {
+    const seriesControl = createSeriesControl(seriesList.length, s.groupNames || []);
+    // basic options
+    if (s.options) {
+      seriesControl.querySelector('.series-description').value = s.options.description || '';
+      seriesControl.querySelector('.line-color').value = s.options.lineColor || '#ff0000';
+      seriesControl.querySelector('.line-thickness').value = s.options.lineThickness ?? 1;
+      seriesControl.querySelector('.show-shadow').checked = !!s.options.showShadow;
+      seriesControl.querySelector('.shadow-opacity').value = s.options.shadowOpacity ?? 0.3;
+    }
+    // per-group options
+    if (s.groupOptions) {
+      Object.keys(s.groupOptions).forEach(name => {
+        const opts = s.groupOptions[name];
+        const q = sel => seriesControl.querySelector(sel);
+        const set = (sel, v) => { const el = q(sel); if (el != null) el.value = v; };
+        set(`.shadow-color-group[data-group="${name}"]`, opts.shadowColor ?? '#FF5C5C');
+        set(`.line-color-group[data-group="${name}"]`, opts.lineColor ?? '#000000');
+        set(`.line-width-group[data-group="${name}"]`, opts.lineWidth ?? 1);
+        set(`.box-line-width-group[data-group="${name}"]`, opts.boxLineWidth ?? 1);
+        set(`.box-line-color-group[data-group="${name}"]`, opts.boxLineColor ?? '#000000');
+        set(`.dot-color-group[data-group="${name}"]`, opts.dotColor ?? '#222222');
+        set(`.dot-size-group[data-group="${name}"]`, opts.dotSize ?? 2);
+        set(`.dot-opacity-group[data-group="${name}"]`, opts.dotOpacity ?? 1);
+      });
+    }
+    seriesList.push({ data: s.data || [], control: seriesControl, groupNames: s.groupNames || [] });
+    document.getElementById('series-controls').appendChild(seriesControl);
+  });
+}
+
+function downloadJSON(obj, fileName) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function loadFromState(state) {
+  if (!state) return;
+  try {
+    applyInputs(state.controls);
+  } catch (e) {
+    console.error('applyInputs error:', e);
+  }
+  try {
+    refLines = Array.isArray(state.refLines) ? state.refLines.slice() : [];
+    annotations = Array.isArray(state.annotations) ? state.annotations.slice() : [];
+  } catch (e) {
+    console.error('assign refs/annotations error:', e);
+  }
+  try {
+    clearSeriesUI();
+    rebuildSeries(state.series);
+  } catch (e) {
+    console.error('rebuild series error:', e);
+  }
+  // trigger a render with updated controls and data
+  document.getElementById('update')?.click();
+}
+
+document.getElementById('save-params')?.addEventListener('click', () => {
+  const state = collectState();
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  downloadJSON(state, `violin_plot_params_${ts}.json`);
+});
+
+document.getElementById('load-params-btn')?.addEventListener('click', () => {
+  document.getElementById('load-params-file')?.click();
+});
+
+document.getElementById('load-params-file')?.addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    let obj = null;
+    try {
+      obj = JSON.parse(ev.target.result);
+    } catch (parseErr) {
+      console.error('JSON parse error:', parseErr);
+      alert('Invalid JSON file.');
+      e.target.value = '';
+      return;
+    }
+    try {
+      loadFromState(obj);
+    } catch (applyErr) {
+      console.error('Error applying loaded params:', applyErr);
+    } finally {
+      e.target.value = '';
+    }
+  };
+  reader.readAsText(file);
+});
