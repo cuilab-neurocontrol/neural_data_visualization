@@ -1122,3 +1122,313 @@ document.addEventListener("DOMContentLoaded", () => {
 
 renderCanvasTexts();
 
+// =========================
+// Save/Load parameters (JSON)
+// =========================
+
+function collectTopLevelControls(controlsDiv) {
+  const map = {};
+  const nodes = controlsDiv.querySelectorAll('input[id], select[id], textarea[id]');
+  nodes.forEach(el => {
+    const id = el.id;
+    if (!id) return;
+    if (el.type === 'checkbox') {
+      map[id] = !!el.checked;
+    } else if (el.type === 'number') {
+      const v = el.value;
+      map[id] = v === '' ? null : Number(v);
+    } else {
+      map[id] = el.value;
+    }
+  });
+  return map;
+}
+
+function collectSubplotState(instance) {
+  const { div, controlsDiv, chartDiv, config } = instance;
+  const xInput = div.querySelector('.subplot-x');
+  const yInput = div.querySelector('.subplot-y');
+  const descInput = div.querySelector('.subplot-desc');
+
+  const state = {
+    position: {
+      xCm: xInput ? Number(xInput.value) : 0,
+      yCm: yInput ? Number(yInput.value) : 0
+    },
+    description: descInput ? descInput.value : (config.description || ''),
+    controls: collectTopLevelControls(controlsDiv),
+    series: [],
+    lines: [],
+    texts: [],
+    areas: []
+  };
+
+  // Series
+  (config.seriesList || []).forEach(series => {
+    const c = series.control;
+    if (!c) return;
+    state.series.push({
+      options: {
+        lineColor: c.querySelector('.line-color')?.value || '#ff0000',
+        lineThickness: Number(c.querySelector('.line-thickness')?.value || 2),
+        showShadow: !!c.querySelector('.show-shadow')?.checked,
+        shadowColor: c.querySelector('.shadow-color')?.value || '#FF5C5C',
+        shadowOpacity: Number(c.querySelector('.shadow-opacity')?.value || 0.3),
+        description: c.querySelector('.series-description')?.value || ''
+      },
+      data: series.data || []
+    });
+  });
+
+  // Lines
+  (config.linesList || []).forEach(lineItem => {
+    const c = lineItem.control;
+    if (!c) return;
+    state.lines.push({
+      type: c.querySelector('.line-type')?.value || 'vertical',
+      coordinateX: Number(c.querySelector('.line-coordinate-x')?.value || 0),
+      coordinateY: Number(c.querySelector('.line-coordinate-y')?.value || 0),
+      color: c.querySelector('.line-color')?.value || '#000000',
+      thickness: Number(c.querySelector('.line-thickness')?.value || 1),
+      style: c.querySelector('.line-style')?.value || 'solid',
+      length: Number(c.querySelector('.line-length')?.value || 100)
+    });
+  });
+
+  // Texts
+  (config.textList || []).forEach(item => {
+    const c = item.control;
+    if (!c) return;
+    state.texts.push({
+      text: c.querySelector('.text-string')?.value || '',
+      x: Number(c.querySelector('.text-coordinate-x')?.value || 0),
+      y: Number(c.querySelector('.text-coordinate-y')?.value || 0),
+      fontSize: Number(c.querySelector('.text-font-size')?.value || 16),
+      fontFamily: c.querySelector('.text-font-family')?.value || 'Arial',
+      fontColor: c.querySelector('.text-font-color')?.value || '#000000',
+      fontWeight: c.querySelector('.text-bold')?.value || 'normal',
+      orientation: c.querySelector('.text-orientation')?.value || 'horizontal'
+    });
+  });
+
+  // Areas
+  (config.areasList || []).forEach(areaObj => {
+    const c = areaObj.control;
+    if (!c) return;
+    state.areas.push({
+      options: {
+        color: c.querySelector('.area-color')?.value || '#cce5df',
+        opacity: Number(c.querySelector('.area-opacity')?.value || 0.5),
+        orientation: c.querySelector('.area-orientation')?.value || 'horizontal'
+      },
+      data: areaObj.data || []
+    });
+  });
+
+  return state;
+}
+
+function collectAllState() {
+  const canvasWidthCm = Number(document.getElementById('canvas-width-cm')?.value || 0);
+  const canvasHeightCm = Number(document.getElementById('canvas-height-cm')?.value || 0);
+
+  // canvasTexts is const; gather a shallow copy
+  const canvasTextsState = (Array.isArray(canvasTexts) ? canvasTexts.map(t => ({...t})) : []);
+
+  const subplotsState = subplots.map(instance => collectSubplotState(instance));
+
+  return {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    canvas: { widthCm: canvasWidthCm, heightCm: canvasHeightCm },
+    canvasTexts: canvasTextsState,
+    subplots: subplotsState
+  };
+}
+
+function downloadJSON(obj, fileName) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function applyTopLevelControls(controlsDiv, controlsMap) {
+  if (!controlsMap) return;
+  Object.keys(controlsMap).forEach(id => {
+  // Avoid CSS.escape for broader browser compatibility; IDs here are simple
+  const el = controlsDiv.querySelector('#' + id);
+    if (!el) return;
+    const val = controlsMap[id];
+    if (el.type === 'checkbox') {
+      el.checked = !!val;
+    } else {
+      el.value = val;
+    }
+  });
+}
+
+function rebuildSubplotFromState(state) {
+  // Create a fresh subplot instance
+  createSubplotInstance(null);
+  const instance = subplots[subplots.length - 1];
+  const { div, controlsDiv, chartDiv, config } = instance;
+
+  // Position
+  const xInput = div.querySelector('.subplot-x');
+  const yInput = div.querySelector('.subplot-y');
+  if (xInput) xInput.value = state.position?.xCm ?? 0;
+  if (yInput) yInput.value = state.position?.yCm ?? 0;
+  chartDiv.style.left = (Number(xInput?.value || 0) * CM_TO_PX) + 'px';
+  chartDiv.style.top = (Number(yInput?.value || 0) * CM_TO_PX) + 'px';
+
+  // Description
+  const descInput = div.querySelector('.subplot-desc');
+  if (descInput) descInput.value = state.description || '';
+  config.description = state.description || '';
+
+  // Apply top-level controls
+  applyTopLevelControls(controlsDiv, state.controls);
+
+  // Series
+  (state.series || []).forEach((s, idx) => {
+    const control = createSeriesControl(config.seriesList.length, controlsDiv, chartDiv, config);
+    // Set options
+    if (s.options) {
+      control.querySelector('.line-color').value = s.options.lineColor ?? '#ff0000';
+      control.querySelector('.line-thickness').value = s.options.lineThickness ?? 2;
+      control.querySelector('.show-shadow').checked = !!s.options.showShadow;
+      control.querySelector('.shadow-color').value = s.options.shadowColor ?? '#FF5C5C';
+      control.querySelector('.shadow-opacity').value = s.options.shadowOpacity ?? 0.3;
+      const sd = control.querySelector('.series-description');
+      if (sd) sd.value = s.options.description || '';
+    }
+    config.seriesList.push({ data: s.data || [], control });
+    controlsDiv.querySelector('#series-controls').appendChild(control);
+  });
+
+  // Lines
+  (state.lines || []).forEach((ln, idx) => {
+    const control = createLineControl(config.linesList.length, controlsDiv, chartDiv, config);
+    control.querySelector('.line-type').value = ln.type ?? 'vertical';
+    control.querySelector('.line-coordinate-x').value = ln.coordinateX ?? 0;
+    control.querySelector('.line-coordinate-y').value = ln.coordinateY ?? 0;
+    control.querySelector('.line-color').value = ln.color ?? '#000000';
+    control.querySelector('.line-thickness').value = ln.thickness ?? 1;
+    control.querySelector('.line-style').value = ln.style ?? 'solid';
+    control.querySelector('.line-length').value = ln.length ?? 100;
+    config.linesList.push({ control });
+    controlsDiv.querySelector('#line-controls').appendChild(control);
+  });
+
+  // Texts
+  (state.texts || []).forEach((tx, idx) => {
+    const control = createTextControl(config.textList.length, controlsDiv, chartDiv, config);
+    control.querySelector('.text-string').value = tx.text || '';
+    control.querySelector('.text-coordinate-x').value = tx.x ?? 0;
+    control.querySelector('.text-coordinate-y').value = tx.y ?? 0;
+    control.querySelector('.text-font-size').value = tx.fontSize ?? 16;
+    control.querySelector('.text-font-family').value = tx.fontFamily ?? 'Arial';
+    control.querySelector('.text-font-color').value = tx.fontColor ?? '#000000';
+    control.querySelector('.text-bold').value = tx.fontWeight ?? 'normal';
+    control.querySelector('.text-orientation').value = tx.orientation ?? 'horizontal';
+    config.textList.push({ control });
+    controlsDiv.querySelector('#text-controls').appendChild(control);
+  });
+
+  // Areas
+  (state.areas || []).forEach((ar, idx) => {
+    const areaObj = createAreaControl(config.areasList.length, controlsDiv, chartDiv, config);
+    if (ar.options) {
+      areaObj.control.querySelector('.area-color').value = ar.options.color ?? '#cce5df';
+      areaObj.control.querySelector('.area-opacity').value = ar.options.opacity ?? 0.5;
+      areaObj.control.querySelector('.area-orientation').value = ar.options.orientation ?? 'horizontal';
+    }
+    areaObj.data = ar.data || null;
+    config.areasList.push(areaObj);
+    controlsDiv.querySelector('#area-controls').appendChild(areaObj.control);
+  });
+
+  // Finally render
+  createChartForSubplot(controlsDiv, chartDiv, config);
+}
+
+function clearAllSubplots() {
+  // Remove DOM nodes
+  document.querySelectorAll('.subplot-instance').forEach(n => n.remove());
+  document.querySelectorAll('.subplot-chart').forEach(n => n.remove());
+  // Reset array
+  subplots = [];
+}
+
+function loadState(obj) {
+  if (!obj) return;
+
+  // Canvas size
+  const cw = document.getElementById('canvas-width-cm');
+  const ch = document.getElementById('canvas-height-cm');
+  if (cw && obj.canvas?.widthCm != null) cw.value = obj.canvas.widthCm;
+  if (ch && obj.canvas?.heightCm != null) ch.value = obj.canvas.heightCm;
+
+  // Apply to style
+  const canvasArea = document.getElementById('canvas-area');
+  if (canvasArea) {
+    const wpx = Number(cw?.value || 0) * CM_TO_PX;
+    const hpx = Number(ch?.value || 0) * CM_TO_PX;
+    canvasArea.style.width = wpx + 'px';
+    canvasArea.style.height = hpx + 'px';
+  }
+
+  // Canvas texts
+  if (Array.isArray(obj.canvasTexts)) {
+    // mutate the const array
+    canvasTexts.length = 0;
+    obj.canvasTexts.forEach(t => canvasTexts.push({ ...t }));
+    renderCanvasTexts();
+  }
+
+  // Subplots
+  clearAllSubplots();
+  (obj.subplots || []).forEach(s => rebuildSubplotFromState(s));
+}
+
+// Wire buttons
+document.getElementById('save-params')?.addEventListener('click', () => {
+  const state = collectAllState();
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  downloadJSON(state, `timeline_plot_params_${ts}.json`);
+});
+
+document.getElementById('load-params-btn')?.addEventListener('click', () => {
+  document.getElementById('load-params-file')?.click();
+});
+
+document.getElementById('load-params-file')?.addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    let obj = null;
+    try {
+      obj = JSON.parse(ev.target.result);
+    } catch (parseErr) {
+      console.error('JSON parse error:', parseErr);
+      alert('Invalid JSON file.');
+      e.target.value = '';
+      return;
+    }
+    try {
+      loadState(obj);
+    } catch (applyErr) {
+      // Do not alert here since params may be mostly applied; just log for debugging
+      console.error('Error applying loaded params:', applyErr);
+    } finally {
+      e.target.value = '';
+    }
+  };
+  reader.readAsText(file);
+});
+
