@@ -263,25 +263,32 @@ function draw() {
     });
   });
 
-  // 4. 画轨迹
+  // 4. 画轨迹（支持每条轨迹单独样式）
   trajGroups.forEach(group => {
     if (!group.visible) return; // 如果组不可见，则跳过
 
-    // 设置虚线样式
-    let strokeDasharray = "none";
-    if (group.style === "dashed") strokeDasharray = "5,5";
-    else if (group.style === "dotted") strokeDasharray = "2,2";
-
     group.trajectories.forEach(traj => {
-      const lineData = traj.map(d => {
+      // 兼容旧数据结构：traj 可能是数组，也可能是 {id, points, ...}
+      const points = Array.isArray(traj) ? traj : (traj.points || []);
+      const tStyle = (traj && traj.style !== undefined) ? traj.style : group.style;
+      const tColor = (traj && traj.color !== undefined) ? traj.color : group.color;
+      const tWidth = (traj && traj.width !== undefined) ? traj.width : group.width;
+      const tVisible = (traj && traj.visible !== undefined) ? traj.visible : group.visible;
+      if (!tVisible) return;
+
+      let strokeDasharray = "none";
+      if (tStyle === "dashed") strokeDasharray = "5,5";
+      else if (tStyle === "dotted") strokeDasharray = "2,2";
+
+      const lineData = points.map(d => {
         const [x2d, y2d] = project3d(d.x, d.y, d.z);
         return [xScale(x2d), yScale(y2d)];
       });
       g.append("path")
         .attr("d", d3.line()(lineData))
-        .attr("stroke", group.color) // 使用组的颜色
-        .attr("stroke-width", group.width) // 使用组的线宽
-        .attr("stroke-dasharray", strokeDasharray) // 使用组的线型
+        .attr("stroke", tColor)
+        .attr("stroke-width", tWidth)
+        .attr("stroke-dasharray", strokeDasharray);
         //.attr("fill", "none")
         //.attr("opacity", 0.7);
     });
@@ -465,9 +472,14 @@ function createTrajectoryPanel(group) {
                onchange="updateGroup(${group.id}, 'description', this.value)">
       </label>
     </div>
+    <details class="subtraj-section">
+      <summary>每条轨迹样式（${group.trajectories.length} 条）</summary>
+      <div class="trajectory-controls" id="subtraj-${group.id}"></div>
+    </details>
   `;
   
   panelsContainer.appendChild(panel);
+  renderSubTrajectoryControls(group);
 }
 
 // 更新轨迹组属性
@@ -482,6 +494,89 @@ function updateGroup(id, property, value) {
     
     draw();
   }
+}
+
+// 渲染每条轨迹的样式控制
+function renderSubTrajectoryControls(group) {
+  const container = document.getElementById(`subtraj-${group.id}`);
+  if (!container) return;
+  container.innerHTML = '';
+
+  group.trajectories.forEach(traj => {
+    const row = document.createElement('div');
+    row.className = 'trajectory-controls';
+    row.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))';
+
+    const resolvedWidth = (traj.width !== undefined) ? traj.width : group.width;
+    const resolvedColor = (traj.color !== undefined) ? traj.color : group.color;
+    const resolvedStyle = (traj.style !== undefined) ? traj.style : group.style;
+    const resolvedVisible = (traj.visible !== undefined) ? traj.visible : group.visible;
+
+    const label = document.createElement('div');
+    label.style.gridColumn = '1 / -1';
+    label.style.fontWeight = '600';
+    label.style.margin = '0.25em 0';
+    label.textContent = `轨迹ID: ${traj.id}`;
+
+    const widthLabel = document.createElement('label');
+    widthLabel.innerHTML = `<span>粗细(px):</span>`;
+    const widthInput = document.createElement('input');
+    widthInput.type = 'number';
+    widthInput.min = '0.1';
+    widthInput.step = '0.1';
+    widthInput.value = resolvedWidth;
+    widthInput.addEventListener('change', () => updateTrajectory(group.id, traj.id, 'width', widthInput.value));
+    widthLabel.appendChild(widthInput);
+
+    const colorLabel = document.createElement('label');
+    colorLabel.innerHTML = `<span>颜色:</span>`;
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = resolvedColor || '#000000';
+    colorInput.addEventListener('change', () => updateTrajectory(group.id, traj.id, 'color', colorInput.value));
+    colorLabel.appendChild(colorInput);
+
+    const styleLabel = document.createElement('label');
+    styleLabel.innerHTML = `<span>线型:</span>`;
+    const styleSelect = document.createElement('select');
+    ['solid','dashed','dotted'].forEach(opt => {
+      const o = document.createElement('option');
+      o.value = opt; o.textContent = opt === 'solid' ? '实线' : opt === 'dashed' ? '虚线' : '点线';
+      if (resolvedStyle === opt) o.selected = true;
+      styleSelect.appendChild(o);
+    });
+    styleSelect.addEventListener('change', () => updateTrajectory(group.id, traj.id, 'style', styleSelect.value));
+    styleLabel.appendChild(styleSelect);
+
+    const visLabel = document.createElement('label');
+    visLabel.innerHTML = `<span>显示:</span>`;
+    const visInput = document.createElement('input');
+    visInput.type = 'checkbox';
+    visInput.checked = resolvedVisible;
+    visInput.addEventListener('change', () => updateTrajectory(group.id, traj.id, 'visible', visInput.checked));
+    visLabel.appendChild(visInput);
+
+    container.appendChild(label);
+    container.appendChild(widthLabel);
+    container.appendChild(colorLabel);
+    container.appendChild(styleLabel);
+    container.appendChild(visLabel);
+  });
+}
+
+// 更新单条轨迹属性（覆盖组默认）
+function updateTrajectory(groupId, trajId, property, value) {
+  const group = trajGroups.find(g => g.id === groupId);
+  if (!group) return;
+  const traj = group.trajectories.find(t => String(t.id) === String(trajId));
+  if (!traj) return;
+
+  if (property === 'width') traj.width = parseFloat(value);
+  else if (property === 'color') traj.color = value;
+  else if (property === 'style') traj.style = value;
+  else if (property === 'visible') traj.visible = value;
+
+  draw();
 }
 
 // 删除轨迹组
@@ -571,8 +666,8 @@ document.getElementById("file-input").addEventListener("change", e => {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = evt => {
-    const data = d3.csvParse(evt.target.result, d3.autoType);
-    const trajectories = d3.groups(data, d => d.traj_id).map(g => g[1]);
+  const data = d3.csvParse(evt.target.result, d3.autoType);
+  const trajectories = d3.groups(data, d => d.traj_id).map(([id, rows]) => ({ id, points: rows }));
     
     // 创建新的轨迹组
     const newGroup = {
@@ -586,8 +681,8 @@ document.getElementById("file-input").addEventListener("change", e => {
       description: ''
     };
     
-    trajGroups.push(newGroup);
-    createTrajectoryPanel(newGroup);
+  trajGroups.push(newGroup);
+  createTrajectoryPanel(newGroup);
     draw();
   };
   reader.readAsText(file);
