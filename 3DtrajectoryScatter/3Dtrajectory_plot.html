@@ -6,28 +6,14 @@
   <script src="https://d3js.org/d3.v6.min.js"></script>
   <style>
     body { font-family: sans-serif; }
-    #ui-panel {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0.5em 1em;
-      margin-bottom: 1em;
-      max-width: 700px;
-    }
-    #ui-panel label {
-      display: flex;
-      align-items: center;
-      gap: 0.5em;
-      margin-bottom: 0.1em;
-    }
-    #ui-panel input, #ui-panel select {
-      flex: 1 1 0;
-      min-width: 0;
-    }
-    #ui-panel button {
-      grid-column: 1 / -1;
-      margin-top: 0.5em;
-      width: 100%;
-    }
+  #ui-panel { margin-bottom: 1em; max-width: 700px; }
+  #ui-panel label { display: flex; align-items: center; gap: 0.5em; margin-bottom: 0.1em; }
+  #ui-panel input, #ui-panel select { flex: 1 1 0; min-width: 0; }
+  #ui-panel button { margin-top: 0.5em; }
+  details { border: 1px solid #ddd; border-radius: 6px; padding: 0.5em 0.75em; margin-bottom: 0.75em; background: #fafafa; }
+  details > summary { cursor: pointer; font-weight: 600; margin: 0 -0.25em 0.5em -0.25em; }
+  .group-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5em 1em; }
+  .group-grid label { display: flex; align-items: center; gap: 0.5em; }
     svg { border: 1px solid #888; background: #fff; }
 
     /* 控制面板容器样式 */
@@ -80,219 +66,171 @@
 </head>
 <body>
   <div id="ui-panel">
-    <label><span>上传轨迹CSV:</span> <input type="file" id="file-input" accept=".csv"></label>
-    <label><span>上传散点CSV:</span> <input type="file" id="scatter-file-input" accept=".csv"></label>
-    <label><span>X domain:</span> <input id="x-domain" value="-100,100"></label>
-    <label><span>Y domain:</span> <input id="y-domain" value="-100,100"></label>
-    <label><span>Z domain:</span> <input id="z-domain" value="-100,100"></label>
-    <label><span>Canvas width (cm):</span> <input id="canvas-width" type="number" value="8" min="1" step="0.1"></label>
-    <label><span>Canvas height (cm):</span> <input id="canvas-height" type="number" value="8" min="1" step="0.1"></label>
-    <label><span>Margin (cm):</span> <input id="canvas-margin" type="number" value="1.5" min="0" step="0.1"></label>
-    <label>
-      <span>刻度朝向:</span>
-      <select id="tick-direction">
-        <option value="out">朝外</option>
-        <option value="in">朝里</option>
-      </select>
-    </label>
-    <label>
-      <span>刻度长度 (px):</span>
-      <input id="tick-length-px" type="number" value="10" min="1" step="1">
-    </label>
-    <label>
-      <span>坐标轴粗细 (px):</span>
-      <input id="axis-width-px" type="number" value="2" min="0.1" step="0.1">
-    </label>
-    <label>
-      <span>刻度线粗细 (px):</span>
-      <input id="tick-width-px" type="number" value="1" min="0.1" step="0.1">
-    </label>
-    <label>
-      <span>网格线粗细 (px):</span>
-      <input id="grid-width-px" type="number" value="1" min="0.1" step="0.1">
-    </label>
-    <label>
-      <span>X 刻度位置:</span>
-      <input id="x-ticks" type="text" value="-100,-50,0,50,100">
-    </label>
-    <label>
-      <span>Y 刻度位置:</span>
-      <input id="y-ticks" type="text" value="-100,-50,0,50,100">
-    </label>
-    <label>
-      <span>Z 刻度位置:</span>
-      <input id="z-ticks" type="text" value="-100,-50,0,50,100">
-    </label>
-    <label>
-      <span>X 刻度标签:</span>
-      <input id="x-labels" type="text" value="-1,-0.5,0,0.5,1">
-    </label>
-    <label>
-      <span>Y 刻度标签:</span>
-      <input id="y-labels" type="text" value="-1,-0.5,0,0.5,1">
-    </label>
-    <label>
-      <span>Z 刻度标签:</span>
-      <input id="z-labels" type="text" value="-1,-0.5,0,0.5,1">
-    </label>
-    <label>
-      <span>标签字体大小 (px):</span>
-      <input id="label-font-size" type="number" value="12" min="6" step="1">
-    </label>
-    <label>
-      <span>标签字体:</span>
-      <select id="label-font-family">
-        <option value="Arial">Arial</option>
-        <option value="sans-serif">Sans-serif</option>
-        <option value="serif">Serif</option>
-        <option value="monospace">Monospace</option>
-        <option value="Times New Roman">Times New Roman</option>
-      </select>
-    </label>
-    <label>
-      <span>标签距离 (px):</span>
-      <input id="label-distance" type="number" value="15" min="5" step="1">
-    </label>
-    <label>
-      <span>轴标签内容:</span>
-      <input id="axis-labels" type="text" value="PC 1,PC 3,PC 2">
-    </label>
-    <label>
-      <span>轴标签字体大小 (px):</span>
-      <input id="axis-label-font-size" type="number" value="14" min="8" step="1">
-    </label>
-    <label>
-      <span>轴标签字体:</span>
-      <select id="axis-label-font-family">
-        <option value="Arial">Arial</option>
-        <option value="sans-serif">Sans-serif</option>
-        <option value="serif">Serif</option>
-        <option value="monospace">Monospace</option>
-        <option value="Times New Roman">Times New Roman</option>
-      </select>
-    </label>
-    <label>
-      <span>轴标签粗细:</span>
-      <select id="axis-label-font-weight">
-        <option value="normal">Normal</option>
-        <option value="bold" selected>Bold</option>
-        <option value="bolder">Bolder</option>
-        <option value="lighter">Lighter</option>
-      </select>
-    </label>
-    <label>
-      <span>轴标签距离 (px):</span>
-      <input id="axis-label-distance" type="number" value="30" min="10" step="1">
-    </label>
+    <details open>
+      <summary>数据加载</summary>
+      <div class="group-grid">
+        <label><span>上传轨迹CSV:</span> <input type="file" id="file-input" accept=".csv"></label>
+        <label><span>上传散点CSV:</span> <input type="file" id="scatter-file-input" accept=".csv"></label>
+      </div>
+    </details>
 
-    <h3 style="grid-column: 1 / -1; margin-top: 1em; margin-bottom: 0;">标题设置</h3>
-    <label>
-        <span>显示标题:</span>
-        <input id="title-visible" type="checkbox" checked>
-    </label>
-    <label>
-        <span>标题内容:</span>
-        <input id="title-text" type="text" value="My 3D Plot">
-    </label>
-    <label>
-        <span>标题 X 位置 (px):</span>
-        <input id="title-x" type="number" value="350" step="1">
-    </label>
-    <label>
-        <span>标题 Y 位置 (px):</span>
-        <input id="title-y" type="number" value="30" step="1">
-    </label>
-    <label>
-        <span>标题字体大小 (px):</span>
-        <input id="title-font-size" type="number" value="18" min="8" step="1">
-    </label>
-    <label>
-        <span>标题字体:</span>
-        <select id="title-font-family">
+    <details open>
+      <summary>画布与范围</summary>
+      <div class="group-grid">
+        <label><span>X domain:</span> <input id="x-domain" value="-100,100"></label>
+        <label><span>Y domain:</span> <input id="y-domain" value="-100,100"></label>
+        <label><span>Z domain:</span> <input id="z-domain" value="-100,100"></label>
+        <label><span>Canvas width (cm):</span> <input id="canvas-width" type="number" value="8" min="1" step="0.1"></label>
+        <label><span>Canvas height (cm):</span> <input id="canvas-height" type="number" value="8" min="1" step="0.1"></label>
+        <label><span>Margin (cm):</span> <input id="canvas-margin" type="number" value="1.5" min="0" step="0.1"></label>
+      </div>
+    </details>
+
+    <details>
+      <summary>坐标轴与刻度</summary>
+      <div class="group-grid">
+        <label><span>刻度朝向:</span>
+          <select id="tick-direction">
+            <option value="out">朝外</option>
+            <option value="in">朝里</option>
+          </select>
+        </label>
+        <label><span>刻度长度 (px):</span><input id="tick-length-px" type="number" value="10" min="1" step="1"></label>
+        <label><span>坐标轴粗细 (px):</span><input id="axis-width-px" type="number" value="2" min="0.1" step="0.1"></label>
+        <label><span>刻度线粗细 (px):</span><input id="tick-width-px" type="number" value="1" min="0.1" step="0.1"></label>
+        <label><span>网格线粗细 (px):</span><input id="grid-width-px" type="number" value="1" min="0.1" step="0.1"></label>
+        <label><span>X 刻度位置:</span><input id="x-ticks" type="text" value="-100,-50,0,50,100"></label>
+        <label><span>Y 刻度位置:</span><input id="y-ticks" type="text" value="-100,-50,0,50,100"></label>
+        <label><span>Z 刻度位置:</span><input id="z-ticks" type="text" value="-100,-50,0,50,100"></label>
+      </div>
+    </details>
+
+    <details>
+      <summary>刻度标签样式</summary>
+      <div class="group-grid">
+        <label><span>X 刻度标签:</span><input id="x-labels" type="text" value="-1,-0.5,0,0.5,1"></label>
+        <label><span>Y 刻度标签:</span><input id="y-labels" type="text" value="-1,-0.5,0,0.5,1"></label>
+        <label><span>Z 刻度标签:</span><input id="z-labels" type="text" value="-1,-0.5,0,0.5,1"></label>
+        <label><span>标签字体大小 (px):</span><input id="label-font-size" type="number" value="12" min="6" step="1"></label>
+        <label><span>标签字体:</span>
+          <select id="label-font-family">
             <option value="Arial">Arial</option>
-            <option value="sans-serif" selected>Sans-serif</option>
+            <option value="sans-serif">Sans-serif</option>
             <option value="serif">Serif</option>
             <option value="monospace">Monospace</option>
             <option value="Times New Roman">Times New Roman</option>
-        </select>
-    </label>
-    <label style="grid-column: 1 / -1;">
-        <span>标题粗细:</span>
-        <select id="title-font-weight">
+          </select>
+        </label>
+        <label><span>标签距离 (px):</span><input id="label-distance" type="number" value="15" min="5" step="1"></label>
+      </div>
+    </details>
+
+    <details>
+      <summary>轴标签</summary>
+      <div class="group-grid">
+        <label><span>轴标签内容:</span><input id="axis-labels" type="text" value="PC 1,PC 3,PC 2"></label>
+        <label><span>轴标签字体大小 (px):</span><input id="axis-label-font-size" type="number" value="14" min="8" step="1"></label>
+        <label><span>轴标签字体:</span>
+          <select id="axis-label-font-family">
+            <option value="Arial">Arial</option>
+            <option value="sans-serif">Sans-serif</option>
+            <option value="serif">Serif</option>
+            <option value="monospace">Monospace</option>
+            <option value="Times New Roman">Times New Roman</option>
+          </select>
+        </label>
+        <label><span>轴标签粗细:</span>
+          <select id="axis-label-font-weight">
             <option value="normal">Normal</option>
             <option value="bold" selected>Bold</option>
             <option value="bolder">Bolder</option>
             <option value="lighter">Lighter</option>
-        </select>
-    </label>
+          </select>
+        </label>
+        <label><span>轴标签距离 (px):</span><input id="axis-label-distance" type="number" value="30" min="10" step="1"></label>
+      </div>
+    </details>
 
-    <h3 style="grid-column: 1 / -1; margin-top: 1em; margin-bottom: 0;">图标设置</h3>
-    <label>
-        <span>显示图标:</span>
-        <input id="chart-title-visible" type="checkbox" checked>
-    </label>
-    <label>
-        <span>图标内容:</span>
-        <input id="chart-title-text" type="text" value="My 3D Chart">
-    </label>
-    <label>
-        <span>图标 X 位置 (px):</span>
-        <input id="chart-title-x" type="number" value="350" step="1">
-    </label>
-    <label>
-        <span>图标 Y 位置 (px):</span>
-        <input id="chart-title-y" type="number" value="30" step="1">
-    </label>
-    <label>
-        <span>图标字体大小 (px):</span>
-        <input id="chart-title-font-size" type="number" value="18" min="8" step="1">
-    </label>
-    <label>
-        <span>图标字体:</span>
-        <select id="chart-title-font-family">
+    <details>
+      <summary>标题设置</summary>
+      <div class="group-grid">
+        <label><span>显示标题:</span><input id="title-visible" type="checkbox" checked></label>
+        <label><span>标题内容:</span><input id="title-text" type="text" value="My 3D Plot"></label>
+        <label><span>标题 X 位置 (px):</span><input id="title-x" type="number" value="350" step="1"></label>
+        <label><span>标题 Y 位置 (px):</span><input id="title-y" type="number" value="30" step="1"></label>
+        <label><span>标题字体大小 (px):</span><input id="title-font-size" type="number" value="18" min="8" step="1"></label>
+        <label><span>标题字体:</span>
+          <select id="title-font-family">
             <option value="Arial">Arial</option>
             <option value="sans-serif" selected>Sans-serif</option>
             <option value="serif">Serif</option>
             <option value="monospace">Monospace</option>
             <option value="Times New Roman">Times New Roman</option>
-        </select>
-    </label>
-    <label style="grid-column: 1 / -1;">
-        <span>图标粗细:</span>
-        <select id="chart-title-font-weight">
+          </select>
+        </label>
+        <label style="grid-column: 1 / -1;">
+          <span>标题粗细:</span>
+          <select id="title-font-weight">
             <option value="normal">Normal</option>
             <option value="bold" selected>Bold</option>
             <option value="bolder">Bolder</option>
             <option value="lighter">Lighter</option>
-        </select>
-    </label>
+          </select>
+        </label>
+      </div>
+    </details>
 
-    <h3 style="grid-column: 1 / -1; margin-top: 1em; margin-bottom: 0;">图例设置</h3>
-    <label>
-        <span>图例 X 位置 (px):</span>
-        <input id="legend-x" type="number" value="20" step="1">
-    </label>
-    <label>
-        <span>图例 Y 位置 (px):</span>
-        <input id="legend-y" type="number" value="20" step="1">
-    </label>
-    <label>
-        <span>图例字体大小 (px):</span>
-        <input id="legend-font-size" type="number" value="12" min="6" step="1">
-    </label>
-    <label>
-        <span>图例字体:</span>
-        <select id="legend-font-family">
+    <details>
+      <summary>图标设置</summary>
+      <div class="group-grid">
+        <label><span>显示图标:</span><input id="chart-title-visible" type="checkbox" checked></label>
+        <label><span>图标内容:</span><input id="chart-title-text" type="text" value="My 3D Chart"></label>
+        <label><span>图标 X 位置 (px):</span><input id="chart-title-x" type="number" value="350" step="1"></label>
+        <label><span>图标 Y 位置 (px):</span><input id="chart-title-y" type="number" value="30" step="1"></label>
+        <label><span>图标字体大小 (px):</span><input id="chart-title-font-size" type="number" value="18" min="8" step="1"></label>
+        <label><span>图标字体:</span>
+          <select id="chart-title-font-family">
             <option value="Arial">Arial</option>
             <option value="sans-serif" selected>Sans-serif</option>
             <option value="serif">Serif</option>
             <option value="monospace">Monospace</option>
             <option value="Times New Roman">Times New Roman</option>
-        </select>
-    </label>
+          </select>
+        </label>
+        <label style="grid-column: 1 / -1;">
+          <span>图标粗细:</span>
+          <select id="chart-title-font-weight">
+            <option value="normal">Normal</option>
+            <option value="bold" selected>Bold</option>
+            <option value="bolder">Bolder</option>
+            <option value="lighter">Lighter</option>
+          </select>
+        </label>
+      </div>
+    </details>
 
-    <button id="update">Update Axes</button>
-    <button id="save-svg" style="grid-column: 1 / -1; margin-top: 1em;">保存为 SVG</button>
+    <details>
+      <summary>图例设置</summary>
+      <div class="group-grid">
+        <label><span>图例 X 位置 (px):</span><input id="legend-x" type="number" value="20" step="1"></label>
+        <label><span>图例 Y 位置 (px):</span><input id="legend-y" type="number" value="20" step="1"></label>
+        <label><span>图例字体大小 (px):</span><input id="legend-font-size" type="number" value="12" min="6" step="1"></label>
+        <label><span>图例字体:</span>
+          <select id="legend-font-family">
+              <option value="Arial">Arial</option>
+              <option value="sans-serif" selected>Sans-serif</option>
+              <option value="serif">Serif</option>
+              <option value="monospace">Monospace</option>
+              <option value="Times New Roman">Times New Roman</option>
+          </select>
+        </label>
+      </div>
+    </details>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="update">Update Axes</button>
+      <button id="save-svg">保存为 SVG</button>
+    </div>
   </div>
 
   <!-- 轨迹控制面板容器 -->

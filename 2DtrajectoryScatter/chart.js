@@ -883,3 +883,272 @@ document.getElementById("save-svg-btn").addEventListener("click", function () {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 });
+
+// =========================
+// Save/Load parameters (JSON)
+// =========================
+
+function collectAllInputsUnder(root) {
+  const map = {};
+  root.querySelectorAll('input[id], select[id], textarea[id]').forEach(el => {
+    const id = el.id;
+    if (!id) return;
+    if (el.type === 'checkbox') {
+      map[id] = !!el.checked;
+    } else if (el.type === 'number') {
+      const v = el.value;
+      map[id] = v === '' ? null : Number(v);
+    } else {
+      map[id] = el.value;
+    }
+  });
+  return map;
+}
+
+function collectSeriesState2D() {
+  return seriesList.map(s => {
+    const c = s.control;
+    return {
+      options: {
+        lineColor: c?.querySelector('.line-color')?.value || '#ff0000',
+        lineThickness: Number(c?.querySelector('.line-thickness')?.value || 2),
+        showShadow: !!c?.querySelector('.show-shadow')?.checked,
+        shadowColor: c?.querySelector('.shadow-color')?.value || '#FF5C5C',
+        shadowOpacity: Number(c?.querySelector('.shadow-opacity')?.value || 0.3),
+        description: c?.querySelector('.series-description')?.value || ''
+      },
+      data: s.data || []
+    };
+  });
+}
+
+function collectLinesState() {
+  return linesList.map(item => {
+    const c = item.control;
+    return {
+      type: c.querySelector('.line-type')?.value || 'vertical',
+      coordinateX: Number(c.querySelector('.line-coordinate-x')?.value || 0),
+      coordinateY: Number(c.querySelector('.line-coordinate-y')?.value || 0),
+      color: c.querySelector('.line-color')?.value || '#000000',
+      thickness: Number(c.querySelector('.line-thickness')?.value || 1),
+      style: c.querySelector('.line-style')?.value || 'solid',
+      length: Number(c.querySelector('.line-length')?.value || 100)
+    };
+  });
+}
+
+function collectTextsState() {
+  return textList.map(item => {
+    const c = item.control;
+    return {
+      text: c.querySelector('.text-string')?.value || '',
+      x: Number(c.querySelector('.text-coordinate-x')?.value || 0),
+      y: Number(c.querySelector('.text-coordinate-y')?.value || 0),
+      fontSize: Number(c.querySelector('.text-font-size')?.value || 16),
+      fontFamily: c.querySelector('.text-font-family')?.value || 'Arial',
+      fontColor: c.querySelector('.text-font-color')?.value || '#000000',
+      fontWeight: c.querySelector('.text-bold')?.value || 'normal',
+      orientation: c.querySelector('.text-orientation')?.value || 'horizontal'
+    };
+  });
+}
+
+function collectAreasState() {
+  return areasList.map(area => {
+    const c = area.control;
+    return {
+      options: {
+        color: c.querySelector('.area-color')?.value || '#cce5df',
+        opacity: Number(c.querySelector('.area-opacity')?.value || 0.5),
+        orientation: c.querySelector('.area-orientation')?.value || 'horizontal'
+      },
+      data: area.data || []
+    };
+  });
+}
+
+function collectScattersState() {
+  return scatterList.map(sc => {
+    const c = sc.control;
+    return {
+      options: {
+        color: c.querySelector('.scatter-color')?.value || '#ff0000',
+        size: Number(c.querySelector('.scatter-size')?.value || 5),
+        shape: c.querySelector('.scatter-shape')?.value || 'circle',
+        opacity: Number(c.querySelector('.scatter-opacity')?.value || 0.8),
+        description: c.querySelector('.scatter-description')?.value || ''
+      },
+      data: sc.data || []
+    };
+  });
+}
+
+function collectState2D() {
+  const controlsRoot = document.getElementById('control-panel');
+  const controls = collectAllInputsUnder(controlsRoot);
+  return {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    controls,
+    series: collectSeriesState2D(),
+    lines: collectLinesState(),
+    texts: collectTextsState(),
+    areas: collectAreasState(),
+    scatters: collectScattersState()
+  };
+}
+
+function applyInputs2D(controlsMap) {
+  if (!controlsMap) return;
+  Object.keys(controlsMap).forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = controlsMap[id];
+    if (el.type === 'checkbox') {
+      el.checked = !!val;
+    } else {
+      el.value = val;
+    }
+  });
+}
+
+function clearUILists() {
+  // reset arrays
+  seriesList = [];
+  linesList = [];
+  textList = [];
+  areasList = [];
+  scatterList = [];
+  // clear containers
+  const ids = ['series-controls', 'line-controls', 'text-controls', 'area-controls', 'scatter-controls'];
+  ids.forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ''; });
+}
+
+function rebuildFromState2D(state) {
+  if (!state) return;
+  applyInputs2D(state.controls);
+
+  clearUILists();
+
+  // series
+  (state.series || []).forEach(s => {
+    const seriesControl = createSeriesControl(seriesList.length);
+    if (s.options) {
+      seriesControl.querySelector('.line-color').value = s.options.lineColor || '#ff0000';
+      seriesControl.querySelector('.line-thickness').value = s.options.lineThickness ?? 2;
+      seriesControl.querySelector('.show-shadow').checked = !!s.options.showShadow;
+      seriesControl.querySelector('.shadow-color').value = s.options.shadowColor || '#FF5C5C';
+      seriesControl.querySelector('.shadow-opacity').value = s.options.shadowOpacity ?? 0.3;
+      const sd = seriesControl.querySelector('.series-description');
+      if (sd) sd.value = s.options.description || '';
+    }
+    seriesList.push({ data: s.data || [], control: seriesControl });
+    document.getElementById('series-controls').appendChild(seriesControl);
+  });
+
+  // lines
+  (state.lines || []).forEach(ln => {
+    const control = createLineControl(linesList.length);
+    control.querySelector('.line-type').value = ln.type ?? 'vertical';
+    control.querySelector('.line-coordinate-x').value = ln.coordinateX ?? 0;
+    control.querySelector('.line-coordinate-y').value = ln.coordinateY ?? 0;
+    control.querySelector('.line-color').value = ln.color ?? '#000000';
+    control.querySelector('.line-thickness').value = ln.thickness ?? 1;
+    control.querySelector('.line-style').value = ln.style ?? 'solid';
+    control.querySelector('.line-length').value = ln.length ?? 100;
+    linesList.push({ control });
+    document.getElementById('line-controls').appendChild(control);
+  });
+
+  // texts
+  (state.texts || []).forEach(tx => {
+    const control = createTextControl(textList.length);
+    control.querySelector('.text-string').value = tx.text || '';
+    control.querySelector('.text-coordinate-x').value = tx.x ?? 0;
+    control.querySelector('.text-coordinate-y').value = tx.y ?? 0;
+    control.querySelector('.text-font-size').value = tx.fontSize ?? 16;
+    control.querySelector('.text-font-family').value = tx.fontFamily ?? 'Arial';
+    control.querySelector('.text-font-color').value = tx.fontColor ?? '#000000';
+    control.querySelector('.text-bold').value = tx.fontWeight ?? 'normal';
+    control.querySelector('.text-orientation').value = tx.orientation ?? 'horizontal';
+    textList.push({ control });
+    document.getElementById('text-controls').appendChild(control);
+  });
+
+  // areas
+  (state.areas || []).forEach(ar => {
+    const areaObj = createAreaControl(areasList.length);
+    if (ar.options) {
+      areaObj.control.querySelector('.area-color').value = ar.options.color ?? '#cce5df';
+      areaObj.control.querySelector('.area-opacity').value = ar.options.opacity ?? 0.5;
+      areaObj.control.querySelector('.area-orientation').value = ar.options.orientation ?? 'horizontal';
+    }
+    areaObj.data = ar.data || null;
+    areasList.push(areaObj);
+    document.getElementById('area-controls').appendChild(areaObj.control);
+  });
+
+  // scatters
+  (state.scatters || []).forEach(sc => {
+    const scatterObj = createScatterControl(scatterList.length);
+    if (sc.options) {
+      scatterObj.control.querySelector('.scatter-color').value = sc.options.color || '#ff0000';
+      scatterObj.control.querySelector('.scatter-size').value = sc.options.size ?? 5;
+      scatterObj.control.querySelector('.scatter-shape').value = sc.options.shape || 'circle';
+      scatterObj.control.querySelector('.scatter-opacity').value = sc.options.opacity ?? 0.8;
+      const sd = scatterObj.control.querySelector('.scatter-description');
+      if (sd) sd.value = sc.options.description || '';
+    }
+    scatterObj.data = sc.data || null;
+    scatterList.push(scatterObj);
+    document.getElementById('scatter-controls').appendChild(scatterObj.control);
+  });
+
+  // Render with the rebuilt state
+  createChart();
+}
+
+function downloadJSON2D(obj, fileName) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('save-params')?.addEventListener('click', () => {
+  const state = collectState2D();
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  downloadJSON2D(state, `scatter2d_params_${ts}.json`);
+});
+
+document.getElementById('load-params-btn')?.addEventListener('click', () => {
+  document.getElementById('load-params-file')?.click();
+});
+
+document.getElementById('load-params-file')?.addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    let obj = null;
+    try {
+      obj = JSON.parse(ev.target.result);
+    } catch (parseErr) {
+      console.error('JSON parse error:', parseErr);
+      alert('Invalid JSON file.');
+      e.target.value = '';
+      return;
+    }
+    try {
+      rebuildFromState2D(obj);
+    } catch (applyErr) {
+      console.error('Error applying loaded params:', applyErr);
+    } finally {
+      e.target.value = '';
+    }
+  };
+  reader.readAsText(file);
+});
