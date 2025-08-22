@@ -7,15 +7,55 @@ let projection = { alpha: Math.PI/6, beta: Math.PI/6 }; // 初始旋转角
 // 单位换算：1cm = 37.8px (标准96dpi)
 const PX_PER_CM = 96 / 2.54;
 
-// 支持动态画布和margin（单位cm）
+// 支持动态画布和 margin（单位cm）+ 保护
 function getCanvasSize() {
-  const w_cm = parseFloat(document.getElementById("canvas-width")?.value) || 18.5;
-  const h_cm = parseFloat(document.getElementById("canvas-height")?.value) || 15.9;
-  return { width: w_cm * PX_PER_CM, height: h_cm * PX_PER_CM };
+  const MIN_CM = 2; // 防止被设成极小
+  let w_cm = parseFloat(document.getElementById("canvas-width")?.value);
+  let h_cm = parseFloat(document.getElementById("canvas-height")?.value);
+  if (!isFinite(w_cm) || w_cm < MIN_CM) w_cm = 8;
+  if (!isFinite(h_cm) || h_cm < MIN_CM) h_cm = 8;
+  return { width: w_cm * PX_PER_CM, height: h_cm * PX_PER_CM, w_cm, h_cm };
 }
-function getMargin() {
-  const m_cm = parseFloat(document.getElementById("canvas-margin")?.value) || 1.5;
-  return m_cm * PX_PER_CM;
+
+// 兼容：如果只有旧的 canvas-margin 则四个方向一样；如果有四个则分别读取
+function getMargins() {
+  const single = document.getElementById("canvas-margin");
+  if (single) {
+    const m = parseFloat(single.value);
+    const val = (isFinite(m) ? m : 1.5) * PX_PER_CM;
+    return { top: val, right: val, bottom: val, left: val };
+  }
+  function gv(id, d=1.5){
+    const v = parseFloat(document.getElementById(id)?.value);
+    return (isFinite(v)? v : d) * PX_PER_CM;
+  }
+  return {
+    top: gv('margin-top'),
+    right: gv('margin-right'),
+    bottom: gv('margin-bottom'),
+    left: gv('margin-left')
+  };
+}
+
+function clampMargins(margins, width, height){
+  // 确保绘图区至少 40x40 像素
+  const MIN_AREA_SIDE = 40;
+  const maxLeft = width/2 - MIN_AREA_SIDE/2;
+  const maxRight = maxLeft;
+  const maxTop = height/2 - MIN_AREA_SIDE/2;
+  const maxBottom = maxTop;
+  margins.left = Math.min(margins.left, maxLeft);
+  margins.right = Math.min(margins.right, maxRight);
+  margins.top = Math.min(margins.top, maxTop);
+  margins.bottom = Math.min(margins.bottom, maxBottom);
+  return margins;
+}
+
+function sanitizeDomain(str, fallback=[-100,100]){
+  if (!str) return fallback.slice();
+  const parts = String(str).split(',').map(s=>parseFloat(s));
+  if (parts.length<2 || !isFinite(parts[0]) || !isFinite(parts[1]) || parts[0]===parts[1]) return fallback.slice();
+  return parts;
 }
 
 function resizeSVG() {
@@ -39,16 +79,17 @@ function project3d(x, y, z) {
 }
 
 function draw() {
-  // 动态获取画布和margin
+  // 动态获取画布和 margin
   const { width, height } = getCanvasSize();
-  const margin = getMargin();
+  let margins = getMargins();
+  margins = clampMargins(margins, width, height);
   resizeSVG();
   g.selectAll("*").remove();
 
   // 读domain
-  const xdom = document.getElementById("x-domain").value.split(",").map(Number);
-  const ydom = document.getElementById("y-domain").value.split(",").map(Number);
-  const zdom = document.getElementById("z-domain").value.split(",").map(Number);
+  const xdom = sanitizeDomain(document.getElementById("x-domain")?.value);
+  const ydom = sanitizeDomain(document.getElementById("y-domain")?.value);
+  const zdom = sanitizeDomain(document.getElementById("z-domain")?.value);
 
   // 3D→2D投影后做缩放
   const corners = [
@@ -58,8 +99,10 @@ function draw() {
     project3d(xdom[0], ydom[0], zdom[1])  // z轴终点
   ];
   const xs = corners.map(d=>d[0]), ys = corners.map(d=>d[1]);
-  const xScale = d3.scaleLinear().domain([d3.min(xs), d3.max(xs)]).range([-width/2+margin, width/2-margin]);
-  const yScale = d3.scaleLinear().domain([d3.min(ys), d3.max(ys)]).range([height/2-margin, -height/2+margin]);
+  const xScale = d3.scaleLinear().domain([d3.min(xs), d3.max(xs)])
+    .range([-width/2 + margins.left, width/2 - margins.right]);
+  const yScale = d3.scaleLinear().domain([d3.min(ys), d3.max(ys)])
+    .range([height/2 - margins.bottom, -height/2 + margins.top]);
 
   // 读取粗细参数（px），不改方向逻辑
   const axisWidth = parseFloat(document.getElementById("axis-width-px")?.value) || 2;
@@ -288,9 +331,10 @@ function draw() {
         .attr("d", d3.line()(lineData))
         .attr("stroke", tColor)
         .attr("stroke-width", tWidth)
-        .attr("stroke-dasharray", strokeDasharray);
-        //.attr("fill", "none")
-        //.attr("opacity", 0.7);
+        .attr("stroke-dasharray", strokeDasharray)
+        .attr("fill", "none")
+        .attr("pointer-events", "none")
+        .attr("opacity", 0.85);
     });
   });
 
@@ -731,7 +775,11 @@ document.getElementById("canvas-width")?.addEventListener("change", draw);
 document.getElementById("canvas-height")?.addEventListener("change", draw);
 
 // 新增：监听margin输入
+// 监听 margin（兼容旧版本）
 document.getElementById("canvas-margin")?.addEventListener("change", draw);
+["margin-top","margin-right","margin-bottom","margin-left"].forEach(id =>
+  document.getElementById(id)?.addEventListener("change", draw)
+);
 
 // 让新的输入也能触发重绘
 document.getElementById("tick-length-px")?.addEventListener("change", draw);
@@ -818,6 +866,18 @@ function applyAllParams(state) {
       if (!el) return;
       if (el.type === 'checkbox') el.checked = !!val; else el.value = val;
     });
+    // 迁移：如果当前页面存在四个 margin 输入但加载文件只有单一 canvas-margin（或反之）
+    const hasFour = document.getElementById('margin-top');
+    const single = document.getElementById('canvas-margin');
+    if (hasFour && single && state.controls['canvas-margin']) {
+      // 用单值填充四方向（如果四方向本身没在 state.controls 里）
+      ['margin-top','margin-right','margin-bottom','margin-left'].forEach(id=>{
+        if (!state.controls[id]) {
+          const el2 = document.getElementById(id);
+          if (el2) el2.value = state.controls['canvas-margin'];
+        }
+      });
+    }
   }
   // 数据结构
   trajGroups = (state.trajGroups||[]).map(g => ({
