@@ -780,3 +780,104 @@ document.getElementById("save-svg").addEventListener("click", () => {
 
 // 初始化
 draw();
+
+// ================= 参数保存 & 加载 =================
+function collectAllParams() {
+  const controls = {};
+  document.querySelectorAll('#ui-panel input, #ui-panel select, #ui-panel textarea').forEach(el => {
+    if (!el.id) return;
+    if (el.type === 'checkbox') controls[el.id] = el.checked; else controls[el.id] = el.value;
+  });
+  // 深拷贝（避免后续修改影响保存的对象）
+  const trajCopy = trajGroups.map(g => ({
+    ...g,
+    trajectories: g.trajectories.map(t => ({ ...t, points: (t.points||[]).map(p => ({...p})) }))
+  }));
+  const scatterCopy = scatterGroups.map(g => ({
+    ...g,
+    points: g.points.map(p => ({...p}))
+  }));
+  return {
+    version: 1,
+    timestamp: Date.now(),
+    controls,
+    trajGroups: trajCopy,
+    groupCounter,
+    scatterGroups: scatterCopy,
+    scatterGroupCounter,
+    projection
+  };
+}
+
+function applyAllParams(state) {
+  if (!state) return;
+  // 控件
+  if (state.controls) {
+    Object.entries(state.controls).forEach(([id,val]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.type === 'checkbox') el.checked = !!val; else el.value = val;
+    });
+  }
+  // 数据结构
+  trajGroups = (state.trajGroups||[]).map(g => ({
+    ...g,
+    trajectories: (g.trajectories||[]).map(t => ({...t, points: (t.points||[]).map(p=>({...p})) }))
+  }));
+  groupCounter = state.groupCounter || trajGroups.length;
+  scatterGroups = (state.scatterGroups||[]).map(g => ({...g, points: (g.points||[]).map(p=>({...p})) }));
+  scatterGroupCounter = state.scatterGroupCounter || scatterGroups.length;
+  projection = state.projection || projection;
+
+  // 重建UI
+  const trajContainer = document.getElementById('trajectory-panels');
+  if (trajContainer) {
+    trajContainer.innerHTML = '<h3>轨迹控制面板</h3>';
+    trajGroups.forEach(createTrajectoryPanel);
+  }
+  const scatterContainer = document.getElementById('scatter-panels');
+  if (scatterContainer) {
+    scatterContainer.innerHTML = '<h3>散点图控制面板</h3>';
+    scatterGroups.forEach(createScatterPanel);
+  }
+  draw();
+}
+
+// 绑定按钮
+document.getElementById('save-params')?.addEventListener('click', () => {
+  const state = collectAllParams();
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '3Dtrajectory_params.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+document.getElementById('load-params-btn')?.addEventListener('click', () => {
+  document.getElementById('load-params-file')?.click();
+});
+
+document.getElementById('load-params-file')?.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    let parsed;
+    try {
+      parsed = JSON.parse(evt.target.result);
+    } catch (err) {
+      alert('JSON 解析失败');
+      return;
+    }
+    try {
+      applyAllParams(parsed);
+    } catch (err) {
+      console.error(err);
+      alert('参数应用时出错');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
