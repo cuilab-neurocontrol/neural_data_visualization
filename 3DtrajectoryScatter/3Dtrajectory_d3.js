@@ -370,58 +370,50 @@ function draw() {
     });
   });
 
-  // 6. 画图例
-  // 读取图例设置
-  const legendX = parseFloat(document.getElementById("legend-x").value);
-  const legendY = parseFloat(document.getElementById("legend-y").value);
-  const legendFontSize = parseFloat(document.getElementById("legend-font-size").value);
-  const legendFontFamily = document.getElementById("legend-font-family").value;
-
-  // 计算相对于中心g的坐标
-  const legendTranslateX = legendX - width / 2;
-  const legendTranslateY = legendY - height / 2;
-
-  const legend = g.append("g")
-    .attr("class", "legend")
-    .attr("transform", `translate(${legendTranslateX}, ${legendTranslateY})`);
-
-  let legendYOffset = 0;
-  scatterGroups.forEach((group, i) => {
-    if (!group.visible) return;
-
-    const legendItem = legend.append("g")
-      .attr("transform", `translate(0, ${legendYOffset})`);
-    
-    // Also draw the correct symbol in the legend
-    const symbolTypes = {
-      'circle': d3.symbolCircle,
-      'cross': d3.symbolCross,
-      'diamond': d3.symbolDiamond,
-      'square': d3.symbolSquare,
-      'star': d3.symbolStar,
-      'triangle': d3.symbolTriangle,
-      'wye': d3.symbolWye
-    };
-    const legendSymbol = d3.symbol()
-      .type(symbolTypes[group.shape] || d3.symbolCircle)
-      .size(100); // A fixed size for the legend
-
-    legendItem.append("path")
-      .attr("d", legendSymbol)
-      .attr("transform", `translate(8, 8)`) // Center the symbol in a 15x15 area
-      .attr("fill", group.color)
-      .attr("stroke", "none"); // 同样移除图例中符号的边框
-      
-    legendItem.append("text")
-      .attr("x", 20)
-      .attr("y", 12)
-      .text(group.name)
-      .style("font-size", `${legendFontSize}px`) // 应用字体大小
-      .style("font-family", legendFontFamily) // 应用字体
-      .attr("alignment-baseline", "middle");
-      
-    legendYOffset += (legendFontSize + 8); // 根据字体大小动态调整行间距
-  });
+  // 6. 画图例（可隐藏）
+  const legendVisible = document.getElementById("legend-visible")?.checked;
+  if (legendVisible) {
+    const legendX = parseFloat(document.getElementById("legend-x").value);
+    const legendY = parseFloat(document.getElementById("legend-y").value);
+    const legendFontSize = parseFloat(document.getElementById("legend-font-size").value);
+    const legendFontFamily = document.getElementById("legend-font-family").value;
+    const legendTranslateX = legendX - width / 2;
+    const legendTranslateY = legendY - height / 2;
+    const legend = g.append("g")
+      .attr("class", "legend")
+      .attr("transform", `translate(${legendTranslateX}, ${legendTranslateY})`);
+    let legendYOffset = 0;
+    scatterGroups.forEach(group => {
+      if (!group.visible) return;
+      const legendItem = legend.append("g")
+        .attr("transform", `translate(0, ${legendYOffset})`);
+      const symbolTypes = {
+        'circle': d3.symbolCircle,
+        'cross': d3.symbolCross,
+        'diamond': d3.symbolDiamond,
+        'square': d3.symbolSquare,
+        'star': d3.symbolStar,
+        'triangle': d3.symbolTriangle,
+        'wye': d3.symbolWye
+      };
+      const legendSymbol = d3.symbol()
+        .type(symbolTypes[group.shape] || d3.symbolCircle)
+        .size(100);
+      legendItem.append("path")
+        .attr("d", legendSymbol)
+        .attr("transform", `translate(8, 8)`)
+        .attr("fill", group.color)
+        .attr("stroke", "none");
+      legendItem.append("text")
+        .attr("x", 20)
+        .attr("y", 12)
+        .text(group.name)
+        .style("font-size", `${legendFontSize}px`)
+        .style("font-family", legendFontFamily)
+        .attr("alignment-baseline", "middle");
+      legendYOffset += (legendFontSize + 8);
+    });
+  }
 
   // 7. 画图标
   const chartTitleVisible = document.getElementById("chart-title-visible").checked;
@@ -794,7 +786,7 @@ document.getElementById("update")?.addEventListener("click", draw);
 ["x-ticks","y-ticks","z-ticks","x-labels","y-labels","z-labels",
  "label-font-size","label-font-family","label-distance",
  "axis-labels","axis-label-font-size","axis-label-font-family","axis-label-font-weight","axis-label-distance",
- "legend-x", "legend-y", "legend-font-size", "legend-font-family",
+ "legend-visible", "legend-x", "legend-y", "legend-font-size", "legend-font-family",
  "chart-title-visible", "chart-title-text", "chart-title-x", "chart-title-y", "chart-title-font-size", "chart-title-font-family", "chart-title-font-weight"].forEach(id => // 添加新控件ID
   document.getElementById(id)?.addEventListener("change", draw)
 );
