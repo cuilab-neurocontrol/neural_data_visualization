@@ -69,6 +69,54 @@ function resizeSVG() {
 const svg = d3.select("#svg");
 const g = svg.append("g");
 
+// ==== 颜色输入辅助函数 ====
+function normalizeHex(v){
+  if(!v) return null;
+  v = v.trim();
+  if(!v) return null;
+  if(v[0] !== '#') v = '#' + v;
+  // 允许 #rgb / #rgba / #rrggbb / #rrggbbaa
+  const re = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+  if(!re.test(v)) return null;
+  // 转成小写统一
+  return v.toLowerCase();
+}
+function handleGroupColor(input, groupId){
+  const val = input.value;
+  updateGroup(groupId,'color',val);
+  // 同步旁边文本框
+  const hex = input.parentElement.querySelector('.color-hex');
+  if(hex) hex.value = val;
+}
+function handleScatterColor(input, groupId){
+  const val = input.value;
+  updateScatterGroup(groupId,'color',val);
+  const hex = input.parentElement.querySelector('.color-hex');
+  if(hex) hex.value = val;
+}
+function applyColorHex(el,type,groupId,trajId){
+  const norm = normalizeHex(el.value);
+  if(!norm){
+    // 恢复为当前 color input 的值
+    const colorInput = el.parentElement.querySelector('input[type=color]');
+    if(colorInput) el.value = colorInput.value; 
+    return;
+  }
+  el.value = norm;
+  const colorInput = el.parentElement.querySelector('input[type=color]');
+  if(colorInput) colorInput.value = norm;
+  if(type==='group') updateGroup(groupId,'color',norm);
+  else if(type==='scatter') updateScatterGroup(groupId,'color',norm);
+  else if(type==='traj') updateTrajectory(groupId,trajId,'color',norm);
+}
+function copyColorHex(btn){
+  const wrap = btn.parentElement;
+  const hex = wrap.querySelector('.color-hex');
+  if(!hex) return;
+  hex.select();
+  try{ document.execCommand('copy'); btn.textContent='已复制'; setTimeout(()=>btn.textContent='复制',1200);}catch(e){}
+}
+
 // 伪3D投影
 function project3d(x, y, z) {
   const { alpha, beta } = projection;
@@ -486,8 +534,10 @@ function createTrajectoryPanel(group) {
       </label>
       <label>
         <span>颜色:</span>
-        <input type="color" value="${group.color}" 
-               onchange="updateGroup(${group.id}, 'color', this.value)">
+        <input type="color" value="${group.color}" onchange="handleGroupColor(this, ${group.id})">
+        <input type="text" class="color-hex" value="${group.color}" maxlength="9" style="width:80px;" 
+               onblur="applyColorHex(this,'group',${group.id})" onkeydown="if(event.key==='Enter'){this.blur();}">
+        <button type="button" class="copy-btn" onclick="copyColorHex(this)" title="复制色号">复制</button>
       </label>
       <label>
         <span>线型:</span>
@@ -569,8 +619,28 @@ function renderSubTrajectoryControls(group) {
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
     colorInput.value = resolvedColor || '#000000';
-    colorInput.addEventListener('change', () => updateTrajectory(group.id, traj.id, 'color', colorInput.value));
+    colorInput.addEventListener('change', () => {
+      updateTrajectory(group.id, traj.id, 'color', colorInput.value);
+      const t = colorLabel.querySelector('.color-hex');
+      if (t) t.value = colorInput.value;
+    });
+    const hexInput = document.createElement('input');
+    hexInput.type = 'text';
+    hexInput.className = 'color-hex';
+    hexInput.style.width = '80px';
+    hexInput.maxLength = 9;
+    hexInput.value = colorInput.value;
+    hexInput.addEventListener('blur', () => applyColorHex(hexInput,'traj',group.id,traj.id));
+    hexInput.addEventListener('keydown', e => { if(e.key==='Enter'){ hexInput.blur(); }});
+    const copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'copy-btn';
+    copyBtn.textContent = '复制';
+    copyBtn.title = '复制色号';
+    copyBtn.addEventListener('click', () => copyColorHex(copyBtn));
     colorLabel.appendChild(colorInput);
+    colorLabel.appendChild(hexInput);
+    colorLabel.appendChild(copyBtn);
 
     const styleLabel = document.createElement('label');
     styleLabel.innerHTML = `<span>线型:</span>`;
@@ -648,8 +718,10 @@ function createScatterPanel(group) {
       </label>
       <label>
         <span>颜色:</span>
-        <input type="color" value="${group.color}" 
-               onchange="updateScatterGroup(${group.id}, 'color', this.value)">
+        <input type="color" value="${group.color}" onchange="handleScatterColor(this, ${group.id})">
+        <input type="text" class="color-hex" value="${group.color}" maxlength="9" style="width:80px;" 
+               onblur="applyColorHex(this,'scatter',${group.id})" onkeydown="if(event.key==='Enter'){this.blur();}">
+        <button type="button" class="copy-btn" onclick="copyColorHex(this)" title="复制色号">复制</button>
       </label>
       <label>
         <span>点形状:</span>
