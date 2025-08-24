@@ -234,6 +234,7 @@ window.removeAnnotation = removeAnnotation;
 function createChart() {
   const plotType = document.getElementById('plot-type')?.value || 'violin';
   const showCI = document.getElementById('show-ci-lines')?.checked;
+  const ciLineWidth = parseFloat(document.getElementById('ci-line-width')?.value) || 1;
   // --- 新增：直接读取用户输入的 X/Y 标签距离（px） ---
   const xLabelDistancePx = parseFloat(
     document.getElementById("x-label-distance-px")?.value
@@ -734,28 +735,15 @@ function createChart() {
           let ciHigh = rows[0].ci_high !== undefined ? +rows[0].ci_high : null;
           if (ciLow == null || ciHigh == null || isNaN(ciLow) || isNaN(ciHigh)) return;
           const centerX = xSeries(`series${seriesIdx}`) + xGroup(group.key) + xGroup.bandwidth()/2 + axisMargin.x;
-          const cap = xGroup.bandwidth()*0.4;
+          // 单根竖线表示CI
           svg.append('line')
             .attr('x1', centerX)
             .attr('x2', centerX)
             .attr('y1', y(ciLow))
             .attr('y2', y(ciHigh))
             .attr('stroke', '#000')
-            .attr('stroke-width', 1);
-          svg.append('line')
-            .attr('x1', centerX - cap/2)
-            .attr('x2', centerX + cap/2)
-            .attr('y1', y(ciLow))
-            .attr('y2', y(ciLow))
-            .attr('stroke', '#000')
-            .attr('stroke-width', 1);
-          svg.append('line')
-            .attr('x1', centerX - cap/2)
-            .attr('x2', centerX + cap/2)
-            .attr('y1', y(ciHigh))
-            .attr('y2', y(ciHigh))
-            .attr('stroke', '#000')
-            .attr('stroke-width', 1);
+            .attr('stroke-width', ciLineWidth)
+            .attr('stroke-linecap', 'round');
         });
       }
       
