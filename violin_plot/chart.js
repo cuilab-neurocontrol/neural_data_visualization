@@ -58,6 +58,17 @@ function createSeriesControl(index, groupNames) {
       const color = ["#FF5C5C", "#5CFF5C", "#5C5CFF", "#FFD700", "#FF69B4"][i % 5];
 
       // 阴影和线的控制项
+      // 新增：该分组一键统一颜色行
+      const unifyRow = document.createElement("div");
+      unifyRow.className = "control-row";
+      unifyRow.innerHTML = `
+        <label>${name} 一键颜色:</label>
+        <input type="color" class="unify-color-group" data-group="${name}" value="${color}" style="width:55px;">
+        <button type="button" class="apply-unify-color-group" data-group="${name}" style="margin-left:4px;">全部应用</button>
+        <span style="font-size:10px;opacity:0.6;">(Shadow/Line/Box/Dot)</span>
+      `;
+      div.appendChild(unifyRow);
+
       const row1 = document.createElement("div");
       row1.className = "control-row";
       row1.innerHTML = `
@@ -93,6 +104,17 @@ function createSeriesControl(index, groupNames) {
         <input type="number" class="dot-opacity-group" data-group="${name}" value="0.5" min="0" max="1" step="0.05" style="width:40px;">
       `;
       div.appendChild(row2);
+
+      // 事件：点击分组统一颜色按钮 -> 四类颜色同步
+      unifyRow.querySelector('.apply-unify-color-group').addEventListener('click', () => {
+        const unified = unifyRow.querySelector('.unify-color-group')?.value;
+        if (!unified) return;
+        const sel = `[data-group="${name}"]`;
+        div.querySelectorAll(`.shadow-color-group${sel}, .line-color-group${sel}, .box-line-color-group${sel}, .dot-color-group${sel}`).forEach(inp => {
+          inp.value = unified;
+        });
+        createChart();
+      });
     });
   }
 
