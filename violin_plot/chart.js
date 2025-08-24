@@ -69,6 +69,17 @@ function createSeriesControl(index, groupNames) {
       `;
       div.appendChild(unifyRow);
 
+      // 新增：该分组一键尺寸行（同步 Box Line Width / Line Width / Dot Size）
+      const unifySizeRow = document.createElement("div");
+      unifySizeRow.className = "control-row";
+      unifySizeRow.innerHTML = `
+        <label>${name} 一键尺寸:</label>
+        <input type="number" class="unify-size-group" data-group="${name}" value="1" min="0.5" step="0.5" style="width:55px;">
+        <button type="button" class="apply-unify-size-group" data-group="${name}" style="margin-left:4px;">全部应用</button>
+        <span style="font-size:10px;opacity:0.6;">(Box/Line/Dot)</span>
+      `;
+      div.appendChild(unifySizeRow);
+
       const row1 = document.createElement("div");
       row1.className = "control-row";
       row1.innerHTML = `
@@ -113,6 +124,21 @@ function createSeriesControl(index, groupNames) {
         div.querySelectorAll(`.shadow-color-group${sel}, .line-color-group${sel}, .box-line-color-group${sel}, .dot-color-group${sel}`).forEach(inp => {
           inp.value = unified;
         });
+        createChart();
+      });
+
+      // 事件：点击分组统一尺寸按钮 -> 三类数值同步
+      unifySizeRow.querySelector('.apply-unify-size-group').addEventListener('click', () => {
+        const valStr = unifySizeRow.querySelector('.unify-size-group')?.value;
+        if (valStr === undefined || valStr === null || valStr === '') return;
+        const v = parseFloat(valStr);
+        if (isNaN(v)) return;
+        const lineWidthInput = div.querySelector(`.line-width-group[data-group="${name}"]`);
+        const boxLineWidthInput = div.querySelector(`.box-line-width-group[data-group="${name}"]`);
+        const dotSizeInput = div.querySelector(`.dot-size-group[data-group="${name}"]`);
+        if (lineWidthInput) lineWidthInput.value = v;
+        if (boxLineWidthInput) boxLineWidthInput.value = v;
+        if (dotSizeInput) dotSizeInput.value = v;
         createChart();
       });
     });
