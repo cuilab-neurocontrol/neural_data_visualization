@@ -281,6 +281,15 @@
   <details>
     <summary>Data Series Upload</summary>
     <div class="control-row">
+      <label for="plot-type">Plot Type:</label>
+      <select id="plot-type">
+        <option value="violin" selected>Violin</option>
+        <option value="histogram">Bar(mean)</option>
+      </select>
+      <label for="show-ci-lines">Show CI:</label>
+      <input type="checkbox" id="show-ci-lines" checked>
+    </div>
+    <div class="control-row">
       <label for="data-files">Upload CSV Files:</label>
       <input type="file" id="data-files" multiple accept=".csv">
     </div>

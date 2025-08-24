@@ -232,6 +232,8 @@ function removeAnnotation(idx) {
 window.removeAnnotation = removeAnnotation;
 
 function createChart() {
+  const plotType = document.getElementById('plot-type')?.value || 'violin';
+  const showCI = document.getElementById('show-ci-lines')?.checked;
   // --- 新增：直接读取用户输入的 X/Y 标签距离（px） ---
   const xLabelDistancePx = parseFloat(
     document.getElementById("x-label-distance-px")?.value
@@ -481,20 +483,20 @@ function createChart() {
            .style("stroke", "#000");
     }
 
-    seriesList.forEach((series, seriesIdx) => {
+  seriesList.forEach((series, seriesIdx) => {
       const control = series.control;
       const lineColor = control.querySelector(".line-color").value;
       const lineThickness = parseFloat(control.querySelector(".line-thickness").value);
       const showShadow = control.querySelector(".show-shadow").checked;
       const shadowOpacity = parseFloat(control.querySelector(".shadow-opacity").value);
 
-      const groupNames = Array.from(new Set(series.data.map(d => d.group_name))); // 修改
+  const groupNames = Array.from(new Set(series.data.map(d => d.group_name))); // 修改
       const xGroup = d3.scaleBand()
         .domain(groupNames)
         .range([0, xSeries.bandwidth()])
         .padding(xGroupPadding); // 小分组间距小
 
-      // 直方图设置
+      // 直方图设置（用于 violin kernel proxy 或 histogram 模式）
       const histogram = d3.histogram()
         .domain(y.domain())
         .thresholds(y.ticks(20))
@@ -541,15 +543,16 @@ function createChart() {
         .range([0, xGroup.bandwidth() / 2])
         .domain([0, maxNum]);
 
-      // 画小提琴图
-      svg
-        .selectAll(`.myViolin${seriesIdx}`)
-        .data(sumstat)
-        .enter()
-        .append("g")
-          .attr("transform", d => `translate(${xSeries(`series${seriesIdx}`)+ xGroup.bandwidth()/2 + xGroup(d.key) + axisMargin.x},0)`)
-          // 画填充（无描边）
-          .each(function(d) {
+      if (plotType === 'violin') {
+        // 画小提琴图
+        svg
+          .selectAll(`.myViolin${seriesIdx}`)
+          .data(sumstat)
+          .enter()
+          .append("g")
+            .attr("transform", d => `translate(${xSeries(`series${seriesIdx}`)+ xGroup.bandwidth()/2 + xGroup(d.key) + axisMargin.x},0)`)
+            // 画填充（无描边）
+            .each(function(d) {
             // 获取当前分组的阴影颜色
             let groupShadowColor = "#FF5C5C";
             let groupLineColor = "#000000";
@@ -696,11 +699,69 @@ function createChart() {
                 .y(d => y(d.x0))
                 .curve(d3.curveBasis)
             );
-          });
+            });
+      } else if (plotType === 'histogram') {
+        // 每个 group 一个柱：高度 = 均值；宽度 = xGroup.bandwidth()*0.6；CI 用外部逻辑绘制
+        const barWidth = xGroup.bandwidth()*0.6;
+        const offset = -barWidth/2;
+        const meanCache = {};
+        sumstat.forEach(group => {
+          const rows = sumstatMap.get(group.key) || [];
+          const values = rows.map(r => +r.group_value).filter(v => !isNaN(v));
+          if (!values.length) return;
+          const mean = d3.mean(values);
+          meanCache[group.key] = mean;
+          const groupShadowColorInput = control.querySelector(`.shadow-color-group[data-group="${group.key}"]`);
+          const fillColor = groupShadowColorInput ? groupShadowColorInput.value : '#888';
+          const centerX = xSeries(`series${seriesIdx}`) + xGroup(group.key) + xGroup.bandwidth()/2 + axisMargin.x;
+          svg.append('rect')
+            .attr('x', centerX + offset)
+            .attr('y', y(mean))
+            .attr('width', barWidth)
+            .attr('height', Math.max(0, y(y.domain()[0]) - y(mean)))
+            .attr('fill', fillColor)
+            .attr('fill-opacity', shadowOpacity)
+            .attr('stroke', 'none');
+        });
+      }
+
+      // 置信区间 (ci_low, ci_high) 可选显示：在两个模式下都支持
+      if (showCI) {
+        sumstat.forEach(group => {
+          const rows = sumstatMap.get(group.key) || [];
+          if (!rows.length) return;
+          let ciLow = rows[0].ci_low !== undefined ? +rows[0].ci_low : null;
+          let ciHigh = rows[0].ci_high !== undefined ? +rows[0].ci_high : null;
+          if (ciLow == null || ciHigh == null || isNaN(ciLow) || isNaN(ciHigh)) return;
+          const centerX = xSeries(`series${seriesIdx}`) + xGroup(group.key) + xGroup.bandwidth()/2 + axisMargin.x;
+          const cap = xGroup.bandwidth()*0.4;
+          svg.append('line')
+            .attr('x1', centerX)
+            .attr('x2', centerX)
+            .attr('y1', y(ciLow))
+            .attr('y2', y(ciHigh))
+            .attr('stroke', '#000')
+            .attr('stroke-width', 1);
+          svg.append('line')
+            .attr('x1', centerX - cap/2)
+            .attr('x2', centerX + cap/2)
+            .attr('y1', y(ciLow))
+            .attr('y2', y(ciLow))
+            .attr('stroke', '#000')
+            .attr('stroke-width', 1);
+          svg.append('line')
+            .attr('x1', centerX - cap/2)
+            .attr('x2', centerX + cap/2)
+            .attr('y1', y(ciHigh))
+            .attr('y2', y(ciHigh))
+            .attr('stroke', '#000')
+            .attr('stroke-width', 1);
+        });
+      }
       
-      // Add individual points with jitter
-      const showDots = control.querySelector(".show-dots")?.checked ?? true;
-      if (showDots) {
+  // Add individual points with jitter (仅在 violin 模式下显示散点)
+  const showDots = control.querySelector(".show-dots")?.checked ?? true;
+  if (plotType === 'violin' && showDots) {
         const jitterWidth = xGroup.bandwidth() * 0.5;
         svg
           .selectAll(`.indPoints${seriesIdx}`)
