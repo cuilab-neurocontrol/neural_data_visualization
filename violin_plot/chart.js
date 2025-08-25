@@ -157,6 +157,20 @@ function createSeriesControl(index, groupNames) {
   return div;
 }
 
+// 隐藏/显示箱线相关控件（箱子行及其中包含 box-line-* 的行）
+function applyPlotTypeVisibility() {
+  const plotType = document.getElementById('plot-type')?.value || 'violin';
+  const hideBox = plotType === 'histogram';
+  document.querySelectorAll('.series-control').forEach(seriesCtl => {
+    seriesCtl.querySelectorAll('.control-row').forEach(row => {
+      const hasBox = row.innerHTML.includes('Box Line Width') || row.innerHTML.includes('Box Line Color');
+      if (hasBox) {
+        row.style.display = hideBox ? 'none' : '';
+      }
+    });
+  });
+}
+
 // Scale bar settings
 let xScaleBarPositionx = 0; // Default X scale bar Y position
 let xScaleBarPositiony = 20; // Default X scale bar Y position
@@ -891,6 +905,7 @@ document.getElementById("data-files").addEventListener("change", function(e) {
       // 将该控制块添加到控制面板中
       document.getElementById("series-controls").appendChild(seriesControl);
       createChart(); // 新增：重新绘制图表以显示新数据
+  applyPlotTypeVisibility();
     };
     reader.readAsText(file);
   });
@@ -906,6 +921,7 @@ document.getElementById("add-url").addEventListener("click", function() {
     seriesList.push({ data, control: seriesControl, groupNames });
     document.getElementById("series-controls").appendChild(seriesControl);
     createChart(); // 新增：重新绘制图表以显示新数据
+  applyPlotTypeVisibility();
   }).catch(error => {
     console.error("Error loading CSV from URL:", error);
   });
@@ -1207,3 +1223,8 @@ document.getElementById('load-params-file')?.addEventListener('change', (e) => {
   };
   reader.readAsText(file);
 });
+
+// 监听图类型变化
+document.getElementById('plot-type')?.addEventListener('change', () => { applyPlotTypeVisibility(); createChart(); });
+// 初始执行一次（页面加载后）
+applyPlotTypeVisibility();
