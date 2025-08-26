@@ -476,6 +476,8 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
   let tickFontFamily = controlsDiv.querySelector("#tick-font-family").value;
   let tickOrientation = controlsDiv.querySelector("#tick-orientation").value;
   let tickLength = parseFloat(controlsDiv.querySelector("#tick-length").value);
+  const xTickGap = parseFloat(controlsDiv.querySelector('#x-tick-gap')?.value || 0); // 正值: 与轴线脱离, 负值: 贯穿
+  const yTickGap = parseFloat(controlsDiv.querySelector('#y-tick-gap')?.value || 0);
 
   let xScaleBarPositionx = parseFloat(controlsDiv.querySelector("#x-scale-bar-position-x").value);
   let xScaleBarPositiony = parseFloat(controlsDiv.querySelector("#x-scale-bar-position-y").value);
@@ -549,8 +551,7 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
     if (tickOrientation === "inward") {
       const xAxis = d3.axisBottom(x)
         .tickValues(xtickPositions)
-        .tickSizeInner(0)
-        .tickSizeOuter(0)
+        .tickSize(0)
         .tickPadding(tickLength)
         .tickFormat((d, i) => xtickLabels[i] || d);
 
@@ -559,19 +560,18 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
         .attr("transform", `translate(${axisMargin.x}, ${height})`)
         .call(xAxis)
         .call(g => g.selectAll(".tick line")
-          .attr("y1", -axisLineWidth)
-          .attr("y2", -tickLength-axisLineWidth)
+          .attr("y1", -xTickGap)          // gap 控制起点
+          .attr("y2", -xTickGap - tickLength) // 向上(轴内)延伸
         )
         .call(g => g.selectAll("text")
           .attr("fill", "#000")
           .style("font-size", `${tickFontSize}px`)
           .style("font-family", tickFontFamily)
         );
-    } else {
+    } else { // outward
       const xAxis = d3.axisBottom(x)
         .tickValues(xtickPositions)
-        .tickSizeInner(0)
-        .tickSizeOuter(0)
+        .tickSize(0)
         .tickPadding(2 * tickLength)
         .tickFormat((d, i) => xtickLabels[i] || d);
 
@@ -580,8 +580,8 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
         .attr("transform", `translate(${axisMargin.x}, ${height})`)
         .call(xAxis)
         .call(g => g.selectAll(".tick line")
-          .attr("y1", axisLineWidth)
-          .attr("y2", tickLength+axisLineWidth)
+          .attr("y1", xTickGap)
+          .attr("y2", xTickGap + tickLength)
         )
         .call(g => g.selectAll("text")
           .attr("fill", "#000")
@@ -596,6 +596,14 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
     svg.selectAll(".x-axis .tick line")
        .style("stroke-width", tickLineWidth)
        .style("stroke", "#000");
+
+    // 半像素对齐（避免不同 PPI 模糊）
+    const xAxisGroup = svg.select(".x-axis");
+    // 可选像素对齐（使用手动 offset + 0.5 辅助）
+  if (axisLineWidth % 2 !== 0) xAxisGroup.attr('transform', xAxisGroup.attr('transform') + ' translate(0,0.5)');
+  if (tickLineWidth % 2 !== 0) xAxisGroup.selectAll('.tick line').attr('transform', 'translate(0,0.5)');
+    xAxisGroup.selectAll('.domain, .tick line')
+      .attr('shape-rendering', 'crispEdges');
   }
 
   // Y轴
@@ -605,19 +613,16 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
     const yAxis = d3.axisLeft(y)
       .tickValues(ytickPositions)
       .tickFormat((d, i) => ytickLabels[i] ?? d)
-      .tickSizeInner(0)
-      .tickSizeOuter(0)
+      .tickSize(0)
       .tickPadding(tickOrientation === "inward" ? tickLength : 2 * tickLength);
-    //const tickstart = tickLength-(axisLineWidth/2);
+
     svg.append("g")
       .attr("class", "y-axis")
       .attr("transform", `translate(0, ${-axisMargin.y})`)
       .call(yAxis)
       .call(g => g.selectAll(".tick line")
-        .attr("x1", axisLineWidth)
-        .attr("x2", tickOrientation === "inward"
-          ? (tickLength-axisLineWidth)   // 向图内（右）延伸
-          : (-tickLength+axisLineWidth)) // 向图外（左）延伸
+        .attr("x1", tickOrientation === "inward" ? yTickGap : -yTickGap)
+        .attr("x2", tickOrientation === "inward" ? (yTickGap + tickLength) : (-yTickGap - tickLength))
       )
       .call(g => g.selectAll("text")
         .attr("fill", "#000")
@@ -631,6 +636,12 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
     svg.selectAll(".y-axis .tick line")
        .style("stroke-width", tickLineWidth)
        .style("stroke", "#000");
+
+    const yAxisGroup = svg.select('.y-axis');
+  if (axisLineWidth % 2 !== 0) yAxisGroup.attr('transform', yAxisGroup.attr('transform') + ' translate(0.5,0)');
+  if (tickLineWidth % 2 !== 0) yAxisGroup.selectAll('.tick line').attr('transform', 'translate(0.5,0)');
+    yAxisGroup.selectAll('.domain, .tick line')
+      .attr('shape-rendering','crispEdges');
   }
 
   // Scale Bar
