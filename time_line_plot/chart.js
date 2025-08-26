@@ -356,14 +356,7 @@ function createSubplotInstance(baseConfig) {
     const url = controlsDiv.querySelector("#data-url").value;
     if (!url) return;
     d3.csv(url).then(data => {
-      const seriesControl = createSeriesControl(
-        config.seriesList.length,
-        controlsDiv,
-        chartDiv,
-        config
-      );
-      config.seriesList.push({ data, control: seriesControl });
-      controlsDiv.querySelector("#series-controls").appendChild(seriesControl);
+      addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config);
     });
   });
   controlsDiv.querySelector("#data-files").addEventListener("change", function(e) {
@@ -373,14 +366,7 @@ function createSubplotInstance(baseConfig) {
       reader.onload = function(evt) {
         const text = evt.target.result;
         const data = d3.csvParse(text);
-        const seriesControl = createSeriesControl(
-          config.seriesList.length,
-          controlsDiv,
-          chartDiv,
-          config
-        );
-        config.seriesList.push({ data, control: seriesControl });
-        controlsDiv.querySelector("#series-controls").appendChild(seriesControl);
+        addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, file.name);
       };
       reader.readAsText(file);
     });
@@ -422,6 +408,45 @@ function createSubplotInstance(baseConfig) {
   subplots.push({div: subplotDiv, config, controlsDiv, chartDiv});
   document.getElementById("subplots-container").appendChild(subplotDiv);
   createChartForSubplot(controlsDiv, chartDiv, config);
+}
+
+// 根据是否存在 condition 列拆分数据并创建系列
+function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceLabel) {
+  if (!data || !data.length) return;
+  const firstRow = data[0];
+  const hasCondition = Object.prototype.hasOwnProperty.call(firstRow, 'condition');
+  if (!hasCondition) {
+    // 原逻辑：直接添加一个 series
+    const seriesControl = createSeriesControl(
+      config.seriesList.length,
+      controlsDiv,
+      chartDiv,
+      config
+    );
+    if (sourceLabel) {
+      const desc = seriesControl.querySelector('.series-description');
+      if (desc && !desc.value) desc.value = sourceLabel;
+    }
+    config.seriesList.push({ data, control: seriesControl });
+    controlsDiv.querySelector('#series-controls').appendChild(seriesControl);
+    return;
+  }
+
+  // 按 condition 分组
+  const grouped = d3.group(data, d => d.condition);
+  grouped.forEach((rows, cond) => {
+    const seriesControl = createSeriesControl(
+      config.seriesList.length,
+      controlsDiv,
+      chartDiv,
+      config
+    );
+    // 自动填充描述为 condition (可手动修改)
+    const desc = seriesControl.querySelector('.series-description');
+    if (desc) desc.value = String(cond);
+    config.seriesList.push({ data: rows, control: seriesControl });
+    controlsDiv.querySelector('#series-controls').appendChild(seriesControl);
+  });
 }
 
 // 子图专用绘图函数（参数与主图一致，但用自己的config）
