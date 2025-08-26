@@ -434,6 +434,7 @@ function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceL
 
   // 按 condition 分组
   const grouped = d3.group(data, d => d.condition);
+  ensureConditionColorPanel(controlsDiv);
   grouped.forEach((rows, cond) => {
     const seriesControl = createSeriesControl(
       config.seriesList.length,
@@ -444,8 +445,64 @@ function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceL
     // 自动填充描述为 condition (可手动修改)
     const desc = seriesControl.querySelector('.series-description');
     if (desc) desc.value = String(cond);
+    // 如果该 condition 尚无颜色输入，创建一个
+    addOrReuseConditionColorInput(controlsDiv, cond, seriesControl.querySelector('.line-color').value);
     config.seriesList.push({ data: rows, control: seriesControl });
     controlsDiv.querySelector('#series-controls').appendChild(seriesControl);
+  });
+}
+
+function ensureConditionColorPanel(controlsDiv) {
+  const panel = controlsDiv.querySelector('#condition-colors-panel');
+  if (panel) panel.style.display = 'block';
+}
+
+function addOrReuseConditionColorInput(controlsDiv, conditionName, defaultColor) {
+  const mapDiv = controlsDiv.querySelector('#condition-color-map');
+  if (!mapDiv) return;
+  const existing = mapDiv.querySelector(`[data-condition="${conditionName}"]`);
+  if (existing) return existing; // already exists
+  const wrapper = document.createElement('div');
+  wrapper.dataset.condition = conditionName;
+  wrapper.style.display = 'flex';
+  wrapper.style.alignItems = 'center';
+  wrapper.style.gap = '6px';
+  // Two color inputs: line & shadow
+  wrapper.innerHTML = `
+    <span style="min-width:70px;font-size:0.75em;">${conditionName}</span>
+    <label style="font-size:0.65em;">Line</label>
+    <input type="color" value="${defaultColor || '#ff0000'}" class="condition-line-color" style="width:36px;padding:0;border:none;">
+    <label style="font-size:0.65em;">Shadow</label>
+    <input type="color" value="#FF5C5C" class="condition-shadow-color" style="width:36px;padding:0;border:none;">
+  `;
+  mapDiv.appendChild(wrapper);
+  // 同步 line color
+  const lineInput = wrapper.querySelector('.condition-line-color');
+  lineInput.addEventListener('input', () => {
+    syncConditionColorsToSeries(controlsDiv, conditionName, lineInput.value, null);
+  });
+  // 同步 shadow color
+  const shadowInput = wrapper.querySelector('.condition-shadow-color');
+  shadowInput.addEventListener('input', () => {
+    syncConditionColorsToSeries(controlsDiv, conditionName, null, shadowInput.value);
+  });
+  return wrapper;
+}
+
+function syncConditionColorsToSeries(controlsDiv, conditionName, lineColor, shadowColor) {
+  const allSeries = controlsDiv.querySelectorAll('.series-control');
+  allSeries.forEach(sc => {
+    const desc = sc.querySelector('.series-description');
+    if (desc && desc.value === conditionName) {
+      if (lineColor) {
+        const lc = sc.querySelector('.line-color');
+        if (lc) lc.value = lineColor;
+      }
+      if (shadowColor) {
+        const scCol = sc.querySelector('.shadow-color');
+        if (scCol) scCol.value = shadowColor;
+      }
+    }
   });
 }
 
@@ -1196,7 +1253,8 @@ function collectSubplotState(instance) {
     series: [],
     lines: [],
     texts: [],
-    areas: []
+  areas: [],
+  conditionColors: collectConditionColors(controlsDiv)
   };
 
   // Series
@@ -1282,6 +1340,21 @@ function collectAllState() {
   };
 }
 
+function collectConditionColors(controlsDiv) {
+  const panel = controlsDiv.querySelector('#condition-colors-panel');
+  if (!panel || panel.style.display === 'none') return null;
+  const map = {};
+  panel.querySelectorAll('[data-condition]').forEach(w => {
+    const cond = w.dataset.condition;
+    const lineColor = w.querySelector('.condition-line-color')?.value;
+    const shadowColor = w.querySelector('.condition-shadow-color')?.value;
+    if (cond) {
+      map[cond] = { line: lineColor || '#ff0000', shadow: shadowColor || '#FF5C5C' };
+    }
+  });
+  return map;
+}
+
 function downloadJSON(obj, fileName) {
   const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -1345,6 +1418,28 @@ function rebuildSubplotFromState(state) {
     config.seriesList.push({ data: s.data || [], control });
     controlsDiv.querySelector('#series-controls').appendChild(control);
   });
+
+  // Rebuild condition colors (apply to matching descriptions)
+  if (state.conditionColors) {
+    ensureConditionColorPanel(controlsDiv);
+    Object.entries(state.conditionColors).forEach(([cond, val]) => {
+      // 向后兼容：val 可能是字符串
+      let lineClr, shadowClr;
+      if (typeof val === 'string') {
+        lineClr = val; shadowClr = '#FF5C5C';
+      } else {
+        lineClr = val.line || '#ff0000';
+        shadowClr = val.shadow || '#FF5C5C';
+      }
+      const entry = addOrReuseConditionColorInput(controlsDiv, cond, lineClr);
+      const lineInput = entry.querySelector('.condition-line-color');
+      const shadowInput = entry.querySelector('.condition-shadow-color');
+      if (lineInput) lineInput.value = lineClr;
+      if (shadowInput) shadowInput.value = shadowClr;
+      // 同步到 series
+      syncConditionColorsToSeries(controlsDiv, cond, lineClr, shadowClr);
+    });
+  }
 
   // Lines
   (state.lines || []).forEach((ln, idx) => {
