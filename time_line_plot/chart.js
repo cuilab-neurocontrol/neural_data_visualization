@@ -1487,7 +1487,12 @@ function applyTopLevelControls(controlsDiv, controlsMap) {
     if (el.type === 'checkbox') {
       el.checked = !!val;
     } else {
-      el.value = val;
+      // file 输入框的 value 只能被置空，不能设置文件名，避免 InvalidStateError
+      if (el.type === 'file') {
+        if (val === '' || val == null) el.value = '';
+      } else {
+        el.value = val;
+      }
     }
   });
 }
@@ -1602,6 +1607,23 @@ function rebuildSubplotFromState(state) {
 
   // Finally render
   createChartForSubplot(controlsDiv, chartDiv, config);
+
+  // 如果没有保存具体的 series 数据但存在 data-url，则自动拉取 URL 数据生成系列
+  try {
+    const hasSavedSeries = (state.series && state.series.length > 0);
+    const dataUrlFromState = state.controls && state.controls['data-url'];
+    if (!hasSavedSeries && dataUrlFromState) {
+      d3.csv(dataUrlFromState).then(data => {
+        // 复用已有逻辑（不拆 condition 时直接一条）
+        addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, dataUrlFromState);
+        createChartForSubplot(controlsDiv, chartDiv, config);
+      }).catch(err => {
+        console.error('自动加载 data-url 失败:', dataUrlFromState, err);
+      });
+    }
+  } catch(fetchErr) {
+    console.error('检查或加载 data-url 过程中出错', fetchErr);
+  }
 }
 
 function clearAllSubplots() {
@@ -1649,6 +1671,28 @@ function loadState(obj) {
   });
   // 加载完成后统一刷新一次（使用全局函数带错误抓取）
   setTimeout(()=>updateAllSubplots(true),0);
+  // 额外：再次检测哪些子图没有 series 且有 data-url，尝试补拉取（防止异步顺序问题）
+  setTimeout(()=>{
+    subplots.forEach(sp => {
+      try {
+        if (sp.config.seriesList.length === 0) {
+          const urlInput = sp.controlsDiv.querySelector('#data-url');
+          const val = urlInput && urlInput.value;
+          if (val) {
+            console.log('补拉取 data-url:', val);
+            d3.csv(val).then(data => {
+              addSeriesDataPossiblySplit(data, sp.controlsDiv, sp.chartDiv, sp.config, val);
+              createChartForSubplot(sp.controlsDiv, sp.chartDiv, sp.config);
+            });
+          } else {
+            console.log('子图无数据且无URL, index=', subplots.indexOf(sp));
+          }
+        }
+      } catch(e){
+        console.error('补拉取检测出错', e);
+      }
+    });
+  }, 50);
 }
 
 // Wire buttons
