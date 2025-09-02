@@ -358,6 +358,8 @@ function createSubplotInstance(baseConfig) {
     if (!url) return;
     d3.csv(url).then(data => {
       addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config);
+  // 立即重绘并快照
+  createChartForSubplot(controlsDiv, chartDiv, config);
     });
   });
   controlsDiv.querySelector("#data-files").addEventListener("change", function(e) {
@@ -368,12 +370,28 @@ function createSubplotInstance(baseConfig) {
         const text = evt.target.result;
         const data = d3.csvParse(text);
         addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, file.name);
+  // 重绘并快照
+  createChartForSubplot(controlsDiv, chartDiv, config);
       };
       reader.readAsText(file);
     });
   });
-  controlsDiv.querySelector("#update").addEventListener("click", function() {
-    createChartForSubplot(controlsDiv, chartDiv, config);
+  // 移除手动 update 按钮，改为自动更新：监听所有输入与复选框变化，采用防抖以避免频繁重绘
+  const autoUpdate = (() => {
+    let timer = null;
+    return () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        createChartForSubplot(controlsDiv, chartDiv, config);
+      }, 120); // 120ms 防抖
+    };
+  })();
+
+  // 绑定自动更新事件（排除文件输入、URL按钮等已单独触发重绘的控件）
+  controlsDiv.querySelectorAll('input, select, textarea').forEach(el => {
+    if (el.id === 'data-files' || el.id === 'data-url') return; // 数据加载另行处理
+    el.addEventListener('input', autoUpdate);
+    el.addEventListener('change', autoUpdate);
   });
 
   // 位置输入框事件只影响 chartDiv
@@ -451,6 +469,7 @@ function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceL
   config.seriesList.push({ data: rows, control: seriesControl, condition: cond });
     controlsDiv.querySelector('#series-controls').appendChild(seriesControl);
   });
+  // 分组添加后也触发重绘在调用者外部
 }
 
 function ensureConditionColorPanel(controlsDiv) {
@@ -921,6 +940,24 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
         );
     }
   });
+
+  // 在每次渲染后快照当前控件参数，避免后续保存缺失（例如某些 DOM 被折叠或重新生成导致读取异常）
+  if (controlsDiv && config) {
+    config._snapshotControls = collectTopLevelControls(controlsDiv);
+    // 快照每个 series 的可保存字段
+    config.seriesList.forEach(s => {
+      if (!s.control) return;
+      s._snapshot = {
+        lineColor: s.control.querySelector('.line-color')?.value,
+        lineThickness: parseFloat(s.control.querySelector('.line-thickness')?.value || '0'),
+        showShadow: !!s.control.querySelector('.show-shadow')?.checked,
+        shadowColor: s.control.querySelector('.shadow-color')?.value,
+        shadowOpacity: parseFloat(s.control.querySelector('.shadow-opacity')?.value || '0'),
+        description: s.control.querySelector('.series-description')?.value || '',
+        condition: s.condition || null
+      };
+    });
+  }
 }
 
 // 绑定 add subplot 按钮
@@ -929,6 +966,46 @@ document.getElementById("add-subplot").onclick = function() {
   const last = subplots.length ? subplots[subplots.length - 1].config : null;
   createSubplotInstance(last);
 };
+
+// 移除全局 Update All，改为任何控件改动自动触发对应子图渲染
+// 重新加入一个全局 Update All：用于在加载 JSON 后或批量修改后统一强制刷新，且捕获潜在错误（例如第二个子图渲染失败）
+function updateAllSubplots(forceLog=false) {
+  subplots.forEach((sp, idx) => {
+    try {
+      if (!sp || !sp.controlsDiv || !sp.chartDiv || !sp.config) return;
+      createChartForSubplot(sp.controlsDiv, sp.chartDiv, sp.config);
+    } catch (err) {
+      console.error('子图渲染错误 index=' + idx, err);
+      if (forceLog) {
+        const errDiv = document.getElementById('global-error-log') || (function(){
+          const d=document.createElement('div');
+          d.id='global-error-log';
+          d.style.position='fixed';
+          d.style.bottom='4px';
+          d.style.left='4px';
+          d.style.maxWidth='40vw';
+          d.style.maxHeight='30vh';
+          d.style.overflow='auto';
+          d.style.background='rgba(255,0,0,0.08)';
+          d.style.border='1px solid #f00';
+          d.style.fontSize='11px';
+          d.style.padding='4px 6px';
+          d.style.zIndex=99999;
+          document.body.appendChild(d);
+          return d;
+        })();
+        const pre=document.createElement('pre');
+        pre.textContent='Subplot '+idx+' Error: '+ (err && err.stack || err);
+        errDiv.appendChild(pre);
+      }
+    }
+  });
+}
+
+const globalUpdateBtn = document.getElementById('update-all');
+if (globalUpdateBtn) {
+  globalUpdateBtn.addEventListener('click', () => updateAllSubplots(true));
+}
 
 // 页面初始化时可自动加一个子图
 document.getElementById("add-subplot").click();
@@ -1251,7 +1328,7 @@ function collectSubplotState(instance) {
       yCm: yInput ? Number(yInput.value) : 0
     },
     description: descInput ? descInput.value : (config.description || ''),
-    controls: collectTopLevelControls(controlsDiv),
+    controls: config._snapshotControls ? {...config._snapshotControls} : collectTopLevelControls(controlsDiv),
     series: [],
     lines: [],
     texts: [],
@@ -1263,17 +1340,17 @@ function collectSubplotState(instance) {
   (config.seriesList || []).forEach(series => {
     const c = series.control;
     if (!c) return;
+    const snap = series._snapshot || {};
+    const lineColor = c.querySelector('.line-color')?.value || snap.lineColor || '#ff0000';
+    const lineThickness = Number(c.querySelector('.line-thickness')?.value || snap.lineThickness || 2);
+    const showShadow = c.querySelector('.show-shadow') ? !!c.querySelector('.show-shadow').checked : (snap.showShadow ?? true);
+    const shadowColor = c.querySelector('.shadow-color')?.value || snap.shadowColor || '#FF5C5C';
+    const shadowOpacity = Number(c.querySelector('.shadow-opacity')?.value || snap.shadowOpacity || 0.3);
+    const description = c.querySelector('.series-description')?.value || snap.description || '';
     state.series.push({
-      options: {
-        lineColor: c.querySelector('.line-color')?.value || '#ff0000',
-        lineThickness: Number(c.querySelector('.line-thickness')?.value || 2),
-        showShadow: !!c.querySelector('.show-shadow')?.checked,
-        shadowColor: c.querySelector('.shadow-color')?.value || '#FF5C5C',
-        shadowOpacity: Number(c.querySelector('.shadow-opacity')?.value || 0.3),
-        description: c.querySelector('.series-description')?.value || ''
-      },
-  condition: series.condition || null,
-  data: series.data || []
+      options: { lineColor, lineThickness, showShadow, shadowColor, shadowOpacity, description },
+      condition: series.condition || snap.condition || null,
+      data: series.data || []
     });
   });
 
@@ -1340,6 +1417,38 @@ function collectAllState() {
     canvas: { widthCm: canvasWidthCm, heightCm: canvasHeightCm },
     canvasTexts: canvasTextsState,
     subplots: subplotsState
+  };
+}
+
+// 保存前强制对所有子图做一次快照，避免未点击 Update 的最新加载数据丢失
+function snapshotAllSubplots() {
+  subplots.forEach(sp => {
+    if (sp && sp.controlsDiv && sp.chartDiv && sp.config) {
+      // 不重新布局，只更新 snapshot
+      sp.config._snapshotControls = collectTopLevelControls(sp.controlsDiv);
+      (sp.config.seriesList || []).forEach(s => {
+        if (!s.control) return;
+        s._snapshot = {
+          lineColor: s.control.querySelector('.line-color')?.value,
+          lineThickness: parseFloat(s.control.querySelector('.line-thickness')?.value || '0'),
+          showShadow: !!s.control.querySelector('.show-shadow')?.checked,
+          shadowColor: s.control.querySelector('.shadow-color')?.value,
+          shadowOpacity: parseFloat(s.control.querySelector('.shadow-opacity')?.value || '0'),
+          description: s.control.querySelector('.series-description')?.value || '',
+          condition: s.condition || null
+        };
+      });
+    }
+  });
+}
+
+// Hook 保存按钮再次，确保先快照
+const saveBtnPatched = document.getElementById('save-params');
+if (saveBtnPatched) {
+  const oldHandler = saveBtnPatched.onclick;
+  saveBtnPatched.onclick = function(e) {
+    snapshotAllSubplots();
+    if (typeof oldHandler === 'function') oldHandler.call(this, e);
   };
 }
 
@@ -1531,7 +1640,15 @@ function loadState(obj) {
 
   // Subplots
   clearAllSubplots();
-  (obj.subplots || []).forEach(s => rebuildSubplotFromState(s));
+  (obj.subplots || []).forEach((s,i) => {
+    try {
+      rebuildSubplotFromState(s);
+    } catch(e){
+      console.error('rebuildSubplotFromState error index='+i, e);
+    }
+  });
+  // 加载完成后统一刷新一次（使用全局函数带错误抓取）
+  setTimeout(()=>updateAllSubplots(true),0);
 }
 
 // Wire buttons
