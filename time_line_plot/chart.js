@@ -322,7 +322,8 @@ function createSubplotInstance(baseConfig) {
     linesList: [],
     textList: [],
     areasList: [],
-    description: ""
+  description: "",
+  _id: 'sp_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8)
   };
 
   // 绑定 description 输入框事件
@@ -427,7 +428,7 @@ function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceL
       const desc = seriesControl.querySelector('.series-description');
       if (desc && !desc.value) desc.value = sourceLabel;
     }
-    config.seriesList.push({ data, control: seriesControl });
+  config.seriesList.push({ data, control: seriesControl, condition: null });
     controlsDiv.querySelector('#series-controls').appendChild(seriesControl);
     return;
   }
@@ -447,7 +448,7 @@ function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceL
     if (desc) desc.value = String(cond);
     // 如果该 condition 尚无颜色输入，创建一个
     addOrReuseConditionColorInput(controlsDiv, cond, seriesControl.querySelector('.line-color').value);
-    config.seriesList.push({ data: rows, control: seriesControl });
+  config.seriesList.push({ data: rows, control: seriesControl, condition: cond });
     controlsDiv.querySelector('#series-controls').appendChild(seriesControl);
   });
 }
@@ -1244,6 +1245,7 @@ function collectSubplotState(instance) {
   const descInput = div.querySelector('.subplot-desc');
 
   const state = {
+  id: instance.config?._id || null,
     position: {
       xCm: xInput ? Number(xInput.value) : 0,
       yCm: yInput ? Number(yInput.value) : 0
@@ -1270,7 +1272,8 @@ function collectSubplotState(instance) {
         shadowOpacity: Number(c.querySelector('.shadow-opacity')?.value || 0.3),
         description: c.querySelector('.series-description')?.value || ''
       },
-      data: series.data || []
+  condition: series.condition || null,
+  data: series.data || []
     });
   });
 
@@ -1415,9 +1418,14 @@ function rebuildSubplotFromState(state) {
       const sd = control.querySelector('.series-description');
       if (sd) sd.value = s.options.description || '';
     }
-    config.seriesList.push({ data: s.data || [], control });
+    config.seriesList.push({ data: s.data || [], control, condition: s.condition || null });
     controlsDiv.querySelector('#series-controls').appendChild(control);
   });
+
+  // Restore unique id
+  if (state.id) {
+    config._id = state.id;
+  }
 
   // Rebuild condition colors (apply to matching descriptions)
   if (state.conditionColors) {
