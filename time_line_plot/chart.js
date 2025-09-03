@@ -446,7 +446,13 @@ function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceL
       const desc = seriesControl.querySelector('.series-description');
       if (desc && !desc.value) desc.value = sourceLabel;
     }
-  config.seriesList.push({ data, control: seriesControl, condition: null });
+    const cleaned = data.map(r => ({
+      x: +r.x,
+      y: +r.y,
+      CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
+      CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined
+    })).filter(d => isFinite(d.x) && isFinite(d.y));
+    config.seriesList.push({ data: cleaned, control: seriesControl, condition: null });
     controlsDiv.querySelector('#series-controls').appendChild(seriesControl);
     return;
   }
@@ -455,6 +461,13 @@ function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceL
   const grouped = d3.group(data, d => d.condition);
   ensureConditionColorPanel(controlsDiv);
   grouped.forEach((rows, cond) => {
+    const cleaned = rows.map(r => ({
+      x: +r.x,
+      y: +r.y,
+      CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
+      CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
+      condition: r.condition
+    })).filter(d => isFinite(d.x) && isFinite(d.y));
     const seriesControl = createSeriesControl(
       config.seriesList.length,
       controlsDiv,
@@ -465,9 +478,18 @@ function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceL
     const desc = seriesControl.querySelector('.series-description');
     if (desc) desc.value = String(cond);
     // 如果该 condition 尚无颜色输入，创建一个
-    addOrReuseConditionColorInput(controlsDiv, cond, seriesControl.querySelector('.line-color').value);
-  config.seriesList.push({ data: rows, control: seriesControl, condition: cond });
+    const wrapper = addOrReuseConditionColorInput(controlsDiv, cond, seriesControl.querySelector('.line-color').value);
+    // 若已存在 condition 颜色条目，应用其颜色到新系列
+    if (wrapper) {
+      const cLine = wrapper.querySelector('.condition-line-color')?.value;
+      const cShadow = wrapper.querySelector('.condition-shadow-color')?.value;
+      if (cLine) seriesControl.querySelector('.line-color').value = cLine;
+      if (cShadow) seriesControl.querySelector('.shadow-color').value = cShadow;
+    }
+  config.seriesList.push({ data: cleaned, control: seriesControl, condition: cond });
     controlsDiv.querySelector('#series-controls').appendChild(seriesControl);
+    // 建立双向同步：系列颜色改动 -> condition 面板同步
+    attachConditionBidirectionalSync(controlsDiv, seriesControl, cond);
   });
   // 分组添加后也触发重绘在调用者外部
 }
@@ -482,6 +504,11 @@ function addOrReuseConditionColorInput(controlsDiv, conditionName, defaultColor)
   if (!mapDiv) return;
   const existing = mapDiv.querySelector(`[data-condition="${conditionName}"]`);
   if (existing) return existing; // already exists
+  if (!defaultColor) {
+    const palette = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf'];
+    const used = mapDiv.querySelectorAll('[data-condition]').length;
+    defaultColor = palette[used % palette.length];
+  }
   const wrapper = document.createElement('div');
   wrapper.dataset.condition = conditionName;
   wrapper.style.display = 'flex';
@@ -815,33 +842,36 @@ function createChartForSubplot(controlsDiv, chartDiv, config) {
   // 绘制数据系列
   config.seriesList.forEach(series => {
     const control = series.control;
-    const lineColor = control.querySelector(".line-color").value;
-    const lineThickness = parseFloat(control.querySelector(".line-thickness").value);
-    const showShadow = control.querySelector(".show-shadow").checked;
-    const shadowColor = control.querySelector(".shadow-color").value;
-    const shadowOpacity = parseFloat(control.querySelector(".shadow-opacity").value);
-
-    if (showShadow) {
-      svg.append("path")
-        .datum(series.data)
-        .attr("fill", shadowColor)
-        .attr("fill-opacity", shadowOpacity)
-        .attr("stroke", "none")
-        .attr("d", d3.area()
+    const lineColor = control.querySelector('.line-color').value;
+    const lineThickness = parseFloat(control.querySelector('.line-thickness').value);
+    const showShadow = control.querySelector('.show-shadow').checked;
+    const shadowColor = control.querySelector('.shadow-color').value;
+    const shadowOpacity = parseFloat(control.querySelector('.shadow-opacity').value);
+    const validLine = series.data.filter(d => isFinite(d.x) && isFinite(d.y));
+    const validArea = series.data.filter(d => isFinite(d.x) && isFinite(d.CI_left) && isFinite(d.CI_right));
+    if (showShadow && validArea.length) {
+      svg.append('path')
+        .datum(validArea)
+        .attr('fill', shadowColor)
+        .attr('fill-opacity', shadowOpacity)
+        .attr('stroke', 'none')
+        .attr('d', d3.area()
           .x(d => x(d.x) + axisMargin.x)
           .y0(d => y(d.CI_right) - axisMargin.y)
           .y1(d => y(d.CI_left) - axisMargin.y)
         );
     }
-    svg.append("path")
-      .datum(series.data)
-      .attr("fill", "none")
-      .attr("stroke", lineColor)
-      .attr("stroke-width", lineThickness)
-      .attr("d", d3.line()
-        .x(d => x(d.x) + axisMargin.x)
-        .y(d => y(d.y) - axisMargin.y)
-      );
+    if (validLine.length) {
+      svg.append('path')
+        .datum(validLine)
+        .attr('fill', 'none')
+        .attr('stroke', lineColor)
+        .attr('stroke-width', lineThickness)
+        .attr('d', d3.line()
+          .x(d => x(d.x) + axisMargin.x)
+          .y(d => y(d.y) - axisMargin.y)
+        );
+    }
   });
 
   // 绘制线
@@ -999,6 +1029,42 @@ function updateAllSubplots(forceLog=false) {
         errDiv.appendChild(pre);
       }
     }
+  });
+}
+
+// 建立系列与 condition 面板的双向颜色同步
+function attachConditionBidirectionalSync(controlsDiv, seriesControl, cond) {
+  if (!cond || seriesControl.dataset.condSync === '1') return;
+  const wrapper = controlsDiv.querySelector(`#condition-color-map [data-condition="${cond}"]`);
+  if (!wrapper) return;
+  const lineInputSeries = seriesControl.querySelector('.line-color');
+  const shadowInputSeries = seriesControl.querySelector('.shadow-color');
+  const lineInputCond = wrapper.querySelector('.condition-line-color');
+  const shadowInputCond = wrapper.querySelector('.condition-shadow-color');
+  if (lineInputSeries && lineInputCond) {
+    lineInputSeries.addEventListener('input', () => {
+      if (lineInputCond.value !== lineInputSeries.value) {
+        lineInputCond.value = lineInputSeries.value;
+        // 触发面板到所有系列的同步
+        syncConditionColorsToSeries(controlsDiv, cond, lineInputCond.value, null);
+      }
+    });
+  }
+  if (shadowInputSeries && shadowInputCond) {
+    shadowInputSeries.addEventListener('input', () => {
+      if (shadowInputCond.value !== shadowInputSeries.value) {
+        shadowInputCond.value = shadowInputSeries.value;
+        syncConditionColorsToSeries(controlsDiv, cond, null, shadowInputCond.value);
+      }
+    });
+  }
+  seriesControl.dataset.condSync = '1';
+}
+
+// 重新建立所有系列的同步（在加载 state 后调用）
+function ensureAllConditionSync(controlsDiv, config) {
+  config.seriesList.forEach(s => {
+    if (s.condition) attachConditionBidirectionalSync(controlsDiv, s.control, s.condition);
   });
 }
 
@@ -1453,18 +1519,19 @@ if (saveBtnPatched) {
 }
 
 function collectConditionColors(controlsDiv) {
-  const panel = controlsDiv.querySelector('#condition-colors-panel');
-  if (!panel || panel.style.display === 'none') return null;
+  const mapDiv = controlsDiv.querySelector('#condition-color-map');
+  if (!mapDiv) return null;
+  const entries = mapDiv.querySelectorAll('[data-condition]');
+  if (!entries.length) return null;
   const map = {};
-  panel.querySelectorAll('[data-condition]').forEach(w => {
+  entries.forEach(w => {
     const cond = w.dataset.condition;
-    const lineColor = w.querySelector('.condition-line-color')?.value;
-    const shadowColor = w.querySelector('.condition-shadow-color')?.value;
-    if (cond) {
-      map[cond] = { line: lineColor || '#ff0000', shadow: shadowColor || '#FF5C5C' };
-    }
+    if (!cond) return;
+    const lineColor = w.querySelector('.condition-line-color')?.value || '#ff0000';
+    const shadowColor = w.querySelector('.condition-shadow-color')?.value || '#FF5C5C';
+    map[cond] = { line: lineColor, shadow: shadowColor };
   });
-  return map;
+  return Object.keys(map).length ? map : null;
 }
 
 function downloadJSON(obj, fileName) {
@@ -1624,6 +1691,8 @@ function rebuildSubplotFromState(state) {
   } catch(fetchErr) {
     console.error('检查或加载 data-url 过程中出错', fetchErr);
   }
+  // 确保加载后所有系列与 condition 面板颜色双向同步
+  ensureAllConditionSync(controlsDiv, config);
 }
 
 function clearAllSubplots() {
