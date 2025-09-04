@@ -141,6 +141,46 @@ function createTextControl(index) {
   return div;
 }
 
+function renderGroupStylePanel(seriesControl, groupNames) {
+  const panel = seriesControl.querySelector('.group-style-panel');
+  if (!panel) return;
+  panel.innerHTML='';
+  groupNames.forEach(g => {
+    if (!g) return;
+    const existing = groupStyleMap[g] || {};
+    const lineColor = existing.lineColor || '#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+    const lineWidth = existing.lineWidth != null ? existing.lineWidth : 2;
+    const pointColor = existing.pointColor || lineColor;
+    const pointSize = existing.pointSize != null ? existing.pointSize : 5;
+    if (!groupStyleMap[g]) groupStyleMap[g] = { lineColor, lineWidth, pointColor, pointSize };
+    const row = document.createElement('div');
+    row.style.display='flex';
+    row.style.alignItems='center';
+    row.style.gap='4px';
+    row.style.margin='2px 0';
+    row.dataset.group = g;
+    row.innerHTML = `
+      <span style="min-width:60px;">${g}</span>
+      <input type="color" class="grp-line-color" value="${lineColor}" style="width:34px;" title="Line Color">
+      <input type="number" class="grp-line-width" value="${lineWidth}" step="0.1" min="0" style="width:46px;" title="Line Width">
+      <input type="color" class="grp-point-color" value="${pointColor}" style="width:34px;" title="Point Color">
+      <input type="number" class="grp-point-size" value="${pointSize}" step="0.5" min="0" style="width:46px;" title="Point Size">
+    `;
+    row.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', () => {
+        groupStyleMap[g] = {
+          lineColor: row.querySelector('.grp-line-color').value,
+          lineWidth: parseFloat(row.querySelector('.grp-line-width').value)||2,
+          pointColor: row.querySelector('.grp-point-color').value,
+          pointSize: parseFloat(row.querySelector('.grp-point-size').value)||5
+        };
+        createChart();
+      });
+    });
+    panel.appendChild(row);
+  });
+}
+
 function createLineControl(index) {
   const div = document.createElement("div");
   div.className = "line-control";
@@ -214,6 +254,11 @@ function createSeriesControl(index) {
       <label>Description:</label>
       <input type="text" class="series-description" placeholder="Enter description">
     </div>
+    <div class="control-row">
+      <label>Group Styles:</label>
+      <button type="button" class="toggle-group-styles">Show</button>
+    </div>
+    <div class="group-style-panel" style="display:none; border:1px solid #ccc; padding:4px; margin:4px 0; font-size:12px; line-height:1.2;"></div>
   `;
 
   // 为删除按钮绑定事件
@@ -274,6 +319,11 @@ function createScatterControl(index) {
       <label>Description:</label>
       <input type="text" class="scatter-description" placeholder="Enter description">
     </div>
+    <div class="control-row">
+      <label>Group Styles:</label>
+      <button type="button" class="toggle-scatter-group-styles">Show</button>
+    </div>
+    <div class="scatter-group-style-panel" style="display:none; border:1px solid #ccc; padding:4px; margin:4px 0; font-size:12px; line-height:1.2;"></div>
   `;
 
   const scatterObj = { data: null, control: div };
@@ -285,6 +335,16 @@ function createScatterControl(index) {
     d3.csv(url).then(data => {
       scatterObj.data = data;
       createChart(); // 重新绘制图表来显示新加载的散点图
+      const groups = Array.from(new Set(data.map(d=>d.group).filter(g=>g!=null)));
+      if (groups.length>1) {
+        const btn = div.querySelector('.toggle-scatter-group-styles');
+        const panel = div.querySelector('.scatter-group-style-panel');
+        if (btn && panel) {
+          panel.style.display='block';
+          btn.textContent='Hide';
+          renderScatterGroupStylePanel(div, groups);
+        }
+      }
     }).catch(error => {
       console.error("Error loading CSV from URL for Scatter:", error);
     });
@@ -301,6 +361,16 @@ function createScatterControl(index) {
       const data = d3.csvParse(text);
       scatterObj.data = data;
       createChart(); // 重新绘制图表以显示新加载的散点图
+      const groups = Array.from(new Set(data.map(d=>d.group).filter(g=>g!=null)));
+      if (groups.length>1) {
+        const btn = div.querySelector('.toggle-scatter-group-styles');
+        const panel = div.querySelector('.scatter-group-style-panel');
+        if (btn && panel) {
+          panel.style.display='block';
+          btn.textContent='Hide';
+          renderScatterGroupStylePanel(div, groups);
+        }
+      }
     };
     reader.onerror = function (error) {
       console.error("Error reading CSV file for Scatter:", error);
@@ -359,6 +429,53 @@ function drawScatterShape(svg, shape, x, y, size, color, opacity) {
     .attr("opacity", opacity);
 }
 
+function renderScatterGroupStylePanel(scatterControl, groupNames) {
+  const panel = scatterControl.querySelector('.scatter-group-style-panel');
+  if (!panel) return;
+  panel.innerHTML='';
+  groupNames.forEach(g => {
+    if (!g) return;
+    const existing = scatterGroupStyleMap[g] || {};
+    const pointColor = existing.pointColor || '#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+    const pointSize = existing.pointSize != null ? existing.pointSize : 5;
+    const shape = existing.shape || 'circle';
+    const opacity = existing.opacity != null ? existing.opacity : 0.8;
+    if (!scatterGroupStyleMap[g]) scatterGroupStyleMap[g] = { pointColor, pointSize, shape, opacity };
+    const row = document.createElement('div');
+    row.style.display='flex';
+    row.style.alignItems='center';
+    row.style.gap='4px';
+    row.style.margin='2px 0';
+    row.dataset.group = g;
+    row.innerHTML = `
+      <span style="min-width:60px;">${g}</span>
+      <input type="color" class="scg-point-color" value="${pointColor}" style="width:34px;" title="Point Color">
+      <input type="number" class="scg-point-size" value="${pointSize}" step="0.5" min="0" style="width:46px;" title="Point Size">
+      <select class="scg-shape" title="Shape" style="height:24px;">
+        <option value="circle" ${shape==='circle'?'selected':''}>Circle</option>
+        <option value="square" ${shape==='square'?'selected':''}>Square</option>
+        <option value="triangle" ${shape==='triangle'?'selected':''}>Triangle</option>
+        <option value="diamond" ${shape==='diamond'?'selected':''}>Diamond</option>
+        <option value="cross" ${shape==='cross'?'selected':''}>Cross</option>
+        <option value="star" ${shape==='star'?'selected':''}>Star</option>
+      </select>
+      <input type="number" class="scg-opacity" value="${opacity}" step="0.05" min="0" max="1" style="width:52px;" title="Opacity">
+    `;
+    row.querySelectorAll('input, select').forEach(inp => {
+      inp.addEventListener('input', () => {
+        scatterGroupStyleMap[g] = {
+          pointColor: row.querySelector('.scg-point-color').value,
+          pointSize: parseFloat(row.querySelector('.scg-point-size').value)||5,
+          shape: row.querySelector('.scg-shape').value,
+          opacity: parseFloat(row.querySelector('.scg-opacity').value)||0.8
+        };
+        createChart();
+      });
+    });
+    panel.appendChild(row);
+  });
+}
+
 // Conversion factor: 1 cm = 37.7952755906 pixels
 const CM_TO_PX = 37.7952755906;
 const PT_TO_PX = 1;
@@ -366,6 +483,10 @@ let seriesList = [];
 let linesList = [];
 let textList = [];
 let areasList = [];
+// group 样式映射：groupName -> { lineColor, lineWidth, pointColor, pointSize }
+let groupStyleMap = {};
+// scatter group 样式映射：groupName -> { pointColor, pointSize, shape, opacity }
+let scatterGroupStyleMap = {};
 
 function createChart() {
   // Get the container and dimensions in cm
@@ -548,16 +669,22 @@ function createChart() {
       //.tickSize(tickLength) // Set the tick size (length of the tick lines)
       .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
       //.tickFormat(d3.format(".0f")); // Format the tick labels (e.g., integers)
-      .tickFormat((d, i) => xtickLabels[i] || d) // Set custom tick labels
-      .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
+  .tickFormat((d, i) => xtickLabels[i] || d) // Set custom tick labels
+  .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
 
-      svg.append("g")
-      .attr("transform", `translate(${axisMargin.x}, ${height})`) // Translate X axis
+      const xG = svg.append("g")
+      .attr("transform", `translate(${axisMargin.x}, ${height})`)
       .call(xAxis)
       .selectAll("text") // Customize tick labels
       .attr("fill", "#000")
       .style("font-size", `${tickFontSize}px`) // Set font size
       .style("font-family", tickFontFamily); // Set font family
+
+      if (!showOuterTicks) {
+        // 移除最外侧两端的刻度线（不仅仅是长度为0，彻底隐藏）
+        const ticks = svg.selectAll('g.tick');
+        ticks.filter((d,i,n)=> i===0 || i===n.length-1).select('line').style('stroke-width',0);
+      }
 
       svg.selectAll(".domain").style("stroke-width", axisLineWidth);
       svg.selectAll(".tick line").style("stroke-width", tickLineWidth);
@@ -572,16 +699,21 @@ function createChart() {
       //.tickSize(tickLength) // Set the tick size (length of the tick lines)
       .tickSize(tickLength * (tickOrientation === "inward" ? -1 : 1))
       //.tickFormat(d => `${d} units`); // Customize tick labels (e.g., add units)
-      .tickFormat((d, i) => ytickLabels[i] || d) // Set custom tick labels
-      .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
+  .tickFormat((d, i) => ytickLabels[i] || d) // Set custom tick labels
+  .tickSizeOuter(showOuterTicks ? tickLength : 0); // Control outer ticks
 
-      svg.append("g")
-      .attr("transform", `translate(0, ${-axisMargin.y})`) // Translate Y axis
+      const yG = svg.append("g")
+      .attr("transform", `translate(0, ${-axisMargin.y})`)
       .call(yAxis)
       .selectAll("text") // Customize tick labels
       .attr("fill", "#000")
       .style("font-size", `${tickFontSize}px`) // Set font size
       .style("font-family", tickFontFamily); // Set font family
+
+      if (!showOuterTicks) {
+        const ticksY = svg.selectAll('g.tick');
+        ticksY.filter((d,i,n)=> i===0 || i===n.length-1).select('line').style('stroke-width',0);
+      }
 
       svg.selectAll(".domain").style("stroke-width", axisLineWidth);
       svg.selectAll(".tick line").style("stroke-width", tickLineWidth);
@@ -665,24 +797,34 @@ function createChart() {
 
   seriesList.forEach(series => {
     const control = series.control;
-    const lineColor = control.querySelector(".line-color").value;
-    const lineThickness = parseFloat(control.querySelector(".line-thickness").value);
+  const lineColor = control.querySelector(".line-color").value;
+  const lineThickness = parseFloat(control.querySelector(".line-thickness").value);
     const showShadow = control.querySelector(".show-shadow").checked;
     const shadowColor = control.querySelector(".shadow-color").value;
     const shadowOpacity = parseFloat(control.querySelector(".shadow-opacity").value);
 
     // 按 group 分组
-    const trajs = d3.groups(series.data, d=>d.group).map(g=>g[1]);
-    trajs.forEach(traj => {
-      svg.append("path")
-        .attr("fill","none")
-        .attr("stroke",control.querySelector(".line-color").value)
-        .attr("stroke-width",parseFloat(control.querySelector(".line-thickness").value))
-        .attr("d", d3.line()
-            .x(d=>x(d.x)+axisMargin.x)
-            .y(d=>y(d.y)-axisMargin.y)
-            .curve(d3.curveCatmullRom.alpha(0.7))
+    const grouped = d3.groups(series.data, d=>d.group).filter(g=>g[0]!=null);
+    const panel = control.querySelector('.group-style-panel');
+    if (panel && panel.style.display !== 'none') {
+      const names = grouped.map(g=>g[0]);
+      renderGroupStylePanel(control, names);
+    }
+    grouped.forEach(([gName, traj]) => {
+      const style = groupStyleMap[gName] || { lineColor, lineWidth: lineThickness, pointColor: lineColor, pointSize: 5 };
+      svg.append('path')
+        .attr('fill','none')
+        .attr('stroke', style.lineColor)
+        .attr('stroke-width', style.lineWidth)
+        .attr('d', d3.line()
+          .x(d=>x(d.x)+axisMargin.x)
+          .y(d=>y(d.y)-axisMargin.y)
+          .curve(d3.curveCatmullRom.alpha(0.7))
         (traj));
+      const last = traj[traj.length-1];
+      if (last) {
+        drawScatterShape(svg, 'circle', x(last.x)+axisMargin.x, y(last.y)-axisMargin.y, style.pointSize, style.pointColor, 1.0);
+      }
     });
   });
 
@@ -767,8 +909,13 @@ function createChart() {
     scatterItem.data.forEach(point => {
       const xPos = x(parseFloat(point.x)) + axisMargin.x;
       const yPos = y(parseFloat(point.y)) - axisMargin.y;
-      
-      drawScatterShape(svg, shape, xPos, yPos, size, color, opacity);
+      const gName = point.group;
+      if (gName && scatterGroupStyleMap[gName]) {
+        const gs = scatterGroupStyleMap[gName];
+        drawScatterShape(svg, gs.shape || shape, xPos, yPos, gs.pointSize ?? size, gs.pointColor || color, gs.opacity ?? opacity);
+      } else {
+        drawScatterShape(svg, shape, xPos, yPos, size, color, opacity);
+      }
     });
   });
   
@@ -807,6 +954,16 @@ document.getElementById("data-files")
         seriesList.push({ data, control: seriesControl });
         // 将该控制块添加到控制面板中
         document.getElementById("series-controls").appendChild(seriesControl);
+        const groups = Array.from(new Set(data.map(d=>d.group).filter(g=>g!=null)));
+        if (groups.length>1) {
+          const btn = seriesControl.querySelector('.toggle-group-styles');
+          const panel = seriesControl.querySelector('.group-style-panel');
+          if (btn && panel) {
+            panel.style.display='block';
+            btn.textContent='Hide';
+            renderGroupStylePanel(seriesControl, groups);
+          }
+        }
       };
       reader.readAsText(file);
     });
@@ -820,6 +977,17 @@ document.getElementById("add-url").addEventListener("click", function() {
     const seriesControl = createSeriesControl(seriesList.length);
     seriesList.push({ data, control: seriesControl });
     document.getElementById("series-controls").appendChild(seriesControl);
+    // auto-open group styles if multiple groups detected
+    const groups = Array.from(new Set(data.map(d=>d.group).filter(g=>g!=null)));
+    if (groups.length>1) {
+      const btn = seriesControl.querySelector('.toggle-group-styles');
+      const panel = seriesControl.querySelector('.group-style-panel');
+      if (btn && panel) {
+        panel.style.display='block';
+        btn.textContent='Hide';
+        renderGroupStylePanel(seriesControl, groups);
+      }
+    }
   }).catch(error => {
     console.error("Error loading CSV from URL:", error);
   });
@@ -994,7 +1162,9 @@ function collectState2D() {
     lines: collectLinesState(),
     texts: collectTextsState(),
     areas: collectAreasState(),
-    scatters: collectScattersState()
+  scatters: collectScattersState(),
+  groupStyles: { ...groupStyleMap },
+  scatterGroupStyles: { ...scatterGroupStyleMap }
   };
 }
 
@@ -1029,6 +1199,8 @@ function rebuildFromState2D(state) {
   applyInputs2D(state.controls);
 
   clearUILists();
+  groupStyleMap = state.groupStyles ? { ...state.groupStyles } : {};
+  scatterGroupStyleMap = state.scatterGroupStyles ? { ...state.scatterGroupStyles } : {};
 
   // series
   (state.series || []).forEach(s => {
@@ -1044,6 +1216,17 @@ function rebuildFromState2D(state) {
     }
     seriesList.push({ data: s.data || [], control: seriesControl });
     document.getElementById('series-controls').appendChild(seriesControl);
+    // auto-open and populate if saved data has multiple groups and groupStyles exist
+    const groups = Array.from(new Set((s.data||[]).map(d=>d.group).filter(g=>g!=null)));
+    if (groups.length>1) {
+      const btn = seriesControl.querySelector('.toggle-group-styles');
+      const panel = seriesControl.querySelector('.group-style-panel');
+      if (btn && panel) {
+        panel.style.display='block';
+        btn.textContent='Hide';
+        renderGroupStylePanel(seriesControl, groups);
+      }
+    }
   });
 
   // lines
@@ -1102,6 +1285,16 @@ function rebuildFromState2D(state) {
     scatterObj.data = sc.data || null;
     scatterList.push(scatterObj);
     document.getElementById('scatter-controls').appendChild(scatterObj.control);
+    const groups = Array.from(new Set((scatterObj.data||[]).map(d=>d.group).filter(g=>g!=null)));
+    if (groups.length>1) {
+      const btn = scatterObj.control.querySelector('.toggle-scatter-group-styles');
+      const panel = scatterObj.control.querySelector('.scatter-group-style-panel');
+      if (btn && panel) {
+        panel.style.display='block';
+        btn.textContent='Hide';
+        renderScatterGroupStylePanel(scatterObj.control, groups);
+      }
+    }
   });
 
   // Render with the rebuilt state
@@ -1151,4 +1344,50 @@ document.getElementById('load-params-file')?.addEventListener('change', (e) => {
     }
   };
   reader.readAsText(file);
+});
+
+// 事件委托：展开/隐藏 group 样式面板
+document.getElementById('series-controls').addEventListener('click', e => {
+  const btn = e.target.closest('.toggle-group-styles');
+  if (!btn) return;
+  const seriesControl = btn.closest('.series-control');
+  if (!seriesControl) return;
+  const panel = seriesControl.querySelector('.group-style-panel');
+  if (!panel) return;
+  if (panel.style.display === 'none') {
+    const idx = parseInt(seriesControl.dataset.index, 10);
+    const series = seriesList[idx];
+    if (series) {
+      const groups = Array.from(new Set((series.data || []).map(d => d.group).filter(g => g != null)));
+      renderGroupStylePanel(seriesControl, groups);
+    }
+    panel.style.display='block';
+    btn.textContent='Hide';
+  } else {
+    panel.style.display='none';
+    btn.textContent='Show';
+  }
+});
+
+// 事件委托：展开/隐藏 scatter group 样式面板
+document.getElementById('scatter-controls').addEventListener('click', e => {
+  const btn = e.target.closest('.toggle-scatter-group-styles');
+  if (!btn) return;
+  const scControl = btn.closest('.scatter-control');
+  if (!scControl) return;
+  const panel = scControl.querySelector('.scatter-group-style-panel');
+  if (!panel) return;
+  if (panel.style.display === 'none') {
+    const idx = parseInt(scControl.dataset.index, 10);
+    const scItem = scatterList[idx];
+    if (scItem) {
+      const groups = Array.from(new Set((scItem.data||[]).map(d=>d.group).filter(g=>g!=null)));
+      renderScatterGroupStylePanel(scControl, groups);
+    }
+    panel.style.display='block';
+    btn.textContent='Hide';
+  } else {
+    panel.style.display='none';
+    btn.textContent='Show';
+  }
 });
