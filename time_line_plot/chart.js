@@ -387,11 +387,14 @@ function createSubplotInstance(baseConfig) {
     };
   })();
 
-  // 绑定自动更新事件（排除文件输入、URL按钮等已单独触发重绘的控件）
-  controlsDiv.querySelectorAll('input, select, textarea').forEach(el => {
-    if (el.id === 'data-files' || el.id === 'data-url') return; // 数据加载另行处理
-    el.addEventListener('input', autoUpdate);
-    el.addEventListener('change', autoUpdate);
+  // 使用事件委托绑定自动更新事件（支持动态添加的控件）
+  controlsDiv.addEventListener('input', (e) => {
+    if (e.target.id === 'data-files' || e.target.id === 'data-url') return;
+    autoUpdate();
+  });
+  controlsDiv.addEventListener('change', (e) => {
+    if (e.target.id === 'data-files' || e.target.id === 'data-url') return;
+    autoUpdate();
   });
 
   // 位置输入框事件只影响 chartDiv
@@ -1035,6 +1038,9 @@ function updateAllSubplots(forceLog=false) {
 // 建立系列与 condition 面板的双向颜色同步
 function attachConditionBidirectionalSync(controlsDiv, seriesControl, cond) {
   if (!cond || seriesControl.dataset.condSync === '1') return;
+  // 移除 Series -> Condition 的反向同步，避免修改单个系列颜色时意外影响其他同 Condition 系列
+  // 仅保留 Condition 面板 -> Series 的单向控制（已在 addOrReuseConditionColorInput 中实现）
+  /*
   const wrapper = controlsDiv.querySelector(`#condition-color-map [data-condition="${cond}"]`);
   if (!wrapper) return;
   const lineInputSeries = seriesControl.querySelector('.line-color');
@@ -1058,6 +1064,7 @@ function attachConditionBidirectionalSync(controlsDiv, seriesControl, cond) {
       }
     });
   }
+  */
   seriesControl.dataset.condSync = '1';
 }
 
