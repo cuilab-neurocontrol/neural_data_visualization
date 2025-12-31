@@ -24,6 +24,19 @@ let axisMargin = {
   y: 0 * CM_TO_PX,
 };
 
+// 辅助函数：获取包含上三级目录的显示路径
+function getSmartPath(pathOrName) {
+  if (!pathOrName) return "";
+  // 统一分隔符
+  const normalized = pathOrName.replace(/\\/g, '/');
+  const parts = normalized.split('/').filter(p => p);
+  // 如果层级大于4（文件名+3级目录），截取最后4部分
+  if (parts.length > 4) {
+    return '.../' + parts.slice(-4).join('/');
+  }
+  return pathOrName;
+}
+
 function extractGroupSettings(controlDiv, groupNames) {
   const settings = {};
   if (!groupNames) return settings;
@@ -150,15 +163,28 @@ function renderGroupControls(container, groupNames, existingSettings) {
 }
 
 // 创建系列控制块，包含线条颜色、粗细、阴影参数
-function createSeriesControl(index, groupNames) {
+function createSeriesControl(index, groupNames, fullSourceName = "") {
+  const displaySourceName = getSmartPath(fullSourceName);
+  
+  // 尝试提取文件名作为默认描述
+  let defaultDesc = `Series ${index + 1}`;
+  if (fullSourceName) {
+    const parts = fullSourceName.replace(/\\/g, '/').split('/');
+    defaultDesc = parts[parts.length - 1];
+  }
+
   const div = document.createElement("div");
   div.className = "series-control";
   div.dataset.index = index;
   div.innerHTML = `
     <h3>
-      <input type="text" class="series-description" value="Series ${index + 1}" style="width:120px;">
+      <input type="text" class="series-description" value="${defaultDesc}" style="width:200px;" title="${defaultDesc}">
       <button class="delete-series">Delete</button>
     </h3>
+    <div class="control-row" style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; justify-content: flex-start;">
+      <strong style="font-size:12px; margin-right:6px; color:#333;">Data Path:</strong>
+      <span class="data-source-path" style="font-size:12px; color:#555; word-break:break-all; font-family: monospace;" title="${fullSourceName}">${displaySourceName || "(No file selected)"}</span>
+    </div>
     <div class="control-row">
       <label>Line Color:</label>
       <input type="color" class="line-color" value="#ff0000">
@@ -188,6 +214,7 @@ function createSeriesControl(index, groupNames) {
   // Replace Data Logic
   const replaceBtn = div.querySelector('.replace-data-btn');
   const replaceInput = div.querySelector('.replace-data-file');
+  const sourcePathSpan = div.querySelector('.data-source-path');
   
   replaceBtn.addEventListener('click', () => replaceInput.click());
   
@@ -195,6 +222,13 @@ function createSeriesControl(index, groupNames) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
     
+    // 优先使用 webkitRelativePath (如果存在)，否则使用 name
+    const pathInfo = file.webkitRelativePath || file.name;
+    const smartPath = getSmartPath(pathInfo);
+    
+    sourcePathSpan.textContent = smartPath;
+    sourcePathSpan.title = pathInfo;
+
     const reader = new FileReader();
     reader.onload = function(evt) {
       const text = evt.target.result;
@@ -980,7 +1014,9 @@ document.getElementById("data-files").addEventListener("change", function(e) {
       // 修复：统一使用 'group_name' 作为分组列名
       const groupNames = Array.from(new Set(data.map(d => d.group_name)));
       // 创建一个系列控制块，该控制块只控制此数据系列
-      const seriesControl = createSeriesControl(seriesList.length, groupNames);
+      // 优先使用 webkitRelativePath (如果存在)，否则使用 name
+      const pathInfo = file.webkitRelativePath || file.name;
+      const seriesControl = createSeriesControl(seriesList.length, groupNames, pathInfo);
       // 保存数据与其控制块
       seriesList.push({ data, control: seriesControl, groupNames });
       // 将该控制块添加到控制面板中
@@ -998,7 +1034,7 @@ document.getElementById("add-url").addEventListener("click", function() {
   if (!url) return;
   d3.csv(url).then(data => {
     const groupNames = Array.from(new Set(data.map(d => d.group_name)));
-    const seriesControl = createSeriesControl(seriesList.length, groupNames);
+    const seriesControl = createSeriesControl(seriesList.length, groupNames, url);
     seriesList.push({ data, control: seriesControl, groupNames });
     document.getElementById("series-controls").appendChild(seriesControl);
     createChart(); // 新增：重新绘制图表以显示新数据
@@ -1153,7 +1189,9 @@ function collectSeriesState() {
         boxLineColor: c?.querySelector(`.box-line-color-group[data-group="${name}"]`)?.value ?? '#000000',
         dotColor: c?.querySelector(`.dot-color-group[data-group="${name}"]`)?.value ?? '#222222',
         dotSize: Number(c?.querySelector(`.dot-size-group[data-group="${name}"]`)?.value ?? 2),
-        dotOpacity: Number(c?.querySelector(`.dot-opacity-group[data-group="${name}"]`)?.value ?? 1)
+        dotOpacity: Number(c?.querySelector(`.dot-opacity-group[data-group="${name}"]`)?.value ?? 1),
+        unifyColor: c?.querySelector(`.unify-color-group[data-group="${name}"]`)?.value ?? '#FF5C5C',
+        unifySize: Number(c?.querySelector(`.unify-size-group[data-group="${name}"]`)?.value ?? 1)
       };
     });
 
@@ -1165,6 +1203,7 @@ function collectSeriesState() {
         showShadow: !!c?.querySelector('.show-shadow')?.checked,
         shadowOpacity: Number(c?.querySelector('.shadow-opacity')?.value || 0.3)
       },
+      sourceName: c?.querySelector('.data-source-path')?.textContent || '',
       groupOptions,
       groupNames: s.groupNames || [],
       data: s.data || []
@@ -1207,7 +1246,7 @@ function clearSeriesUI() {
 
 function rebuildSeries(seriesState) {
   (seriesState || []).forEach(s => {
-    const seriesControl = createSeriesControl(seriesList.length, s.groupNames || []);
+    const seriesControl = createSeriesControl(seriesList.length, s.groupNames || [], s.sourceName || "");
     // basic options
     if (s.options) {
       seriesControl.querySelector('.series-description').value = s.options.description || '';
