@@ -24,6 +24,131 @@ let axisMargin = {
   y: 0 * CM_TO_PX,
 };
 
+function extractGroupSettings(controlDiv, groupNames) {
+  const settings = {};
+  if (!groupNames) return settings;
+  groupNames.forEach(name => {
+    settings[name] = {
+      shadowColor: controlDiv.querySelector(`.shadow-color-group[data-group="${name}"]`)?.value,
+      lineColor: controlDiv.querySelector(`.line-color-group[data-group="${name}"]`)?.value,
+      lineWidth: controlDiv.querySelector(`.line-width-group[data-group="${name}"]`)?.value,
+      boxLineWidth: controlDiv.querySelector(`.box-line-width-group[data-group="${name}"]`)?.value,
+      boxLineColor: controlDiv.querySelector(`.box-line-color-group[data-group="${name}"]`)?.value,
+      dotColor: controlDiv.querySelector(`.dot-color-group[data-group="${name}"]`)?.value,
+      dotSize: controlDiv.querySelector(`.dot-size-group[data-group="${name}"]`)?.value,
+      dotOpacity: controlDiv.querySelector(`.dot-opacity-group[data-group="${name}"]`)?.value,
+      unifyColor: controlDiv.querySelector(`.unify-color-group[data-group="${name}"]`)?.value,
+      unifySize: controlDiv.querySelector(`.unify-size-group[data-group="${name}"]`)?.value
+    };
+  });
+  return settings;
+}
+
+function renderGroupControls(container, groupNames, existingSettings) {
+  container.innerHTML = '';
+  if (!groupNames || groupNames.length === 0) return;
+
+  groupNames.forEach((name, i) => {
+    const settings = existingSettings && existingSettings[name] ? existingSettings[name] : {};
+    const defaultColor = ["#FF5C5C", "#5CFF5C", "#5C5CFF", "#FFD700", "#FF69B4"][i % 5];
+    
+    const shadowColor = settings.shadowColor || defaultColor;
+    const lineColor = settings.lineColor || "#000000";
+    const lineWidth = settings.lineWidth || "1";
+    const boxLineWidth = settings.boxLineWidth || "1";
+    const boxLineColor = settings.boxLineColor || "#000000";
+    const dotColor = settings.dotColor || "#222222";
+    const dotSize = settings.dotSize || "1";
+    const dotOpacity = settings.dotOpacity || "0.5";
+    const unifyColorVal = settings.unifyColor || defaultColor;
+    const unifySizeVal = settings.unifySize || "1";
+
+    // Unify Color Row
+    const unifyRow = document.createElement("div");
+    unifyRow.className = "control-row";
+    unifyRow.innerHTML = `
+      <label>${name} 一键颜色:</label>
+      <input type="color" class="unify-color-group" data-group="${name}" value="${unifyColorVal}" style="width:55px;">
+      <button type="button" class="apply-unify-color-group" data-group="${name}" style="margin-left:4px;">全部应用</button>
+      <span style="font-size:10px;opacity:0.6;">(Shadow/Line/Box/Dot)</span>
+    `;
+    container.appendChild(unifyRow);
+
+    // Unify Size Row
+    const unifySizeRow = document.createElement("div");
+    unifySizeRow.className = "control-row";
+    unifySizeRow.innerHTML = `
+      <label>${name} 一键尺寸:</label>
+      <input type="number" class="unify-size-group" data-group="${name}" value="${unifySizeVal}" min="0.5" step="0.5" style="width:55px;">
+      <button type="button" class="apply-unify-size-group" data-group="${name}" style="margin-left:4px;">全部应用</button>
+      <span style="font-size:10px;opacity:0.6;">(Box/Line/Dot)</span>
+    `;
+    container.appendChild(unifySizeRow);
+
+    // Shadow & Line
+    const row1 = document.createElement("div");
+    row1.className = "control-row";
+    row1.innerHTML = `
+      <label>${name} Shadow Color:</label>
+      <input type="color" class="shadow-color-group" data-group="${name}" value="${shadowColor}">
+      <label>Line Color:</label>
+      <input type="color" class="line-color-group" data-group="${name}" value="${lineColor}">
+      <label>Line Width:</label>
+      <input type="number" class="line-width-group" data-group="${name}" value="${lineWidth}" min="0.5" step="0.5" style="width:50px;">
+    `;
+    container.appendChild(row1);
+
+    // Box Line
+    const row3 = document.createElement("div");
+    row3.className = "control-row";
+    row3.innerHTML = `
+      <label>Box Line Width:</label>
+      <input type="number" class="box-line-width-group" data-group="${name}" value="${boxLineWidth}" min="0.5" step="0.5" style="width:50px;">
+      <label>Box Line Color:</label>
+      <input type="color" class="box-line-color-group" data-group="${name}" value="${boxLineColor}">
+    `;
+    container.appendChild(row3);
+
+    // Dots
+    const row2 = document.createElement("div");
+    row2.className = "control-row";
+    row2.innerHTML = `
+      <label>Dot Color:</label>
+      <input type="color" class="dot-color-group" data-group="${name}" value="${dotColor}">
+      <label>Dot Size:</label>
+      <input type="number" class="dot-size-group" data-group="${name}" value="${dotSize}" min="0.5" step="0.5" style="width:40px;">
+      <label>Dot Opacity:</label>
+      <input type="number" class="dot-opacity-group" data-group="${name}" value="${dotOpacity}" min="0" max="1" step="0.05" style="width:40px;">
+    `;
+    container.appendChild(row2);
+
+    // Event Listeners
+    unifyRow.querySelector('.apply-unify-color-group').addEventListener('click', () => {
+      const unified = unifyRow.querySelector('.unify-color-group')?.value;
+      if (!unified) return;
+      const sel = `[data-group="${name}"]`;
+      container.querySelectorAll(`.shadow-color-group${sel}, .line-color-group${sel}, .box-line-color-group${sel}, .dot-color-group${sel}`).forEach(inp => {
+        inp.value = unified;
+      });
+      createChart();
+    });
+
+    unifySizeRow.querySelector('.apply-unify-size-group').addEventListener('click', () => {
+      const valStr = unifySizeRow.querySelector('.unify-size-group')?.value;
+      if (valStr === undefined || valStr === null || valStr === '') return;
+      const v = parseFloat(valStr);
+      if (isNaN(v)) return;
+      const lineWidthInput = container.querySelector(`.line-width-group[data-group="${name}"]`);
+      const boxLineWidthInput = container.querySelector(`.box-line-width-group[data-group="${name}"]`);
+      const dotSizeInput = container.querySelector(`.dot-size-group[data-group="${name}"]`);
+      if (lineWidthInput) lineWidthInput.value = v;
+      if (boxLineWidthInput) boxLineWidthInput.value = v;
+      if (dotSizeInput) dotSizeInput.value = v;
+      createChart();
+    });
+  });
+}
+
 // 创建系列控制块，包含线条颜色、粗细、阴影参数
 function createSeriesControl(index, groupNames) {
   const div = document.createElement("div");
@@ -50,99 +175,55 @@ function createSeriesControl(index, groupNames) {
       <label>Show Dots:</label>
       <input type="checkbox" class="show-dots" checked>
     </div>
+    <div class="control-row">
+      <button class="replace-data-btn">Replace Data (CSV)</button>
+      <input type="file" class="replace-data-file" accept=".csv" style="display:none;">
+    </div>
+    <div class="group-controls-container"></div>
   `;
 
-  // 为每个分组添加颜色选择器
-  if (groupNames && groupNames.length > 0) {
-    groupNames.forEach((name, i) => {
-      const color = ["#FF5C5C", "#5CFF5C", "#5C5CFF", "#FFD700", "#FF69B4"][i % 5];
+  const groupContainer = div.querySelector('.group-controls-container');
+  renderGroupControls(groupContainer, groupNames, {});
 
-      // 阴影和线的控制项
-      // 新增：该分组一键统一颜色行
-      const unifyRow = document.createElement("div");
-      unifyRow.className = "control-row";
-      unifyRow.innerHTML = `
-        <label>${name} 一键颜色:</label>
-        <input type="color" class="unify-color-group" data-group="${name}" value="${color}" style="width:55px;">
-        <button type="button" class="apply-unify-color-group" data-group="${name}" style="margin-left:4px;">全部应用</button>
-        <span style="font-size:10px;opacity:0.6;">(Shadow/Line/Box/Dot)</span>
-      `;
-      div.appendChild(unifyRow);
+  // Replace Data Logic
+  const replaceBtn = div.querySelector('.replace-data-btn');
+  const replaceInput = div.querySelector('.replace-data-file');
+  
+  replaceBtn.addEventListener('click', () => replaceInput.click());
+  
+  replaceInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const text = evt.target.result;
+      const newData = d3.csvParse(text);
+      const newGroupNames = Array.from(new Set(newData.map(d => d.group_name)));
+      
+      // Find current series object
+      const currentSeries = seriesList.find(s => s.control === div);
+      if (!currentSeries) return;
 
-      // 新增：该分组一键尺寸行（同步 Box Line Width / Line Width / Dot Size）
-      const unifySizeRow = document.createElement("div");
-      unifySizeRow.className = "control-row";
-      unifySizeRow.innerHTML = `
-        <label>${name} 一键尺寸:</label>
-        <input type="number" class="unify-size-group" data-group="${name}" value="1" min="0.5" step="0.5" style="width:55px;">
-        <button type="button" class="apply-unify-size-group" data-group="${name}" style="margin-left:4px;">全部应用</button>
-        <span style="font-size:10px;opacity:0.6;">(Box/Line/Dot)</span>
-      `;
-      div.appendChild(unifySizeRow);
-
-      const row1 = document.createElement("div");
-      row1.className = "control-row";
-      row1.innerHTML = `
-        <label>${name} Shadow Color:</label>
-        <input type="color" class="shadow-color-group" data-group="${name}" value="${color}">
-        <label>Line Color:</label>
-        <input type="color" class="line-color-group" data-group="${name}" value="#000000">
-        <label>Line Width:</label>
-        <input type="number" class="line-width-group" data-group="${name}" value="1" min="0.5" step="0.5" style="width:50px;">
-      `;
-      div.appendChild(row1);
-
-      // 箱形图线宽单独一行
-      const row3 = document.createElement("div");
-      row3.className = "control-row";
-      row3.innerHTML = `
-        <label>Box Line Width:</label>
-        <input type="number" class="box-line-width-group" data-group="${name}" value="1" min="0.5" step="0.5" style="width:50px;">
-        <label>Box Line Color:</label>
-        <input type="color" class="box-line-color-group" data-group="${name}" value="#000000">
-      `;
-      div.appendChild(row3);
-
-      // 点的控制项单独一行
-      const row2 = document.createElement("div");
-      row2.className = "control-row";
-      row2.innerHTML = `
-        <label>Dot Color:</label>
-        <input type="color" class="dot-color-group" data-group="${name}" value="#222222">
-        <label>Dot Size:</label>
-        <input type="number" class="dot-size-group" data-group="${name}" value="1" min="0.5" step="0.5" style="width:40px;">
-        <label>Dot Opacity:</label>
-        <input type="number" class="dot-opacity-group" data-group="${name}" value="0.5" min="0" max="1" step="0.05" style="width:40px;">
-      `;
-      div.appendChild(row2);
-
-      // 事件：点击分组统一颜色按钮 -> 四类颜色同步
-      unifyRow.querySelector('.apply-unify-color-group').addEventListener('click', () => {
-        const unified = unifyRow.querySelector('.unify-color-group')?.value;
-        if (!unified) return;
-        const sel = `[data-group="${name}"]`;
-        div.querySelectorAll(`.shadow-color-group${sel}, .line-color-group${sel}, .box-line-color-group${sel}, .dot-color-group${sel}`).forEach(inp => {
-          inp.value = unified;
-        });
-        createChart();
-      });
-
-      // 事件：点击分组统一尺寸按钮 -> 三类数值同步
-      unifySizeRow.querySelector('.apply-unify-size-group').addEventListener('click', () => {
-        const valStr = unifySizeRow.querySelector('.unify-size-group')?.value;
-        if (valStr === undefined || valStr === null || valStr === '') return;
-        const v = parseFloat(valStr);
-        if (isNaN(v)) return;
-        const lineWidthInput = div.querySelector(`.line-width-group[data-group="${name}"]`);
-        const boxLineWidthInput = div.querySelector(`.box-line-width-group[data-group="${name}"]`);
-        const dotSizeInput = div.querySelector(`.dot-size-group[data-group="${name}"]`);
-        if (lineWidthInput) lineWidthInput.value = v;
-        if (boxLineWidthInput) boxLineWidthInput.value = v;
-        if (dotSizeInput) dotSizeInput.value = v;
-        createChart();
-      });
-    });
-  }
+      // Extract existing settings for current groups
+      const oldSettings = extractGroupSettings(groupContainer, currentSeries.groupNames);
+      
+      // Update series data
+      currentSeries.data = newData;
+      currentSeries.groupNames = newGroupNames;
+      
+      // Re-render group controls with preserved settings
+      renderGroupControls(groupContainer, newGroupNames, oldSettings);
+      
+      // Redraw chart
+      createChart();
+      applyPlotTypeVisibility();
+      
+      // Reset input
+      replaceInput.value = '';
+    };
+    reader.readAsText(file);
+  });
 
   // 删除按钮事件
   div.querySelector(".delete-series").addEventListener("click", function() {
