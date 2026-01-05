@@ -163,7 +163,7 @@ function renderGroupControls(container, groupNames, existingSettings) {
 }
 
 // 创建系列控制块，包含线条颜色、粗细、阴影参数
-function createSeriesControl(index, groupNames, fullSourceName = "") {
+function createSeriesControl(index, groupNames, fullSourceName = "", isMerged = false) {
   const displaySourceName = getSmartPath(fullSourceName);
   
   // 尝试提取文件名作为默认描述
@@ -204,12 +204,57 @@ function createSeriesControl(index, groupNames, fullSourceName = "") {
     <div class="control-row">
       <button class="replace-data-btn">Replace Data (CSV)</button>
       <input type="file" class="replace-data-file" accept=".csv" style="display:none;">
+      ${isMerged ? '<button class="split-groups-btn" style="margin-left:8px;">Split Groups</button>' : ''}
     </div>
     <div class="group-controls-container"></div>
   `;
 
   const groupContainer = div.querySelector('.group-controls-container');
   renderGroupControls(groupContainer, groupNames, {});
+
+  // Split Groups Logic
+  const splitBtn = div.querySelector('.split-groups-btn');
+  if (splitBtn) {
+    splitBtn.addEventListener('click', () => {
+      const currentSeriesIndex = seriesList.findIndex(s => s.control === div);
+      if (currentSeriesIndex === -1) return;
+      const currentSeries = seriesList[currentSeriesIndex];
+      if (!currentSeries.rawData) return;
+
+      // 1. Get all unique groups from rawData
+      const allGroups = Array.from(new Set(currentSeries.rawData.map(d => d.group_name)));
+
+      // 2. Remove the current merged series
+      seriesList.splice(currentSeriesIndex, 1);
+      div.remove();
+
+      // 3. Create new series for each group
+      allGroups.forEach(groupName => {
+          const groupData = currentSeries.rawData.filter(d => d.group_name === groupName);
+          
+          // Create control for this single group
+          // We pass isMerged=false so no split button appears on these children
+          const newSeriesControl = createSeriesControl(seriesList.length, [groupName], fullSourceName, false);
+          
+          // Add to list
+          seriesList.push({
+              data: groupData,
+              control: newSeriesControl,
+              groupNames: [groupName]
+          });
+          
+          // Add to DOM
+          document.getElementById("series-controls").appendChild(newSeriesControl);
+      });
+
+      // 4. Re-index controls
+      document.querySelectorAll(".series-control").forEach((ctrl, i) => ctrl.dataset.index = i);
+      
+      // 5. Redraw chart
+      createChart();
+      applyPlotTypeVisibility();
+    });
+  }
 
   // Replace Data Logic
   const replaceBtn = div.querySelector('.replace-data-btn');
@@ -1010,19 +1055,40 @@ document.getElementById("data-files").addEventListener("change", function(e) {
     const reader = new FileReader();
     reader.onload = function(evt) {
       const text = evt.target.result;
-      const data = d3.csvParse(text); // 解析CSV数据
-      // 修复：统一使用 'group_name' 作为分组列名
-      const groupNames = Array.from(new Set(data.map(d => d.group_name)));
-      // 创建一个系列控制块，该控制块只控制此数据系列
+      const rawData = d3.csvParse(text); // 解析CSV数据
+      
       // 优先使用 webkitRelativePath (如果存在)，否则使用 name
       const pathInfo = file.webkitRelativePath || file.name;
-      const seriesControl = createSeriesControl(seriesList.length, groupNames, pathInfo);
+      
+      // Default Merge Logic:
+      // Create a merged dataset where group_name is the filename (without extension)
+      let fileName = file.name;
+      if (fileName.includes('.')) {
+          fileName = fileName.split('.').slice(0, -1).join('.');
+      }
+      
+      const mergedData = rawData.map(d => ({
+          ...d,
+          group_name: fileName
+      }));
+      
+      const groupNames = [fileName];
+      
+      // Pass isMerged=true to enable the Split Groups button
+      const seriesControl = createSeriesControl(seriesList.length, groupNames, pathInfo, true);
+      
       // 保存数据与其控制块
-      seriesList.push({ data, control: seriesControl, groupNames });
+      seriesList.push({ 
+          data: mergedData, 
+          rawData: rawData, // Store raw data for splitting later
+          control: seriesControl, 
+          groupNames 
+      });
+      
       // 将该控制块添加到控制面板中
       document.getElementById("series-controls").appendChild(seriesControl);
       createChart(); // 新增：重新绘制图表以显示新数据
-  applyPlotTypeVisibility();
+      applyPlotTypeVisibility();
     };
     reader.readAsText(file);
   });
