@@ -187,6 +187,19 @@ function createLineControl(index, controlsDiv, chartDiv, config) {
   return div;
 }
 
+// 辅助函数：获取包含上三级目录的显示路径
+function getSmartPath(pathOrName) {
+  if (!pathOrName) return "";
+  // 统一分隔符
+  const normalized = pathOrName.replace(/\\/g, '/');
+  const parts = normalized.split('/').filter(p => p);
+  // 如果层级大于4（文件名+3级目录），截取最后4部分
+  if (parts.length > 4) {
+    return '.../' + parts.slice(-4).join('/');
+  }
+  return pathOrName;
+}
+
 // 创建系列控制块，包含线条颜色、粗细、阴影参数
 function createSeriesControl(index, controlsDiv, chartDiv, config) {
   const div = document.createElement("div");
@@ -194,6 +207,10 @@ function createSeriesControl(index, controlsDiv, chartDiv, config) {
   div.dataset.index = index;
   div.innerHTML = `
     <h3>Series ${index + 1} <button class="delete-series">Delete</button></h3>
+    <div class="control-row" style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px; margin-bottom: 8px; justify-content: flex-start;">
+      <strong style="font-size:12px; margin-right:6px; color:#333;">Data Path:</strong>
+      <span class="data-source-path" style="font-size:12px; color:#555; word-break:break-all; font-family: monospace;"></span>
+    </div>
     <div class="control-row">
       <label>Line Color:</label>
       <input type="color" class="line-color" value="#ff0000">
@@ -212,6 +229,10 @@ function createSeriesControl(index, controlsDiv, chartDiv, config) {
       <label>Description:</label>
       <input type="text" class="series-description" placeholder="Enter description">
     </div>
+    <div class="control-row">
+      <button class="replace-data-btn">Replace Data (CSV)</button>
+      <input type="file" class="replace-data-file" accept=".csv" style="display:none;">
+    </div>
   `;
 
   // 为删除按钮绑定事件
@@ -224,6 +245,125 @@ function createSeriesControl(index, controlsDiv, chartDiv, config) {
     controls.forEach((ctrl, i) => ctrl.dataset.index = i);
     // 关键：刷新当前子图
     createChartForSubplot(controlsDiv, chartDiv, config);
+  });
+
+  // Replace Data Logic
+  const replaceBtn = div.querySelector('.replace-data-btn');
+  const replaceInput = div.querySelector('.replace-data-file');
+  const sourcePathSpan = div.querySelector('.data-source-path');
+  
+  replaceBtn.addEventListener('click', () => replaceInput.click());
+  
+  replaceInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    
+    const pathInfo = file.webkitRelativePath || file.name;
+    const smartPath = getSmartPath(pathInfo);
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const text = evt.target.result;
+      const newData = d3.csvParse(text);
+      
+      // Check if the new data has a 'condition' column
+      const hasCondition = newData.length > 0 && Object.prototype.hasOwnProperty.call(newData[0], 'condition');
+
+      if (hasCondition) {
+          // Group new data by condition
+          const groupedNewData = d3.group(newData, d => d.condition);
+          
+          // Iterate over ALL series in this subplot to find matches
+          let matchFound = false;
+          config.seriesList.forEach(s => {
+              const descInput = s.control.querySelector('.series-description');
+              const desc = descInput ? descInput.value : '';
+              
+              // If this series matches a group in the new data
+              if (groupedNewData.has(desc)) {
+                  matchFound = true;
+                  const rows = groupedNewData.get(desc);
+                  
+                  // Clean and update data
+                  s.data = rows.map(r => ({
+                    x: +r.x,
+                    y: +r.y,
+                    CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
+                    CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
+                    condition: r.condition
+                  })).filter(d => isFinite(d.x) && isFinite(d.y));
+                  
+                  // Update path display
+                  const pSpan = s.control.querySelector('.data-source-path');
+                  if (pSpan) {
+                      pSpan.textContent = smartPath;
+                      pSpan.title = pathInfo;
+                  }
+              }
+          });
+          
+          // If no series matched by description, fallback to updating the CURRENT series only
+          // (This handles the case where the user renamed the description or it doesn't match)
+          if (!matchFound) {
+             const seriesObj = config.seriesList.find(s => s.control === div);
+             if (seriesObj) {
+                 // Try to find data matching the current series' original condition if possible, 
+                 // or just take the whole file if it's ambiguous? 
+                 // Let's try to match by the series' stored condition property first
+                 if (seriesObj.condition && groupedNewData.has(seriesObj.condition)) {
+                     const rows = groupedNewData.get(seriesObj.condition);
+                     seriesObj.data = rows.map(r => ({
+                        x: +r.x,
+                        y: +r.y,
+                        CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
+                        CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
+                        condition: r.condition
+                      })).filter(d => isFinite(d.x) && isFinite(d.y));
+                 } else {
+                     // Fallback: just use the whole data (or filtered by current condition if it exists in rows)
+                     // This is tricky. If no description match, maybe just update this one series with matching rows?
+                     const cleaned = newData.map(r => ({
+                        x: +r.x,
+                        y: +r.y,
+                        CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
+                        CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
+                        condition: r.condition
+                      })).filter(d => isFinite(d.x) && isFinite(d.y));
+                      
+                      if (seriesObj.condition) {
+                          seriesObj.data = cleaned.filter(d => d.condition == seriesObj.condition);
+                      } else {
+                          seriesObj.data = cleaned;
+                      }
+                 }
+                 // Update path
+                 sourcePathSpan.textContent = smartPath;
+                 sourcePathSpan.title = pathInfo;
+             }
+          }
+
+      } else {
+          // No condition column in new file: Update ONLY the current series
+          const seriesObj = config.seriesList.find(s => s.control === div);
+          if (seriesObj) {
+              const cleaned = newData.map(r => ({
+                x: +r.x,
+                y: +r.y,
+                CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
+                CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
+                condition: r.condition
+              })).filter(d => isFinite(d.x) && isFinite(d.y));
+              seriesObj.data = cleaned;
+              
+              sourcePathSpan.textContent = smartPath;
+              sourcePathSpan.title = pathInfo;
+          }
+      }
+      
+      createChartForSubplot(controlsDiv, chartDiv, config);
+      replaceInput.value = '';
+    };
+    reader.readAsText(file);
   });
 
   return div;
@@ -369,7 +509,8 @@ function createSubplotInstance(baseConfig) {
       reader.onload = function(evt) {
         const text = evt.target.result;
         const data = d3.csvParse(text);
-        addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, file.name);
+        const pathInfo = file.webkitRelativePath || file.name;
+        addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, pathInfo);
   // 重绘并快照
   createChartForSubplot(controlsDiv, chartDiv, config);
       };
@@ -432,9 +573,30 @@ function createSubplotInstance(baseConfig) {
   createChartForSubplot(controlsDiv, chartDiv, config);
 }
 
+function extractSeriesSettings(controlsDiv) {
+  const settings = {};
+  controlsDiv.querySelectorAll('.series-control').forEach(div => {
+    const desc = div.querySelector('.series-description')?.value;
+    if (desc) {
+      settings[desc] = {
+        lineColor: div.querySelector('.line-color')?.value,
+        lineThickness: div.querySelector('.line-thickness')?.value,
+        showShadow: div.querySelector('.show-shadow')?.checked,
+        shadowColor: div.querySelector('.shadow-color')?.value,
+        shadowOpacity: div.querySelector('.shadow-opacity')?.value
+      };
+    }
+  });
+  return settings;
+}
+
 // 根据是否存在 condition 列拆分数据并创建系列
 function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceLabel) {
   if (!data || !data.length) return;
+
+  // Capture existing settings
+  const existingSettings = extractSeriesSettings(controlsDiv);
+
   const firstRow = data[0];
   const hasCondition = Object.prototype.hasOwnProperty.call(firstRow, 'condition');
   if (!hasCondition) {
@@ -448,6 +610,22 @@ function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceL
     if (sourceLabel) {
       const desc = seriesControl.querySelector('.series-description');
       if (desc && !desc.value) desc.value = sourceLabel;
+      
+      const pathSpan = seriesControl.querySelector('.data-source-path');
+      if (pathSpan) {
+          pathSpan.textContent = getSmartPath(sourceLabel);
+          pathSpan.title = sourceLabel;
+      }
+      
+      // Apply saved settings if available
+      if (existingSettings[sourceLabel]) {
+         const s = existingSettings[sourceLabel];
+         if (s.lineColor) seriesControl.querySelector('.line-color').value = s.lineColor;
+         if (s.lineThickness) seriesControl.querySelector('.line-thickness').value = s.lineThickness;
+         if (s.showShadow !== undefined) seriesControl.querySelector('.show-shadow').checked = s.showShadow;
+         if (s.shadowColor) seriesControl.querySelector('.shadow-color').value = s.shadowColor;
+         if (s.shadowOpacity) seriesControl.querySelector('.shadow-opacity').value = s.shadowOpacity;
+      }
     }
     const cleaned = data.map(r => ({
       x: +r.x,
@@ -480,6 +658,24 @@ function addSeriesDataPossiblySplit(data, controlsDiv, chartDiv, config, sourceL
     // 自动填充描述为 condition (可手动修改)
     const desc = seriesControl.querySelector('.series-description');
     if (desc) desc.value = String(cond);
+
+    // Populate Data Path
+    const pathSpan = seriesControl.querySelector('.data-source-path');
+    if (pathSpan && sourceLabel) {
+        pathSpan.textContent = getSmartPath(sourceLabel);
+        pathSpan.title = sourceLabel;
+    }
+
+    // Apply saved settings if available
+    if (existingSettings[cond]) {
+         const s = existingSettings[cond];
+         if (s.lineColor) seriesControl.querySelector('.line-color').value = s.lineColor;
+         if (s.lineThickness) seriesControl.querySelector('.line-thickness').value = s.lineThickness;
+         if (s.showShadow !== undefined) seriesControl.querySelector('.show-shadow').checked = s.showShadow;
+         if (s.shadowColor) seriesControl.querySelector('.shadow-color').value = s.shadowColor;
+         if (s.shadowOpacity) seriesControl.querySelector('.shadow-opacity').value = s.shadowOpacity;
+    }
+
     // 如果该 condition 尚无颜色输入，创建一个
     const wrapper = addOrReuseConditionColorInput(controlsDiv, cond, seriesControl.querySelector('.line-color').value);
     // 若已存在 condition 颜色条目，应用其颜色到新系列
@@ -1420,8 +1616,9 @@ function collectSubplotState(instance) {
     const shadowColor = c.querySelector('.shadow-color')?.value || snap.shadowColor || '#FF5C5C';
     const shadowOpacity = Number(c.querySelector('.shadow-opacity')?.value || snap.shadowOpacity || 0.3);
     const description = c.querySelector('.series-description')?.value || snap.description || '';
+    const sourceName = c.querySelector('.data-source-path')?.textContent || '';
     state.series.push({
-      options: { lineColor, lineThickness, showShadow, shadowColor, shadowOpacity, description },
+      options: { lineColor, lineThickness, showShadow, shadowColor, shadowOpacity, description, sourceName },
       condition: series.condition || snap.condition || null,
       data: series.data || []
     });
@@ -1605,6 +1802,11 @@ function rebuildSubplotFromState(state) {
       control.querySelector('.shadow-opacity').value = s.options.shadowOpacity ?? 0.3;
       const sd = control.querySelector('.series-description');
       if (sd) sd.value = s.options.description || '';
+      const sp = control.querySelector('.data-source-path');
+      if (sp) {
+          sp.textContent = s.options.sourceName || '';
+          sp.title = s.options.sourceName || '';
+      }
     }
     config.seriesList.push({ data: s.data || [], control, condition: s.condition || null });
     controlsDiv.querySelector('#series-controls').appendChild(control);
