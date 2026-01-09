@@ -266,6 +266,10 @@ function createSeriesControl(index, controlsDiv, chartDiv, config) {
       const text = evt.target.result;
       const newData = d3.csvParse(text);
       
+      // Find the specific series object for THIS control
+      const currentSeries = config.seriesList.find(s => s.control === div);
+      if (!currentSeries) return;
+
       // Check if the new data has a 'condition' column
       const hasCondition = newData.length > 0 && Object.prototype.hasOwnProperty.call(newData[0], 'condition');
 
@@ -273,91 +277,59 @@ function createSeriesControl(index, controlsDiv, chartDiv, config) {
           // Group new data by condition
           const groupedNewData = d3.group(newData, d => d.condition);
           
-          // Iterate over ALL series in this subplot to find matches
-          let matchFound = false;
-          config.seriesList.forEach(s => {
-              const descInput = s.control.querySelector('.series-description');
-              const desc = descInput ? descInput.value : '';
-              
-              // If this series matches a group in the new data
-              if (groupedNewData.has(desc)) {
-                  matchFound = true;
-                  const rows = groupedNewData.get(desc);
-                  
-                  // Clean and update data
-                  s.data = rows.map(r => ({
-                    x: +r.x,
-                    y: +r.y,
-                    CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
-                    CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
-                    condition: r.condition
-                  })).filter(d => isFinite(d.x) && isFinite(d.y));
-                  
-                  // Update path display
-                  const pSpan = s.control.querySelector('.data-source-path');
-                  if (pSpan) {
-                      pSpan.textContent = smartPath;
-                      pSpan.title = pathInfo;
-                  }
-              }
-          });
+          // Try to match data to this series based on description or stored condition
+          const descInput = div.querySelector('.series-description');
+          const desc = descInput ? descInput.value : '';
           
-          // If no series matched by description, fallback to updating the CURRENT series only
-          // (This handles the case where the user renamed the description or it doesn't match)
-          if (!matchFound) {
-             const seriesObj = config.seriesList.find(s => s.control === div);
-             if (seriesObj) {
-                 // Try to find data matching the current series' original condition if possible, 
-                 // or just take the whole file if it's ambiguous? 
-                 // Let's try to match by the series' stored condition property first
-                 if (seriesObj.condition && groupedNewData.has(seriesObj.condition)) {
-                     const rows = groupedNewData.get(seriesObj.condition);
-                     seriesObj.data = rows.map(r => ({
-                        x: +r.x,
-                        y: +r.y,
-                        CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
-                        CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
-                        condition: r.condition
-                      })).filter(d => isFinite(d.x) && isFinite(d.y));
-                 } else {
-                     // Fallback: just use the whole data (or filtered by current condition if it exists in rows)
-                     // This is tricky. If no description match, maybe just update this one series with matching rows?
-                     const cleaned = newData.map(r => ({
-                        x: +r.x,
-                        y: +r.y,
-                        CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
-                        CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
-                        condition: r.condition
-                      })).filter(d => isFinite(d.x) && isFinite(d.y));
-                      
-                      if (seriesObj.condition) {
-                          seriesObj.data = cleaned.filter(d => d.condition == seriesObj.condition);
-                      } else {
-                          seriesObj.data = cleaned;
-                      }
-                 }
-                 // Update path
-                 sourcePathSpan.textContent = smartPath;
-                 sourcePathSpan.title = pathInfo;
-             }
+          let targetRows = null;
+          
+          // 1. Try matching by current description
+          if (desc && groupedNewData.has(desc)) {
+              targetRows = groupedNewData.get(desc);
+              currentSeries.condition = desc; // Update condition to match
+          } 
+          // 2. Try matching by stored condition
+          else if (currentSeries.condition && groupedNewData.has(currentSeries.condition)) {
+              targetRows = groupedNewData.get(currentSeries.condition);
+          }
+          // 3. Fallback: If only one group in file, use it
+          else if (groupedNewData.size === 1) {
+             const firstKey = groupedNewData.keys().next().value;
+             targetRows = groupedNewData.get(firstKey);
+             currentSeries.condition = firstKey;
+             if (descInput) descInput.value = firstKey;
+          }
+          // 4. Fallback: Use all data if we can't determine
+          else {
+              targetRows = newData;
           }
 
-      } else {
-          // No condition column in new file: Update ONLY the current series
-          const seriesObj = config.seriesList.find(s => s.control === div);
-          if (seriesObj) {
-              const cleaned = newData.map(r => ({
+          if (targetRows) {
+              currentSeries.data = targetRows.map(r => ({
                 x: +r.x,
                 y: +r.y,
                 CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
                 CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
                 condition: r.condition
               })).filter(d => isFinite(d.x) && isFinite(d.y));
-              seriesObj.data = cleaned;
-              
-              sourcePathSpan.textContent = smartPath;
-              sourcePathSpan.title = pathInfo;
           }
+
+      } else {
+          // No condition column: Use all data
+          currentSeries.data = newData.map(r => ({
+            x: +r.x,
+            y: +r.y,
+            CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
+            CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
+            condition: r.condition || currentSeries.condition
+          })).filter(d => isFinite(d.x) && isFinite(d.y));
+      }
+      
+      // Update data source path display for THIS series only
+      const pSpan = div.querySelector('.data-source-path');
+      if (pSpan) {
+          pSpan.textContent = smartPath;
+          pSpan.title = pathInfo;
       }
       
       createChartForSubplot(controlsDiv, chartDiv, config);
@@ -1834,8 +1806,8 @@ function rebuildSubplotFromState(state) {
       const shadowInput = entry.querySelector('.condition-shadow-color');
       if (lineInput) lineInput.value = lineClr;
       if (shadowInput) shadowInput.value = shadowClr;
-      // 同步到 series
-      syncConditionColorsToSeries(controlsDiv, cond, lineClr, shadowClr);
+      // Do not force sync to series here; keep the specific saved series colors
+      // syncConditionColorsToSeries(controlsDiv, cond, lineClr, shadowClr);
     });
   }
 

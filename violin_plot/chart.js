@@ -163,14 +163,17 @@ function renderGroupControls(container, groupNames, existingSettings) {
 }
 
 // 创建系列控制块，包含线条颜色、粗细、阴影参数
-function createSeriesControl(index, groupNames, fullSourceName = "", isMerged = false) {
+function createSeriesControl(index, groupNames, fullSourceName = "", isMerged = false, customLabel = null) {
   const displaySourceName = getSmartPath(fullSourceName);
   
   // 尝试提取文件名作为默认描述
-  let defaultDesc = `Series ${index + 1}`;
-  if (fullSourceName) {
-    const parts = fullSourceName.replace(/\\/g, '/').split('/');
-    defaultDesc = parts[parts.length - 1];
+  let defaultDesc = customLabel;
+  if (!defaultDesc) {
+      defaultDesc = `Series ${index + 1}`;
+      if (fullSourceName) {
+        const parts = fullSourceName.replace(/\\/g, '/').split('/');
+        defaultDesc = parts[parts.length - 1];
+      }
   }
 
   const div = document.createElement("div");
@@ -234,7 +237,8 @@ function createSeriesControl(index, groupNames, fullSourceName = "", isMerged = 
           
           // Create control for this single group
           // We pass isMerged=false so no split button appears on these children
-          const newSeriesControl = createSeriesControl(seriesList.length, [groupName], fullSourceName, false);
+          // We pass groupName as customLabel so the series name defaults to the group name
+          const newSeriesControl = createSeriesControl(seriesList.length, [groupName], fullSourceName, false, groupName);
           
           // Add to list
           seriesList.push({
@@ -277,8 +281,19 @@ function createSeriesControl(index, groupNames, fullSourceName = "", isMerged = 
     const reader = new FileReader();
     reader.onload = function(evt) {
       const text = evt.target.result;
-      const newData = d3.csvParse(text);
-      const newGroupNames = Array.from(new Set(newData.map(d => d.group_name)));
+      const rawData = d3.csvParse(text);
+      
+      // Default Merge Logic for Replace (consistent with initial upload)
+      let fileName = file.name;
+      if (fileName.includes('.')) {
+          fileName = fileName.split('.').slice(0, -1).join('.');
+      }
+      
+      const mergedData = rawData.map(d => ({
+          ...d,
+          group_name: fileName
+      }));
+      const newGroupNames = [fileName];
       
       // Find current series object
       const currentSeries = seriesList.find(s => s.control === div);
@@ -288,11 +303,58 @@ function createSeriesControl(index, groupNames, fullSourceName = "", isMerged = 
       const oldSettings = extractGroupSettings(groupContainer, currentSeries.groupNames);
       
       // Update series data
-      currentSeries.data = newData;
+      currentSeries.data = mergedData;
+      currentSeries.rawData = rawData; // Crucial: Update rawData so Split works with new file
       currentSeries.groupNames = newGroupNames;
       
-      // Re-render group controls with preserved settings
+      // Update description to display filename
+      const descInput = div.querySelector('.series-description');
+      if (descInput) descInput.value = fileName;
+
+      // Re-render group controls
       renderGroupControls(groupContainer, newGroupNames, oldSettings);
+      
+      // Ensure Split Button exists or is added if missing
+      let splitBtn = div.querySelector('.split-groups-btn');
+      if (!splitBtn) {
+         const btnRow = div.querySelector('.replace-data-btn').parentNode;
+         splitBtn = document.createElement('button');
+         splitBtn.className = 'split-groups-btn';
+         splitBtn.style.marginLeft = '8px';
+         splitBtn.textContent = 'Split Groups';
+         btnRow.appendChild(splitBtn);
+         
+         // Add listener to new button
+         splitBtn.addEventListener('click', () => {
+              // Re-find the series index because split/delete operations shift indices
+              const currentSeriesIndex = seriesList.findIndex(s => s.control === div);
+              if (currentSeriesIndex === -1) return;
+              const s = seriesList[currentSeriesIndex];
+              if (!s.rawData) return;
+    
+              const allGroups = Array.from(new Set(s.rawData.map(d => d.group_name)));
+    
+              // Remove current
+              seriesList.splice(currentSeriesIndex, 1);
+              div.remove();
+    
+              // Create new
+              allGroups.forEach(groupName => {
+                  const groupData = s.rawData.filter(d => d.group_name === groupName);
+                  const newSeriesControl = createSeriesControl(seriesList.length, [groupName], pathInfo, false, groupName);
+                  seriesList.push({
+                      data: groupData,
+                      control: newSeriesControl,
+                      groupNames: [groupName]
+                  });
+                  document.getElementById("series-controls").appendChild(newSeriesControl);
+              });
+    
+              document.querySelectorAll(".series-control").forEach((ctrl, i) => ctrl.dataset.index = i);
+              createChart();
+              applyPlotTypeVisibility();
+         });
+      }
       
       // Redraw chart
       createChart();
