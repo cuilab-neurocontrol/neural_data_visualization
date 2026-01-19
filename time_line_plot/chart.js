@@ -266,70 +266,90 @@ function createSeriesControl(index, controlsDiv, chartDiv, config) {
       const text = evt.target.result;
       const newData = d3.csvParse(text);
       
-      // Find the specific series object for THIS control
+      const hasCondition = newData.length > 0 && Object.prototype.hasOwnProperty.call(newData[0], 'condition');
+
+      // Identify the series the user specifically targeted
       const currentSeries = config.seriesList.find(s => s.control === div);
       if (!currentSeries) return;
 
-      // Check if the new data has a 'condition' column
-      const hasCondition = newData.length > 0 && Object.prototype.hasOwnProperty.call(newData[0], 'condition');
-
       if (hasCondition) {
-          // Group new data by condition
           const groupedNewData = d3.group(newData, d => d.condition);
-          
-          // Try to match data to this series based on description or stored condition
-          const descInput = div.querySelector('.series-description');
-          const desc = descInput ? descInput.value : '';
-          
-          let targetRows = null;
-          
-          // 1. Try matching by current description
-          if (desc && groupedNewData.has(desc)) {
-              targetRows = groupedNewData.get(desc);
-              currentSeries.condition = desc; // Update condition to match
-          } 
-          // 2. Try matching by stored condition
-          else if (currentSeries.condition && groupedNewData.has(currentSeries.condition)) {
-              targetRows = groupedNewData.get(currentSeries.condition);
-          }
-          // 3. Fallback: If only one group in file, use it
-          else if (groupedNewData.size === 1) {
-             const firstKey = groupedNewData.keys().next().value;
-             targetRows = groupedNewData.get(firstKey);
-             currentSeries.condition = firstKey;
-             if (descInput) descInput.value = firstKey;
-          }
-          // 4. Fallback: Use all data if we can't determine
-          else {
-              targetRows = newData;
+          const fileGroups = new Set(groupedNewData.keys());
+
+          // User Logic:
+          // 1. Single Group in file -> Update ONLY current series (Force Assign).
+          // 2. Multiple Groups in file -> Update matching series (Bulk Sync).
+
+          if (groupedNewData.size === 1) {
+              // --- Single Group Mode ---
+              // Force update the current series with the content of the single group
+              const firstKey = groupedNewData.keys().next().value;
+              const targetRows = groupedNewData.get(firstKey);
+              
+              currentSeries.data = targetRows.map(r => ({
+                  x: +r.x,
+                  y: +r.y,
+                  CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
+                  CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
+                  condition: r.condition
+              })).filter(d => isFinite(d.x) && isFinite(d.y));
+              
+              currentSeries.condition = firstKey;
+              
+              // Auto-update description to match group name
+              const currentDescInput = currentSeries.control.querySelector('.series-description');
+              if (currentDescInput) currentDescInput.value = firstKey;
+
+              // Update Path UI
+              const pSpan = div.querySelector('.data-source-path');
+              if (pSpan) {
+                  pSpan.textContent = smartPath;
+                  pSpan.title = pathInfo;
+              }
+
+          } else {
+              // --- Multi Group Mode (Bulk) ---
+              // Update ALL series in the subplot that match groups in this file
+              config.seriesList.forEach(s => {
+                  const descIn = s.control.querySelector('.series-description');
+                  const d = descIn ? descIn.value : '';
+                  
+                  if (d && fileGroups.has(d)) {
+                       const rows = groupedNewData.get(d);
+                       s.data = rows.map(r => ({
+                          x: +r.x,
+                          y: +r.y,
+                          CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
+                          CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
+                          condition: r.condition
+                       })).filter(dat => isFinite(dat.x) && isFinite(dat.y));
+                       s.condition = d;
+                       
+                       // Update Path UI
+                       const pSpan = s.control.querySelector('.data-source-path');
+                       if (pSpan) {
+                           pSpan.textContent = smartPath;
+                           pSpan.title = pathInfo;
+                       }
+                  }
+              });
           }
 
-          if (targetRows) {
-              currentSeries.data = targetRows.map(r => ({
+      } else {
+          // No condition column: Update ONLY the current series (Single Series Update)
+          currentSeries.data = newData.map(r => ({
                 x: +r.x,
                 y: +r.y,
                 CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
                 CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
-                condition: r.condition
-              })).filter(d => isFinite(d.x) && isFinite(d.y));
-          }
-
-      } else {
-          // No condition column: Use all data
-          currentSeries.data = newData.map(r => ({
-            x: +r.x,
-            y: +r.y,
-            CI_left: r.CI_left !== undefined && r.CI_left !== '' ? +r.CI_left : undefined,
-            CI_right: r.CI_right !== undefined && r.CI_right !== '' ? +r.CI_right : undefined,
-            condition: r.condition || currentSeries.condition
+                condition: r.condition || currentSeries.condition
           })).filter(d => isFinite(d.x) && isFinite(d.y));
-      }
-      
-      // Update data source path display for THIS series only
-      const pSpan = div.querySelector('.data-source-path');
-      if (pSpan) {
-          pSpan.textContent = smartPath;
-          pSpan.title = pathInfo;
+
+          const pSpan = div.querySelector('.data-source-path');
+          if (pSpan) {
+              pSpan.textContent = smartPath;
+              pSpan.title = pathInfo;
+          }
       }
       
       createChartForSubplot(controlsDiv, chartDiv, config);

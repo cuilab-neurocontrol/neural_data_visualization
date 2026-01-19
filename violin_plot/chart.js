@@ -283,17 +283,25 @@ function createSeriesControl(index, groupNames, fullSourceName = "", isMerged = 
       const text = evt.target.result;
       const rawData = d3.csvParse(text);
       
-      // Default Merge Logic for Replace (consistent with initial upload)
+      // Determine whether to use existing group_name or filename
       let fileName = file.name;
       if (fileName.includes('.')) {
           fileName = fileName.split('.').slice(0, -1).join('.');
       }
-      
-      const mergedData = rawData.map(d => ({
-          ...d,
-          group_name: fileName
-      }));
-      const newGroupNames = [fileName];
+
+      const hasGroupName = rawData.length > 0 && "group_name" in rawData[0];
+      let mergedData, newGroupNames;
+
+      if (hasGroupName) {
+          mergedData = rawData;
+          newGroupNames = Array.from(new Set(rawData.map(d => d.group_name)));
+      } else {
+          mergedData = rawData.map(d => ({
+              ...d,
+              group_name: fileName
+          }));
+          newGroupNames = [fileName];
+      }
       
       // Find current series object
       const currentSeries = seriesList.find(s => s.control === div);
@@ -1122,19 +1130,25 @@ document.getElementById("data-files").addEventListener("change", function(e) {
       // 优先使用 webkitRelativePath (如果存在)，否则使用 name
       const pathInfo = file.webkitRelativePath || file.name;
       
-      // Default Merge Logic:
-      // Create a merged dataset where group_name is the filename (without extension)
+      // Determine whether to use existing group_name or filename
       let fileName = file.name;
       if (fileName.includes('.')) {
           fileName = fileName.split('.').slice(0, -1).join('.');
       }
-      
-      const mergedData = rawData.map(d => ({
-          ...d,
-          group_name: fileName
-      }));
-      
-      const groupNames = [fileName];
+
+      const hasGroupName = rawData.length > 0 && "group_name" in rawData[0];
+      let mergedData, groupNames;
+
+      if (hasGroupName) {
+          mergedData = rawData;
+          groupNames = Array.from(new Set(rawData.map(d => d.group_name)));
+      } else {
+          mergedData = rawData.map(d => ({
+              ...d,
+              group_name: fileName
+          }));
+          groupNames = [fileName];
+      }
       
       // Pass isMerged=true to enable the Split Groups button
       const seriesControl = createSeriesControl(seriesList.length, groupNames, pathInfo, true);
