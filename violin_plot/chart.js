@@ -1126,6 +1126,46 @@ document.getElementById("data-files").addEventListener("change", function(e) {
     reader.onload = function(evt) {
       const text = evt.target.result;
       const rawData = d3.csvParse(text); // 解析CSV数据
+
+      // SPLIT BY BLOCK LOGIC START
+      const hasBlock = rawData.length > 0 && "block" in rawData[0];
+      
+      if (hasBlock) {
+          const blocks = Array.from(new Set(rawData.map(d => d.block)));
+          blocks.forEach(blockName => {
+              const blockData = rawData.filter(d => d.block === blockName);
+              
+              const hasGroupName = blockData.length > 0 && "group_name" in blockData[0];
+              let mergedData, groupNames;
+
+              if (hasGroupName) {
+                  mergedData = blockData;
+                  groupNames = Array.from(new Set(blockData.map(d => d.group_name)));
+              } else {
+                  mergedData = blockData.map(d => ({
+                      ...d,
+                      group_name: blockName 
+                  }));
+                  groupNames = [blockName];
+              }
+
+               const pathInfo = file.webkitRelativePath || file.name;
+               const seriesName = blockName; // Series name is block name
+               
+               const seriesControl = createSeriesControl(seriesList.length, groupNames, pathInfo, true, seriesName);
+               
+               seriesList.push({ 
+                  data: mergedData, 
+                  rawData: blockData, 
+                  control: seriesControl, 
+                  groupNames 
+               });
+               document.getElementById("series-controls").appendChild(seriesControl);
+          });
+          createChart();
+          applyPlotTypeVisibility();
+          return; // Skip the rest of the loop for this file
+      }
       
       // 优先使用 webkitRelativePath (如果存在)，否则使用 name
       const pathInfo = file.webkitRelativePath || file.name;
@@ -1175,6 +1215,46 @@ document.getElementById("add-url").addEventListener("click", function() {
   const url = document.getElementById("data-url").value;
   if (!url) return;
   d3.csv(url).then(data => {
+    // SPLIT BY BLOCK LOGIC START
+      const hasBlock = data.length > 0 && "block" in data[0];
+      
+      if (hasBlock) {
+          const blocks = Array.from(new Set(data.map(d => d.block)));
+          blocks.forEach(blockName => {
+              const blockData = data.filter(d => d.block === blockName);
+              
+              const hasGroupName = blockData.length > 0 && "group_name" in blockData[0];
+              let mergedData, groupNames;
+
+              if (hasGroupName) {
+                  mergedData = blockData;
+                  groupNames = Array.from(new Set(blockData.map(d => d.group_name)));
+              } else {
+                  mergedData = blockData.map(d => ({
+                      ...d,
+                      group_name: blockName 
+                  }));
+                  groupNames = [blockName];
+              }
+
+               const pathInfo = url;
+               const seriesName = blockName; // Series name is block name
+               
+               const seriesControl = createSeriesControl(seriesList.length, groupNames, pathInfo, true, seriesName);
+               
+               seriesList.push({ 
+                  data: mergedData, 
+                  rawData: blockData, 
+                  control: seriesControl, 
+                  groupNames 
+               });
+               document.getElementById("series-controls").appendChild(seriesControl);
+          });
+          createChart();
+          applyPlotTypeVisibility();
+          return;
+      }
+
     const groupNames = Array.from(new Set(data.map(d => d.group_name)));
     const seriesControl = createSeriesControl(seriesList.length, groupNames, url);
     seriesList.push({ data, control: seriesControl, groupNames });
