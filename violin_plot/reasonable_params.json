@@ -1,0 +1,31 @@
+{
+  "controls": {
+    "width": 12,
+    "height": 10,
+    "margin-top": 1,
+    "margin-right": 1,
+    "margin-bottom": 1.5,
+    "margin-left": 1.5,
+    "show-outer-ticks": true,
+    "show-x-axis": true,
+    "show-y-axis": true,
+    "tick-font-size": 10,
+    "axis-line-width": 1,
+    "tick-line-width": 1,
+    "tick-length": 5,
+    "show-x-label": true,
+    "x-label": "Group",
+    "x-label-font-size": 12,
+    "x-label-distance-px": 30,
+    "show-y-label": true,
+    "y-label": "Value",
+    "y-label-font-size": 12,
+    "y-label-distance-px": 40,
+    "tick-orientation": "outward",
+    "show-title": true,
+    "chart-title": "Violin Plot Distribution",
+    "title-font-size": 14,
+    "title-distance": 10,
+    "show-ci-lines": true
+  }
+}

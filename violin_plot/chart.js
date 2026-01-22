@@ -742,7 +742,7 @@ function createChart() {
         .padding(xGroupPadding); // 小分组间距小
 
       // 直方图设置（用于 violin kernel proxy 或 histogram 模式）
-      const histogram = d3.histogram()
+      const histogram = d3.bin()
         .domain(y.domain())
         .thresholds(y.ticks(20))
         .value(d => d);
@@ -771,7 +771,7 @@ function createChart() {
         }
         // --- 修复结束 ---
 
-        return { key, bins };
+        return { key, bins, values: input };
       });
 
       // 计算最大 bin 数
@@ -818,7 +818,8 @@ function createChart() {
             }
 
             // 计算箱形图五数
-            const values = d.bins.flatMap(bin => bin.map(v => v));
+            // const values = d.bins.flatMap(bin => bin.map(v => v)); // Avoid using bins which may contain fake points
+            const values = d.values || [];
             const sorted = values.slice().sort((a, b) => a - b);
             const q1 = d3.quantileSorted(sorted, 0.25);
             const median = d3.quantileSorted(sorted, 0.5);

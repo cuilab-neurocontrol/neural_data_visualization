@@ -1,0 +1,3408 @@
+{
+  "controls": {
+    "width": 12,
+    "height": 10,
+    "margin-top": 1,
+    "margin-right": 1,
+    "margin-bottom": 1.5,
+    "margin-left": 1.5,
+    "show-outer-ticks": true,
+    "show-x-axis": true,
+    "show-y-axis": true,
+    "tick-font-size": 10,
+    "axis-line-width": 1,
+    "tick-line-width": 1,
+    "tick-length": 5,
+    "show-x-label": true,
+    "x-label": "Group",
+    "x-label-font-size": 12,
+    "x-label-distance-px": 30,
+    "show-y-label": true,
+    "y-label": "Value",
+    "y-label-font-size": 12,
+    "y-label-distance-px": 40,
+    "tick-orientation": "outward",
+    "show-title": true,
+    "chart-title": "Violin Plot Distribution",
+    "title-font-size": 14,
+    "title-distance": 10,
+    "show-ci-lines": true,
+    "y-domain-min": -17,
+    "y-domain-max": 20
+  },
+  "series": [
+    {
+      "data": [
+        {
+          "group_name": "G1",
+          "group_value": "5.8899",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "4.8225",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "4.7876",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "6.1995",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.8762",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "4.9104",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.8013",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.0138",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.6541",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.3234",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "4.4846",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "8.4787",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.6430",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.4720",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "0.4876",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.0377",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.0854",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.4820",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.1273",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.0342",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.9143",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "8.2271",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.0963",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.0830",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.4127",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.3825",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.9392",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "6.7625",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-3.7273",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.6341",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.6072",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.8449",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.3101",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.4471",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "4.1853",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.2587",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.0413",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "6.8924",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "4.3288",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.4723",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.6496",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "6.8433",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.6857",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "8.9297",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.3678",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.9093",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "0.1030",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.6223",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.0919",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.9649",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "10.3139",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "6.6174",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "6.0593",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "6.1901",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-1.9650",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.0249",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.0041",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "9.8537",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.3365",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "9.8273",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "6.9735",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-3.1338",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "10.8524",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "10.7744",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.6547",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.7171",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "14.8612",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-3.6155",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "13.0716",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "10.9629",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.0530",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.1854",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "8.4342",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.0744",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "0.7592",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-5.9903",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "11.7021",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-9.7069",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.8785",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.8718",
+          "ci_low": "3.8956",
+          "ci_high": "5.6928",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.4326",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.4200",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.7309",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.2708",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.7713",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.9532",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.2944",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.5931",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.4266",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.6682",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.6310",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.5572",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.7000",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.4865",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "0.2635",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.2589",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.6092",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.6399",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-0.6646",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-2.0940",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.1335",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.5123",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.1369",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.8166",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.2592",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "0.1839",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.8285",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "0.4851",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-1.1542",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "0.5502",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.7609",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.0058",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "6.0008",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.3890",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.4643",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-1.5624",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.3734",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.2505",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.4273",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.8570",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-1.4642",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.1715",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.3288",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.3119",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.1032",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-4.9516",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.0220",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.5690",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-5.8326",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-8.9689",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-1.7606",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.7461",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.1135",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "7.7932",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.9366",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "6.5536",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "7.0853",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.2423",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.5937",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "9.3348",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.6209",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-0.4314",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.5971",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "8.0169",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "14.4047",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.3488",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.6241",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "0.6839",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.6892",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.2453",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.5055",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.9452",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "7.9879",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.1947",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-3.4934",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "10.7524",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.6502",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "7.7098",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.9569",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.3029",
+          "ci_low": "2.1066",
+          "ci_high": "3.6161",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.8491",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.1386",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.0831",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.9537",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.8151",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.5871",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.2204",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.6096",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.5165",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.6120",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.3571",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.5211",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.2487",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.7816",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.6047",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.2733",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.1790",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.1647",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.2578",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.8274",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.5880",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.6033",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.1069",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.9276",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.2210",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.4922",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.9584",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.1481",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.3162",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.3842",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.3670",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.8192",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "8.0438",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.4814",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.5236",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-1.7151",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.6723",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-1.6308",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "6.0499",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.9758",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.9797",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.3288",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "8.8318",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.7689",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.9538",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "7.3714",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-4.8497",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.8939",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-3.8361",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.8379",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.7985",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.5158",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-1.6525",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.2014",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-5.6590",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.6216",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "13.0053",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "8.0236",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.8747",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.2290",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-0.8634",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "10.6196",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "13.1177",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "7.1383",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "9.6832",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "9.4581",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.5999",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "7.6087",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-2.0651",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "12.5054",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.6087",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "8.4257",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.7088",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.6783",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-3.6078",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "6.4965",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-1.8441",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "16.1528",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "7.1806",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.3257",
+          "ci_low": "2.7295",
+          "ci_high": "4.4730",
+          "block": "Block1"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.8591",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.0367",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "0.7666",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.4862",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.3964",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.4695",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.6937",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.6902",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.6611",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.7525",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.9112",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.8501",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "4.0366",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.3630",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "8.8706",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.1418",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "0.8292",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.5284",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-0.5989",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.1084",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "4.1467",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-2.3429",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-2.2688",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "0.1096",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.2215",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.3273",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.1955",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-2.2438",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.3181",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.8225",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.7125",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-2.0668",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.6078",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "7.1519",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "0.2840",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-2.9493",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.3009",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-3.7303",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.5449",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.4521",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-3.0504",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "0.1851",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-3.3060",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.8006",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "6.8814",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.5799",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-0.0226",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-0.5903",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.5887",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "4.5969",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "0.0239",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "12.0231",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-5.6669",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "2.4415",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-4.2335",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-6.2342",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-7.7297",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "9.9999",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-3.2823",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-4.5228",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-13.3167",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.0155",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-3.8613",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.9028",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-2.7319",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-1.5134",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "14.5240",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "5.5388",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "6.8876",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "9.3629",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-1.8887",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-0.4224",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "10.6292",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-2.1785",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "0.3499",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.1323",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "3.9399",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-1.0672",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "-4.1422",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G1",
+          "group_value": "1.2047",
+          "ci_low": "0.5146",
+          "ci_high": "2.4927",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.5804",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.2844",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.4895",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.2642",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.5208",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.6828",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.8634",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.1235",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.4662",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "6.2289",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.1292",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.3581",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.8856",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "6.3854",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.8049",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.6840",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.9174",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.0777",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.4566",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.1466",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.2022",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-1.5155",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.5817",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "6.4143",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.9449",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.3860",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.5647",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.3104",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-2.5815",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.5351",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-2.0779",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.8335",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.3624",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "7.0156",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.8691",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.7412",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-1.6951",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "7.6879",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "7.4919",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-1.9569",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.4757",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "4.1255",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "7.2061",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-0.4819",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.0285",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "9.4125",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.4001",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.7040",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "0.8765",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.1510",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-3.5357",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.4216",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-1.1958",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-2.1604",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "8.5770",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.2526",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "9.2472",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "0.6108",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-0.0240",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "7.1027",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.4384",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "14.0519",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-1.0683",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.5420",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "15.4485",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-0.1343",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "6.0292",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.4904",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "3.8659",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "6.8589",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-0.1899",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "1.6141",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.9194",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-0.8178",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "9.2136",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "-8.0411",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "2.3529",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "0.1627",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "5.1061",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G2",
+          "group_value": "8.3446",
+          "ci_low": "2.6586",
+          "ci_high": "4.2875",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.6800",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.8060",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.5054",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.0045",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.4607",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.2486",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.5044",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.0404",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.0614",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.3411",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.7835",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.8612",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.7677",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.2260",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.0235",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.6801",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-0.9449",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "6.8989",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.1785",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.2085",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.0466",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.2353",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.3978",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "7.7440",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.8032",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.6188",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "10.0410",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.1608",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.4776",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "7.2897",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.0862",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.7615",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.3641",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-1.3337",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "7.7031",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.1532",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.2571",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.8982",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.3110",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.7282",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-2.8128",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.4113",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.5313",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.7564",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.5913",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.1402",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "12.7248",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-3.4038",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-1.2473",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.9759",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "6.7210",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.7873",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-0.7399",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "11.5171",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "7.5705",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.0904",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.4592",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.5135",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.7567",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.4563",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-5.5777",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-1.1933",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-6.7493",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "5.3487",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "11.0008",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.6912",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "3.3013",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.0270",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.0315",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "9.4053",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "9.4795",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "1.8790",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.2469",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "0.4455",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-2.8028",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "4.4033",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "12.9857",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "10.5737",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "2.6248",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        },
+        {
+          "group_name": "G3",
+          "group_value": "-1.9968",
+          "ci_low": "2.7057",
+          "ci_high": "4.3693",
+          "block": "Block2"
+        }
+      ],
+      "groupNames": [
+        "G1",
+        "G2",
+        "G3"
+      ],
+      "options": {
+        "description": "Imported Data"
+      },
+      "groupOptions": {}
+    }
+  ]
+}

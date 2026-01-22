@@ -1,0 +1,1 @@
+ ./automate_violin.sh sample_violin_hist1.csv reasonable_params.json new_params.json output.svg
