@@ -437,6 +437,7 @@ let ytickPositions = [-2,0,2,4,6,8,10,12,14]; // Default Y tick positions
 let ytickLabels = ['-2',' ','2',' ','6',' ','10',' ','14']; // Default Y tick labels
 let tickFontFamily = "Arial"; // Default font family
 let tickOrientation = "outward"; // Default tick orientation
+let xTickRotation = 0; // Default x tick rotation
 
 document.getElementById("add-ref-line").addEventListener("click", function() {
   refLines.push({
@@ -690,6 +691,10 @@ function createChart() {
               .attr("fill", "#000")
               .style("font-size", `${tickFontSize}px`)
               .style("font-family", tickFontFamily)
+              .attr("transform", xTickRotation ? `rotate(${xTickRotation})` : null)
+              .style("text-anchor", xTickRotation === 0 ? "middle" : (xTickRotation > 0 ? "start" : "end"))
+              .attr("dx", xTickRotation === 0 ? "0em" : (xTickRotation > 0 ? "9px" : "-9px"))
+              .attr("dy", xTickRotation === 0 ? "0.71em" : "0.35em")
             );
         } else {
           const xAxis = d3.axisBottom(xSeries)
@@ -716,6 +721,10 @@ function createChart() {
             .attr("fill", "#000")
             .style("font-size", `${tickFontSize}px`)
             .style("font-family", tickFontFamily)
+            .attr("transform", xTickRotation ? `rotate(${xTickRotation})` : null)
+            .style("text-anchor", xTickRotation === 0 ? "middle" : (xTickRotation > 0 ? "start" : "end"))
+            .attr("dx", xTickRotation === 0 ? "0em" : (xTickRotation > 0 ? "9px" : "-9px"))
+            .attr("dy", xTickRotation === 0 ? "0.71em" : "0.35em")
           );
         }
 
@@ -1294,6 +1303,7 @@ document.getElementById("update").addEventListener("click", function () {
   tickFontFamily = document.getElementById("tick-font-family").value;
   tickOrientation = document.getElementById("tick-orientation").value;
   tickLength = parseFloat(document.getElementById("tick-length").value);
+  xTickRotation = parseFloat(document.getElementById("x-tick-rotation").value) || 0;
 
   // Get new scale bar settings from input fields
   xScaleBarPositionx = parseFloat(document.getElementById("x-scale-bar-position-x").value);
@@ -1455,7 +1465,7 @@ function applyInputs(controlsMap) {
     const val = controlsMap[id];
     if (el.type === 'checkbox') {
       el.checked = !!val;
-    } else {
+    } else if (el.type !== 'file') {
       el.value = val;
     }
   });
